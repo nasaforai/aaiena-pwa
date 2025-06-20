@@ -13,7 +13,7 @@ export default function Index() {
     setCurrentScreen('fashion-lane');
   };
 
-  const handleBrowseStore = () => {
+  const handleFashionLaneContinue = () => {
     setCurrentScreen('store');
   };
 
@@ -26,7 +26,7 @@ export default function Index() {
       case 'splash':
         return <SplashScreen onComplete={handleSplashComplete} />;
       case 'fashion-lane':
-        return <FashionLaneScreen onBrowseStore={handleBrowseStore} />;
+        return <FashionLaneScreen onContinue={handleFashionLaneContinue} />;
       case 'store':
         return <StoreScreen onBack={handleBackToFashionLane} />;
       default:
