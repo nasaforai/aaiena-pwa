@@ -101,7 +101,7 @@ export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
 
       {/* Try Virtually Section */}
       <div className="mx-4 mb-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl p-4 text-center">
-        <div className="text-white">
+        <div className="text-white bg-gradient-to-t from-purple-100 to-purple-400 ">
           <h3 className="font-bold text-lg mb-2">Struggling To Spot Your Fit?</h3>
           <button className="bg-white text-orange-500 px-6 py-2 rounded-xl text-sm font-medium">
             Set Your Profile →
