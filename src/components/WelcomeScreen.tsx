@@ -1,6 +1,8 @@
+
 import React from 'react';
 import { StatusBar } from './StatusBar';
 import { WelcomeHero } from './WelcomeHero';
+import { PWAInstallPrompt } from './PWAInstallPrompt';
 
 interface WelcomeScreenProps {
   onBrowseStore?: () => void;
@@ -18,7 +20,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onBrowseStore }) =
 
   return (
     <div 
-      className="bg-[#EDE1FC] flex max-w-[480px] w-full flex-col overflow-hidden items-center mx-auto pb-[415px] min-h-screen"
+      className="bg-[#EDE1FC] flex max-w-[480px] w-full flex-col overflow-hidden items-center mx-auto pb-[415px] min-h-screen relative"
       role="application"
       aria-label="Welcome screen for guest users"
     >
@@ -28,6 +30,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onBrowseStore }) =
         buttonText="Browse the store"
         onButtonClick={handleBrowseStore}
       />
+      <PWAInstallPrompt />
     </div>
   );
 };
