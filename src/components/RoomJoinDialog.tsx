@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -47,7 +46,8 @@ export const RoomJoinDialog: React.FC<RoomJoinDialogProps> = ({
 
   const handleVirtualTryOn = () => {
     onClose();
-    // Here you would navigate to virtual try-on
+    // Navigate to QR code page to start virtual try-on flow
+    window.location.href = '/qr-code';
   };
 
   const rooms = ['1A', '2A', '3A', '1B', '4C', '2B', '3B', '1C', '2C', '3C'];
@@ -167,7 +167,7 @@ export const RoomJoinDialog: React.FC<RoomJoinDialogProps> = ({
           </div>
         )}
 
-        {/* Virtual Try-On Popup (last screenshot) */}
+        {/* Virtual Try-On Popup */}
         {isVirtualTryOn && dialogState === 'form' && (
           <div className="p-6 text-center bg-white">
             <h3 className="text-lg font-semibold mb-2">No waiting in virtual try-on.</h3>

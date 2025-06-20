@@ -1,93 +1,103 @@
 
 import React, { useState } from 'react';
-import { ActionButton } from '@/components/ActionButton';
+import { QrCode, Camera, Monitor } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function FashionLane() {
   const navigate = useNavigate();
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
 
   const handleContinue = () => {
-    navigate('/store');
+    if (selectedOption === 3) {
+      navigate('/store');
+    }
   };
 
   const options = [
     {
-      id: 'search',
-      title: 'Search For a Particular Product',
-      subtitle: 'From Top Fashion Brands',
-      bgColor: 'bg-purple-300',
-      textColor: 'text-black',
-      icon: '🔍'
+      id: 1,
+      title: "Scan The Product",
+      description: "Scan your picks to get a sneak peek before trying them on.",
+      icon: QrCode,
     },
     {
-      id: 'categories',
-      title: 'Shop by Categories',
-      subtitle: 'From Top Fashion Brands',
-      bgColor: 'bg-yellow-300',
-      textColor: 'text-black',
-      icon: '🏷️'
+      id: 2,
+      title: "Try On Virtually",
+      description: "Skip the lines, try it on with just a scan.",
+      icon: Camera,
     },
     {
-      id: 'style',
-      title: 'Set Personal Style',
-      subtitle: 'Get curated fashion just for you',
-      bgColor: 'bg-pink-300',
-      textColor: 'text-black',
-      icon: '✨'
-    },
-    {
-      id: 'store',
-      title: 'Browse The Store',
-      subtitle: 'Check out what\'s trending',
-      bgColor: 'bg-blue-300',
-      textColor: 'text-black',
-      icon: '🏪'
+      id: 3,
+      title: "Browse The Store",
+      description: "Stay updated with real-time queue tracking.",
+      icon: Monitor,
     }
   ];
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <div className="max-w-[480px] w-full space-y-8">
-        {/* Logo */}
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-purple-600 mb-2">Fashion Lane</h1>
-          <p className="text-gray-600">Choose your shopping experience</p>
-        </div>
+    <div className="bg-[#EDE1FC] flex max-w-[480px] w-full flex-col overflow-hidden mx-auto min-h-screen px-6 py-8">
+      {/* H&M Logo */}
+      <div className="flex justify-center mb-8">
+        <div className="text-red-600 text-4xl font-bold">H&M</div>
+      </div>
 
-        {/* Options */}
-        <div className="space-y-4">
-          {options.map((option) => (
+      {/* Title */}
+      <div className="text-center mb-12">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Pick Your Fashion Lane!</h1>
+        <p className="text-gray-600 text-lg">Get Started With Any One Of Them</p>
+      </div>
+
+      {/* Options */}
+      <div className="flex-1 flex flex-col space-y-4">
+        {options.map((option) => {
+          const IconComponent = option.icon;
+          const isSelected = selectedOption === option.id;
+          
+          return (
             <button
               key={option.id}
               onClick={() => setSelectedOption(option.id)}
-              className={`w-full p-6 rounded-2xl transition-all duration-200 border-2 ${
-                selectedOption === option.id
-                  ? `${option.bgColor} border-purple-500 scale-105`
-                  : 'bg-white border-gray-200 hover:border-purple-300'
+              className={`bg-white rounded-2xl p-6 border-2 transition-all duration-200 ${
+                isSelected ? 'border-purple-600' : 'border-gray-200'
               }`}
             >
-              <div className="flex items-center space-x-4">
-                <div className="text-3xl">{option.icon}</div>
-                <div className="text-left flex-1">
-                  <h3 className={`font-bold text-lg ${selectedOption === option.id ? option.textColor : 'text-gray-900'}`}>
-                    {option.title}
-                  </h3>
-                  <p className={`text-sm ${selectedOption === option.id ? option.textColor : 'text-gray-600'}`}>
-                    {option.subtitle}
-                  </p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className={`p-3 rounded-xl ${isSelected ? 'bg-purple-100' : 'bg-gray-100'}`}>
+                    <IconComponent className={`w-6 h-6 ${isSelected ? 'text-purple-600' : 'text-gray-600'}`} />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-1">{option.title}</h3>
+                    <p className="text-gray-600 text-sm">{option.description}</p>
+                  </div>
+                </div>
+                <div className={`w-6 h-6 rounded-full border-2 ${
+                  isSelected 
+                    ? 'border-purple-600 bg-purple-600' 
+                    : 'border-gray-300'
+                }`}>
+                  {isSelected && (
+                    <div className="w-full h-full rounded-full bg-purple-600 flex items-center justify-center">
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                    </div>
+                  )}
                 </div>
               </div>
             </button>
-          ))}
-        </div>
+          );
+        })}
+      </div>
 
-        {/* Continue Button */}
-        <div className="flex justify-center pt-4">
-          <ActionButton onClick={handleContinue}>
-            Continue
-          </ActionButton>
-        </div>
+      {/* Continue Button */}
+      <div className="mt-12">
+        <button
+          onClick={handleContinue}
+          disabled={!selectedOption}
+          className="w-full bg-gray-900 text-white py-4 rounded-2xl text-xl font-medium flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span>Continue</span>
+          <span>→</span>
+        </button>
       </div>
     </div>
   );
