@@ -26,9 +26,9 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onBrowseStore }) =
     >
       {/* <StatusBar /> */}
       <WelcomeHero 
-        title="Guest user flow"
-        buttonText="Browse the store"
-        onButtonClick={handleBrowseStore}
+        {/* title="Guest user flow" */}
+        {/* buttonText="Browse the store" */}
+        {/* onButtonClick={handleBrowseStore} */}
       />
       <PWAInstallPrompt />
     </div>
