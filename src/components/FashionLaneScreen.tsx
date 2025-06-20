@@ -31,8 +31,7 @@ export const FashionLaneScreen: React.FC<FashionLaneScreenProps> = ({
       title: "Browse The Store",
       description: "Stay updated with real-time queue tracking.",
       icon: Monitor,
-      bgColor: "bg-[#8B5CF6]",
-      isSelected: true
+      bgColor: "bg-white"
     }
   ];
 
@@ -63,7 +62,7 @@ export const FashionLaneScreen: React.FC<FashionLaneScreenProps> = ({
       <div className="flex-1 flex flex-col space-y-4 mt-12">
         {options.map((option) => {
           const IconComponent = option.icon;
-          const isSelected = selectedOption === option.id || option.isSelected;
+          const isSelected = selectedOption === option.id;
           
           return (
             <button
