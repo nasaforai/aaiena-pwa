@@ -1,53 +1,24 @@
 
 import React, { useState } from 'react';
 import { SplashScreen } from '@/components/SplashScreen';
-import { FashionLaneScreen } from '@/components/FashionLaneScreen';
-import { StoreScreen } from '@/components/StoreScreen';
-import { ProductDetailsScreen } from '@/components/ProductDetailsScreen';
-
-type ScreenType = 'splash' | 'fashion-lane' | 'store' | 'product-details';
+import { useNavigate } from 'react-router-dom';
 
 export default function Index() {
-  const [currentScreen, setCurrentScreen] = useState<ScreenType>('splash');
+  const navigate = useNavigate();
+  const [showSplash, setShowSplash] = useState(true);
 
   const handleSplashComplete = () => {
-    setCurrentScreen('fashion-lane');
+    setShowSplash(false);
+    navigate('/fashion-lane');
   };
 
-  const handleFashionLaneContinue = () => {
-    setCurrentScreen('store');
-  };
+  if (showSplash) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <SplashScreen onComplete={handleSplashComplete} />
+      </div>
+    );
+  }
 
-  const handleBackToFashionLane = () => {
-    setCurrentScreen('fashion-lane');
-  };
-
-  const handleProductDetails = () => {
-    setCurrentScreen('product-details');
-  };
-
-  const handleBackToStore = () => {
-    setCurrentScreen('store');
-  };
-
-  const renderScreen = () => {
-    switch (currentScreen) {
-      case 'splash':
-        return <SplashScreen onComplete={handleSplashComplete} />;
-      case 'fashion-lane':
-        return <FashionLaneScreen onContinue={handleFashionLaneContinue} />;
-      case 'store':
-        return <StoreScreen onBack={handleBackToFashionLane} onProductSelect={handleProductDetails} />;
-      case 'product-details':
-        return <ProductDetailsScreen onBack={handleBackToStore} />;
-      default:
-        return <SplashScreen onComplete={handleSplashComplete} />;
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      {renderScreen()}
-    </div>
-  );
+  return null;
 }
