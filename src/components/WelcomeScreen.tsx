@@ -16,7 +16,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
       alert('Welcome! Redirecting to store...');
     }
   };
-  return <div role="application" aria-label="Welcome screen for guest users" className="bg-[#EDE1FC] flex max-w-[480px] w-full flex-col overflow-hidden items-center mx-auto min-h-screen relative">
+  return <div role="application" aria-label="Welcome screen for guest users" className="bg-[#EDE1FC] flex max-w-[480px] w-full flex-col items-center justify-center overflow-hidden items-center mx-auto min-h-screen relative">
       {/* <StatusBar /> */}
       <WelcomeHero />
       <PWAInstallPrompt />
