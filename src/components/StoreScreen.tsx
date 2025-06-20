@@ -4,12 +4,19 @@ import { ArrowLeft, Search, ShoppingBag, User, Heart, Home, MessageCircle } from
 
 interface StoreScreenProps {
   onBack?: () => void;
+  onProductSelect?: () => void;
 }
 
-export const StoreScreen: React.FC<StoreScreenProps> = ({ onBack }) => {
+export const StoreScreen: React.FC<StoreScreenProps> = ({ onBack, onProductSelect }) => {
   const handleBack = () => {
     if (onBack) {
       onBack();
+    }
+  };
+
+  const handleProductClick = () => {
+    if (onProductSelect) {
+      onProductSelect();
     }
   };
 
@@ -104,7 +111,12 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({ onBack }) => {
                 <div key={item} className="bg-gray-100 rounded-2xl overflow-hidden">
                   <div className="h-40 bg-gray-200"></div>
                   <div className="p-3">
-                    <p className="text-sm text-gray-600">View Details</p>
+                    <button 
+                      onClick={handleProductClick}
+                      className="text-sm text-gray-600 hover:text-purple-600 transition-colors"
+                    >
+                      View Details
+                    </button>
                     <p className="font-semibold">₹500 ₹1000</p>
                   </div>
                 </div>
@@ -119,7 +131,12 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({ onBack }) => {
                 <div key={item} className="bg-gray-100 rounded-2xl overflow-hidden">
                   <div className="h-40 bg-gray-200"></div>
                   <div className="p-3">
-                    <p className="text-sm text-gray-600">View Details</p>
+                    <button 
+                      onClick={handleProductClick}
+                      className="text-sm text-gray-600 hover:text-purple-600 transition-colors"
+                    >
+                      View Details
+                    </button>
                     <p className="font-semibold">₹500 ₹1000</p>
                   </div>
                 </div>
@@ -134,7 +151,12 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({ onBack }) => {
                 <div key={item} className="bg-gray-100 rounded-2xl overflow-hidden">
                   <div className="h-40 bg-gray-200"></div>
                   <div className="p-3">
-                    <p className="text-sm text-gray-600">View Details</p>
+                    <button 
+                      onClick={handleProductClick}
+                      className="text-sm text-gray-600 hover:text-purple-600 transition-colors"
+                    >
+                      View Details
+                    </button>
                     <p className="font-semibold">₹500 ₹1000</p>
                   </div>
                 </div>
@@ -159,7 +181,12 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({ onBack }) => {
               <div key={item} className="bg-gray-100 rounded-2xl overflow-hidden">
                 <div className="h-40 bg-gray-200"></div>
                 <div className="p-3">
-                  <p className="text-sm text-gray-600">View Details</p>
+                  <button 
+                    onClick={handleProductClick}
+                    className="text-sm text-gray-600 hover:text-purple-600 transition-colors"
+                  >
+                    View Details
+                  </button>
                   <p className="font-semibold">₹500 ₹1000</p>
                 </div>
               </div>
