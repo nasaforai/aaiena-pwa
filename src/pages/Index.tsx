@@ -2,20 +2,15 @@
 import React, { useState } from 'react';
 import { SplashScreen } from '@/components/SplashScreen';
 import { FashionLaneScreen } from '@/components/FashionLaneScreen';
-import { WelcomeScreen } from '@/components/WelcomeScreen';
 import { StoreScreen } from '@/components/StoreScreen';
 
-type ScreenType = 'splash' | 'fashion-lane' | 'welcome' | 'store';
+type ScreenType = 'splash' | 'fashion-lane' | 'store';
 
 export default function Index() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('splash');
 
   const handleSplashComplete = () => {
     setCurrentScreen('fashion-lane');
-  };
-
-  const handleFashionLaneContinue = () => {
-    setCurrentScreen('welcome');
   };
 
   const handleBrowseStore = () => {
@@ -26,18 +21,12 @@ export default function Index() {
     setCurrentScreen('fashion-lane');
   };
 
-  const handleBackToWelcome = () => {
-    setCurrentScreen('welcome');
-  };
-
   const renderScreen = () => {
     switch (currentScreen) {
       case 'splash':
         return <SplashScreen onComplete={handleSplashComplete} />;
       case 'fashion-lane':
-        return <FashionLaneScreen onContinue={handleFashionLaneContinue} />;
-      case 'welcome':
-        return <WelcomeScreen onBrowseStore={handleBrowseStore} />;
+        return <FashionLaneScreen onBrowseStore={handleBrowseStore} />;
       case 'store':
         return <StoreScreen onBack={handleBackToFashionLane} />;
       default:
