@@ -24,7 +24,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onBrowseStore }) =
       role="application"
       aria-label="Welcome screen for guest users"
     >
-      <StatusBar />
+      {/* <StatusBar /> */}
       <WelcomeHero 
         title="Guest user flow"
         buttonText="Browse the store"
