@@ -22,6 +22,10 @@ export default function Index() {
     setCurrentScreen('store');
   };
 
+  const handleBackToFashionLane = () => {
+    setCurrentScreen('fashion-lane');
+  };
+
   const handleBackToWelcome = () => {
     setCurrentScreen('welcome');
   };
@@ -35,7 +39,7 @@ export default function Index() {
       case 'welcome':
         return <WelcomeScreen onBrowseStore={handleBrowseStore} />;
       case 'store':
-        return <StoreScreen onBack={handleBackToWelcome} />;
+        return <StoreScreen onBack={handleBackToFashionLane} />;
       default:
         return <SplashScreen onComplete={handleSplashComplete} />;
     }
