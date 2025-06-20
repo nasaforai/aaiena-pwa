@@ -25,11 +25,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onBrowseStore }) =
       aria-label="Welcome screen for guest users"
     >
       {/* <StatusBar /> */}
-      <WelcomeHero 
-        {/* title="Guest user flow" */}
-        {/* buttonText="Browse the store" */}
-        {/* onButtonClick={handleBrowseStore} */}
-      />
+      <WelcomeHero/>
       <PWAInstallPrompt />
     </div>
   );
