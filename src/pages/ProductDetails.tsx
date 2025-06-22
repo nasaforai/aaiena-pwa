@@ -1,47 +1,113 @@
+
 import React, { useState } from 'react';
-import { ArrowLeft, Heart, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Heart, ShoppingCart, Plus, Minus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 export default function ProductDetails() {
   const navigate = useNavigate();
-  const [selectedSize, setSelectedSize] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedSize, setSelectedSize] = useState('M');
+  const [selectedColor, setSelectedColor] = useState('white');
+  const [quantity, setQuantity] = useState(1);
 
   const handleBack = () => {
     navigate('/store');
   };
 
-  const handleJoinRoom = () => {
-    navigate('/waiting-room');
+  const handleAddToCart = () => {
+    // Add to cart logic
+    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    const newItem = {
+      id: 1,
+      name: 'Drop-Shoulder Cotton Tee | Relaxed Fit, All-Day Comfort.',
+      price: 700,
+      originalPrice: 1400,
+      size: selectedSize,
+      color: selectedColor,
+      quantity: quantity,
+      image: '/lovable-uploads/df938429-9c2a-4054-b1fe-5c1aa483a885.png'
+    };
+    
+    const existingItemIndex = cartItems.findIndex(
+      (item: any) => item.id === newItem.id && item.size === selectedSize && item.color === selectedColor
+    );
+    
+    if (existingItemIndex > -1) {
+      cartItems[existingItemIndex].quantity += quantity;
+    } else {
+      cartItems.push(newItem);
+    }
+    
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    navigate('/cart');
   };
 
+  const handleBuyNow = () => {
+    handleAddToCart();
+  };
+
+  const handleAddToWishlist = () => {
+    const wishlistItems = JSON.parse(localStorage.getItem('wishlistItems') || '[]');
+    const newItem = {
+      id: 1,
+      name: 'Drop-Shoulder Cotton Tee | Relaxed Fit, All-Day Comfort.',
+      price: 700,
+      originalPrice: 1400,
+      image: '/lovable-uploads/df938429-9c2a-4054-b1fe-5c1aa483a885.png'
+    };
+    
+    const exists = wishlistItems.some((item: any) => item.id === newItem.id);
+    if (!exists) {
+      wishlistItems.push(newItem);
+      localStorage.setItem('wishlistItems', JSON.stringify(wishlistItems));
+    }
+  };
+
+  const colors = [
+    { name: 'white', bg: 'bg-white border-2 border-gray-300' },
+    { name: 'green', bg: 'bg-green-300' },
+    { name: 'yellow', bg: 'bg-yellow-300' },
+    { name: 'pink', bg: 'bg-pink-300' }
+  ];
+
   const sizes = ['XS', 'S', 'M', 'L', 'XL'];
-  const colors = ['White', 'Blue', 'Black', 'Gray'];
 
   return (
     <div className="bg-white flex max-w-[480px] w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-white">
-        <button onClick={handleBack} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-          <ArrowLeft className="w-6 h-6 text-gray-700" />
+      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-pink-400 to-purple-500">
+        <button onClick={handleBack} className="p-2 hover:bg-white/20 rounded-lg transition-colors">
+          <ArrowLeft className="w-6 h-6 text-white" />
         </button>
-        <ShoppingCart className="w-6 h-6 text-gray-700" />
+        <button 
+          onClick={() => navigate('/cart')}
+          className="relative p-2 hover:bg-white/20 rounded-lg transition-colors"
+        >
+          <ShoppingCart className="w-6 h-6 text-white" />
+          {JSON.parse(localStorage.getItem('cartItems') || '[]').length > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              {JSON.parse(localStorage.getItem('cartItems') || '[]').reduce((total: number, item: any) => total + item.quantity, 0)}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Product Image */}
-      <div className="relative bg-[#E8C4A0] h-96 mx-4 rounded-2xl mb-4 overflow-hidden">
-        <img alt="Product" className="w-full h-full object-cover" src="/lovable-uploads/df938429-9c2a-4054-b1fe-5c1aa483a885.png" />
-        <button className="absolute top-4 right-4 p-2 bg-white bg-opacity-80 rounded-full">
+      <div className="relative bg-gradient-to-b from-pink-100 to-white h-96 mx-4 rounded-2xl mb-4 overflow-hidden">
+        <img 
+          alt="Product" 
+          className="w-full h-full object-cover" 
+          src="/lovable-uploads/df938429-9c2a-4054-b1fe-5c1aa483a885.png" 
+        />
+        <button 
+          onClick={handleAddToWishlist}
+          className="absolute top-4 right-4 p-2 bg-white bg-opacity-80 rounded-full"
+        >
           <Heart className="w-5 h-5 text-gray-600" />
         </button>
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-          <div className="w-2 h-2 bg-white rounded-full"></div>
-          <div className="w-2 h-2 bg-white bg-opacity-50 rounded-full"></div>
-          <div className="w-2 h-2 bg-white bg-opacity-50 rounded-full"></div>
-        </div>
       </div>
 
-      {/* Product Info, Size Selection, Product Information Sections, Find Similar */}
+      {/* Product Info */}
       <div className="px-4 mb-6">
         <h1 className="text-xl font-bold text-gray-900 mb-2">
           Drop-Shoulder Cotton Tee | Relaxed Fit, All-Day Comfort.
@@ -53,33 +119,92 @@ export default function ProductDetails() {
         </div>
       </div>
 
-      <div className="px-4 mb-6">
-        <div className="flex justify-between items-center mb-3">
-          <span className="font-medium text-gray-900">Select Size :</span>
-          <span className="font-medium text-gray-900">Color :</span>
+      {/* Color Selection */}
+      <div className="px-4 mb-4">
+        <span className="font-medium text-gray-900 mb-3 block">Color:</span>
+        <div className="flex space-x-3">
+          {colors.map((color) => (
+            <button
+              key={color.name}
+              onClick={() => setSelectedColor(color.name)}
+              className={`w-8 h-8 rounded ${color.bg} ${
+                selectedColor === color.name ? 'ring-2 ring-purple-500' : ''
+              }`}
+            />
+          ))}
         </div>
-        <div className="flex justify-between items-start">
-          <div className="flex space-x-2">
-            {sizes.map(size => (
-              <button 
-                key={size} 
-                onClick={() => setSelectedSize(size)} 
-                className={`px-3 py-2 border rounded-lg text-sm font-medium ${
-                  selectedSize === size ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-200 text-gray-700'
-                }`}
-              >
-                {size}
-              </button>
-            ))}
-          </div>
-          <div className="flex space-x-2">
-            <div className="w-8 h-8 bg-blue-200 rounded border-2 border-blue-500"></div>
-            <div className="w-8 h-8 bg-gray-200 rounded"></div>
-          </div>
-        </div>
-        <p className="text-xs text-gray-500 mt-2">Login to get your size recommendation</p>
       </div>
 
+      {/* Recommendation Section */}
+      <div className="px-4 mb-4">
+        <div className="flex items-center space-x-2 mb-3">
+          <span className="font-medium text-gray-900">Recommendation</span>
+          <div className="w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center">
+            <span className="text-xs text-gray-600">i</span>
+          </div>
+        </div>
+        
+        {/* Size Chart */}
+        <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-4 mb-4">
+          <h3 className="font-bold text-gray-900 mb-3">My Size</h3>
+          <p className="text-sm text-gray-600 mb-3">Tailored to match your exact measurements</p>
+          
+          {/* Circular Size Chart */}
+          <div className="flex justify-center mb-4">
+            <div className="relative w-32 h-32">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-200 to-purple-200"></div>
+              <div className="absolute inset-2 rounded-full bg-gradient-to-r from-pink-200 to-yellow-200"></div>
+              <div className="absolute inset-4 rounded-full bg-gradient-to-r from-green-200 to-blue-200"></div>
+              <div className="absolute inset-6 rounded-full bg-white flex items-center justify-center">
+                <span className="text-sm font-bold text-gray-700">Sizes</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Size Options */}
+          <div className="flex justify-between text-center mb-4">
+            <div className="text-xs">
+              <div className="font-medium">Large size</div>
+              <div className="text-gray-600">(XL,XXL)</div>
+            </div>
+            <div className="text-xs">
+              <div className="font-medium text-purple-600">Medium size</div>
+              <div className="text-gray-600">(M)</div>
+            </div>
+            <div className="text-xs">
+              <div className="font-medium">Small size</div>
+              <div className="text-gray-600">(S)</div>
+            </div>
+          </div>
+          
+          {/* Best Fit */}
+          <div className="bg-purple-100 rounded-xl p-3 mb-2">
+            <div className="flex items-center justify-between">
+              <span className="font-medium text-gray-900">Best Fit: Large Size</span>
+            </div>
+            <p className="text-xs text-gray-600 mt-1">
+              We recommend Large "L" as the best fit for you—it offers a comfortable and well-balanced look.
+            </p>
+          </div>
+          
+          <div className="bg-gray-100 rounded-xl p-3">
+            <div className="flex items-center justify-between">
+              <span className="font-medium text-gray-900">Other Fit: Medium Size</span>
+            </div>
+            <p className="text-xs text-gray-600 mt-1">
+              Medium as the right fit for you—it could feel a bit snug. Great if you like tighter-fitting clothes.
+            </p>
+          </div>
+          
+          <p className="text-xs text-gray-500 mt-2">*95% users said true to size</p>
+        </div>
+        
+        <Button className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium mb-4">
+          Try Now
+        </Button>
+      </div>
+
+      {/* Product Information */}
       <div className="px-4 space-y-4 mb-6">
         <div className="border-b border-gray-200 pb-3">
           <button className="flex justify-between items-center w-full">
@@ -93,14 +218,35 @@ export default function ProductDetails() {
             <span className="text-gray-400">▼</span>
           </button>
         </div>
+        <div className="border-b border-gray-200 pb-3">
+          <button className="flex justify-between items-center w-full">
+            <span className="font-medium text-gray-900">PRODUCT MEASUREMENTS</span>
+            <span className="text-gray-400">▼</span>
+          </button>
+        </div>
       </div>
 
+      {/* Try Another Button */}
+      <div className="px-4 mb-6">
+        <Button 
+          variant="outline" 
+          className="w-full py-3 rounded-xl font-medium border-gray-300"
+        >
+          Try Another
+        </Button>
+      </div>
+
+      {/* Find Similar */}
       <div className="px-4 mb-6">
         <h3 className="font-bold text-lg mb-3">Find Similar</h3>
         <div className="flex space-x-3">
           {[1, 2, 3].map(item => (
             <div key={item} className="flex-1 bg-gray-100 rounded-2xl overflow-hidden">
-              <div className="h-32 bg-gray-200"></div>
+              <div className="h-32 bg-gray-200 relative">
+                <button className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                  <Heart className="w-4 h-4 text-gray-600" />
+                </button>
+              </div>
               <div className="p-2">
                 <p className="text-xs text-gray-600">View Details</p>
                 <p className="text-sm font-semibold">₹500 ₹700</p>
@@ -110,63 +256,25 @@ export default function ProductDetails() {
         </div>
       </div>
 
-      {/* Try Virtually Section */}
-      <div className="mx-4 mb-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl p-4 text-center">
-        <div className="text-white bg-gradient-to-t from-purple-100 to-purple-400 ">
-          <h3 className="font-bold text-lg mb-2">Struggling To Spot Your Fit?</h3>
-          <button className="bg-white text-orange-500 px-6 py-2 rounded-xl text-sm font-medium">
-            Set Your Profile →
-          </button>
-        </div>
-      </div>
-
-      {/* You Might Also Like */}
-      <div className="px-4 mb-6">
-        <h3 className="font-bold text-lg mb-3">You Might Also Like</h3>
-        <div className="grid grid-cols-2 gap-3">
-          {[1, 2].map(item => (
-            <div key={item} className="bg-gray-100 rounded-2xl overflow-hidden">
-              <div className="h-40 bg-gray-200"></div>
-              <div className="p-3">
-                <p className="text-sm text-gray-600">View Details</p>
-                <p className="font-semibold">₹500 ₹700</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Bottom Section with Try Virtually and Buy Now */}
-      <div className="px-4 pb-24">
-        <div className="bg-purple-500 rounded-2xl p-4 text-white text-center mb-4">
+      {/* Bottom Action */}
+      <div className="px-4 pb-6">
+        <div className="bg-purple-100 rounded-2xl p-4 mb-4">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm opacity-90">JOIN EMPTY ROOMS:</span>
+            <span className="text-sm text-gray-700">2A Moderate</span>
             <div className="flex space-x-2">
-              <span className="bg-white bg-opacity-20 px-2 py-1 rounded text-sm">2A</span>
-              <span className="bg-white bg-opacity-20 px-2 py-1 rounded text-sm">2C</span>
-              <span className="bg-white bg-opacity-20 px-2 py-1 rounded text-sm">3C</span>
+              <span className="bg-purple-200 px-2 py-1 rounded text-sm">2A</span>
+              <span className="bg-purple-200 px-2 py-1 rounded text-sm">3C</span>
             </div>
           </div>
-          <div className="text-2xl font-bold mb-2">Moderate</div>
-          <button 
-            onClick={handleJoinRoom}
-            className="w-full bg-white bg-opacity-20 text-white py-2 rounded-xl text-sm font-medium mb-2"
-          >
-            Join Room
-          </button>
+          <button className="text-xs text-purple-600 font-medium">JOIN EMPTY ROOMS</button>
         </div>
         
-        <div className="flex space-x-3">
-          <button className="flex-1 bg-gray-900 text-white py-3 rounded-xl text-center font-medium">
-            Try Virtually
-          </button>
-          <button className="flex-1 bg-gray-900 text-white py-3 rounded-xl text-center font-medium">
-            Buy Now
-          </button>
-          <button className="p-3 border border-gray-300 rounded-xl">
-            <ShoppingCart className="w-5 h-5 text-gray-600" />
-          </button>
-        </div>
+        <Button 
+          onClick={handleBuyNow}
+          className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium"
+        >
+          Buy Now
+        </Button>
       </div>
     </div>
   );
