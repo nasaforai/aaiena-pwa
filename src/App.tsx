@@ -11,6 +11,11 @@ import ProductDetails from "./pages/ProductDetails";
 import WaitingRoom from "./pages/WaitingRoom";
 import NotFound from "./pages/NotFound";
 import QRCode from "./pages/QRCode";
+import QRScanProduct from "./pages/QRScanProduct";
+import QRScanVirtual from "./pages/QRScanVirtual";
+import CodeInput from "./pages/CodeInput";
+import ProductScan from "./pages/ProductScan";
+import KioskProductScan from "./pages/KioskProductScan";
 import WelcomeBack from "./pages/WelcomeBack";
 import SignUp from "./pages/SignUp";
 import MeasurementProfile from "./pages/MeasurementProfile";
@@ -40,6 +45,11 @@ const App = () => (
           <Route path="/product-details" element={<ProductDetails />} />
           <Route path="/waiting-room" element={<WaitingRoom />} />
           <Route path="/qr-code" element={<QRCode />} />
+          <Route path="/qr-scan-product" element={<QRScanProduct />} />
+          <Route path="/qr-scan-virtual" element={<QRScanVirtual />} />
+          <Route path="/code-input" element={<CodeInput />} />
+          <Route path="/product-scan" element={<ProductScan />} />
+          <Route path="/kiosk-product-scan" element={<KioskProductScan />} />
           <Route path="/welcome-back" element={<WelcomeBack />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/measurement-profile" element={<MeasurementProfile />} />

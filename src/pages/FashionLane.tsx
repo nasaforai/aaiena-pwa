@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { QrCode, Camera, Monitor } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +7,13 @@ export default function FashionLane() {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
 
   const handleContinue = () => {
-    if (selectedOption === 3) {
+    if (selectedOption === 1) {
+      // Scan The Product - go to QR scan screen
+      navigate('/qr-scan-product');
+    } else if (selectedOption === 2) {
+      // Try On Virtually - go to QR scan screen
+      navigate('/qr-scan-virtual');
+    } else if (selectedOption === 3) {
       navigate('/store');
     }
   };
