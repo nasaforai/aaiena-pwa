@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   ArrowLeft,
@@ -12,6 +13,13 @@ import {
   ArrowUp,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export default function Store() {
   const navigate = useNavigate();
@@ -23,6 +31,25 @@ export default function Store() {
   const handleProductClick = () => {
     navigate("/product-details");
   };
+
+  const ProductCard = ({ item }: { item: number }) => (
+    <div className="bg-gray-100 rounded-2xl overflow-hidden">
+      <div className="h-40 bg-gray-200 relative">
+        <div className="absolute bottom-2 right-2 bg-white rounded-full p-2">
+          <ShoppingBag className="w-4 h-4 text-gray-600" />
+        </div>
+      </div>
+      <div className="p-3">
+        <button
+          onClick={handleProductClick}
+          className="text-sm text-gray-600 hover:text-purple-600 transition-colors mb-1 block"
+        >
+          View Details
+        </button>
+        <p className="font-semibold">₹500 <span className="text-gray-400 line-through">₹1000</span></p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="bg-white flex max-w-[480px] w-full flex-col overflow-hidden mx-auto min-h-screen">
@@ -84,9 +111,6 @@ export default function Store() {
           <button className="w-full mt-3 text-purple-600 border-2 border-purple-600 py-3 rounded-xl text-lg font-medium">
             Try Virtually
           </button>
-          {/* <div className="mt-2 text-center">
-            <span className="text-xs opacity-75">Today's Discount offer →</span>
-          </div> */}
           <button className="w-full mt-2 bg-purple-100 text-black py-3 rounded-xl text-md font-medium">
             Log In To See Full Preview →
           </button>
@@ -145,75 +169,54 @@ export default function Store() {
           <p className="text-sm mb-2">New Users Only</p>
         </div>
 
-        {/* Product Grid */}
+        {/* Product Carousels */}
         <div className="space-y-6">
+          {/* Trending Now Carousel */}
           <div>
             <h3 className="font-bold text-lg mb-3">Trending Now</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {[1, 2].map((item) => (
-                <div
-                  key={item}
-                  className="bg-gray-100 rounded-2xl overflow-hidden"
-                >
-                  <div className="h-40 bg-gray-200"></div>
-                  <div className="p-3">
-                    <button
-                      onClick={handleProductClick}
-                      className="text-sm text-gray-600 hover:text-purple-600 transition-colors"
-                    >
-                      View Details
-                    </button>
-                    <p className="font-semibold">₹500 ₹1000</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <Carousel className="w-full">
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {[1, 2, 3, 4].map((item) => (
+                  <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
+                    <ProductCard item={item} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-2" />
+              <CarouselNext className="right-2" />
+            </Carousel>
           </div>
 
+          {/* Recently Tried Carousel */}
           <div>
             <h3 className="font-bold text-lg mb-3">Recently Tried</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {[1, 2].map((item) => (
-                <div
-                  key={item}
-                  className="bg-gray-100 rounded-2xl overflow-hidden"
-                >
-                  <div className="h-40 bg-gray-200"></div>
-                  <div className="p-3">
-                    <button
-                      onClick={handleProductClick}
-                      className="text-sm text-gray-600 hover:text-purple-600 transition-colors"
-                    >
-                      View Details
-                    </button>
-                    <p className="font-semibold">₹500 ₹1000</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <Carousel className="w-full">
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {[1, 2, 3, 4].map((item) => (
+                  <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
+                    <ProductCard item={item} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-2" />
+              <CarouselNext className="right-2" />
+            </Carousel>
           </div>
 
+          {/* Newest Carousel */}
           <div>
             <h3 className="font-bold text-lg mb-3">Newest</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {[1, 2].map((item) => (
-                <div
-                  key={item}
-                  className="bg-gray-100 rounded-2xl overflow-hidden"
-                >
-                  <div className="h-40 bg-gray-200"></div>
-                  <div className="p-3">
-                    <button
-                      onClick={handleProductClick}
-                      className="text-sm text-gray-600 hover:text-purple-600 transition-colors"
-                    >
-                      View Details
-                    </button>
-                    <p className="font-semibold">₹500 ₹1000</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <Carousel className="w-full">
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {[1, 2, 3, 4].map((item) => (
+                  <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
+                    <ProductCard item={item} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-2" />
+              <CarouselNext className="right-2" />
+            </Carousel>
           </div>
         </div>
 
@@ -225,28 +228,20 @@ export default function Store() {
           </button>
         </div>
 
-        {/* In Offer Section */}
+        {/* In Offer Carousel */}
         <div className="mt-6">
           <h3 className="font-bold text-lg mb-3">In Offer</h3>
-          <div className="grid grid-cols-2 gap-4">
-            {[1, 2].map((item) => (
-              <div
-                key={item}
-                className="bg-gray-100 rounded-2xl overflow-hidden"
-              >
-                <div className="h-40 bg-gray-200"></div>
-                <div className="p-3">
-                  <button
-                    onClick={handleProductClick}
-                    className="text-sm text-gray-600 hover:text-purple-600 transition-colors"
-                  >
-                    View Details
-                  </button>
-                  <p className="font-semibold">₹500 ₹1000</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <Carousel className="w-full">
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {[1, 2, 3, 4].map((item) => (
+                <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
+                  <ProductCard item={item} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-2" />
+            <CarouselNext className="right-2" />
+          </Carousel>
         </div>
       </div>
 
