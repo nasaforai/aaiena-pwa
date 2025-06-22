@@ -1,7 +1,6 @@
-
 {
-  "name": "Fashion Lane App",
-  "short_name": "FashionLane",
+  "name": "Aaiena",
+  "short_name": "aaiena",
   "description": "A beautiful fashion shopping experience",
   "theme_color": "#EDE1FC",
   "background_color": "#EDE1FC",
@@ -10,6 +9,12 @@
   "scope": "/",
   "start_url": "/",
   "icons": [
+    {
+      "src": "pwa-64x64.png",
+      "sizes": "64x64",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "pwa-192x192.png",
       "sizes": "192x192",
