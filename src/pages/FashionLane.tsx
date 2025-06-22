@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { QrCode, Camera, Monitor } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { QrCode, Camera, Monitor } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function FashionLane() {
   const navigate = useNavigate();
@@ -9,12 +9,12 @@ export default function FashionLane() {
   const handleContinue = () => {
     if (selectedOption === 1) {
       // Scan The Product - go to QR scan screen
-      navigate('/qr-scan-product');
+      navigate("/qr-scan-product");
     } else if (selectedOption === 2) {
       // Try On Virtually - go to QR scan screen
-      navigate('/qr-scan-virtual');
+      navigate("/qr-scan-virtual");
     } else if (selectedOption === 3) {
-      navigate('/store');
+      navigate("/store");
     }
   };
 
@@ -36,20 +36,22 @@ export default function FashionLane() {
       title: "Browse The Store",
       description: "Stay updated with real-time queue tracking.",
       icon: Monitor,
-    }
+    },
   ];
 
   return (
-    <div className="bg-[#EDE1FC] flex max-w-[480px] w-full flex-col overflow-hidden mx-auto min-h-screen px-6 py-8">
+    <div className="bg-gradient-to-t from-[#FFE3F5] to-[#E8E1FF] flex max-w-[480px] w-full flex-col overflow-hidden mx-auto min-h-screen px-6 py-8 font-roboto">
       {/* H&M Logo */}
       <div className="flex justify-center mb-8">
         <div className="text-red-600 text-4xl font-bold">H&M</div>
       </div>
 
       {/* Title */}
-      <div className="text-center mb-12">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Pick Your Fashion Lane!</h1>
-        <p className="text-gray-600 text-lg">Get Started With Any One Of Them</p>
+      <div className="text-left mb-12 pl-4">
+        <h1 className="text-2xl text-gray-900 mb-1">Pick Your Fashion Lane!</h1>
+        <p className="text-gray-600 text-lg">
+          Get Started With Any One Of Them
+        </p>
       </div>
 
       {/* Options */}
@@ -57,33 +59,41 @@ export default function FashionLane() {
         {options.map((option) => {
           const IconComponent = option.icon;
           const isSelected = selectedOption === option.id;
-          
+
           return (
             <button
               key={option.id}
               onClick={() => setSelectedOption(option.id)}
-              className={`bg-white rounded-2xl p-6 border-2 transition-all duration-200 ${
-                isSelected ? 'border-purple-600' : 'border-gray-200'
+              className={` rounded-2xl p-6 border-2 transition-all duration-200 ${
+                isSelected ? "bg-purple-300 border-purple-300" : "bg-white"
               }`}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className={`p-3 rounded-xl ${isSelected ? 'bg-purple-100' : 'bg-gray-100'}`}>
-                    <IconComponent className={`w-6 h-6 ${isSelected ? 'text-purple-600' : 'text-gray-600'}`} />
+                <div className="flex items-center space-x-4 flex-1">
+                  <div
+                    className={`p-3 rounded-xl ${
+                      isSelected ? "bg-gray-100" : ""
+                    }`}
+                  >
+                    <IconComponent className={`w-6 h-6 text-purple-600`} />
                   </div>
                   <div className="text-left">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-1">{option.title}</h3>
-                    <p className="text-gray-600 text-sm">{option.description}</p>
+                    <h3 className="text-xl text-gray-900 mb-1">
+                      {option.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm">
+                      {option.description}
+                    </p>
                   </div>
                 </div>
-                <div className={`w-6 h-6 rounded-full border-2 ${
-                  isSelected 
-                    ? 'border-purple-600 bg-purple-600' 
-                    : 'border-gray-300'
-                }`}>
+                <div
+                  className={`w-6 h-6 rounded-full border-2 border-purple-600 ${
+                    isSelected ? " bg-purple-600" : ""
+                  }`}
+                >
                   {isSelected && (
-                    <div className="w-full h-full rounded-full bg-purple-600 flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                    <div className="w-full h-full rounded-full bg-purple-300 flex items-center justify-center">
+                      <div className="w-3 h-3 bg-purple-600 rounded-full"></div>
                     </div>
                   )}
                 </div>
