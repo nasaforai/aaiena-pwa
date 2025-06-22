@@ -11,6 +11,7 @@ export default function ProductScan() {
   const [isScanning, setIsScanning] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanResult, setScanResult] = useState<string | null>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
 
   const handleBack = () => {
     navigate('/fashion-lane');
@@ -18,7 +19,8 @@ export default function ProductScan() {
 
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      console.log('Requesting camera access...');
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { 
           facingMode: 'environment', // Use back camera
           width: { ideal: 1280 },
@@ -26,11 +28,28 @@ export default function ProductScan() {
         }
       });
       
+      console.log('Camera access granted, starting video...');
+      setStream(mediaStream);
+      
       if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
-        setIsScanning(true);
-        setHasPermission(true);
+        videoRef.current.srcObject = mediaStream;
+        
+        // Wait for video to be ready
+        videoRef.current.onloadedmetadata = () => {
+          console.log('Video metadata loaded');
+          if (videoRef.current) {
+            videoRef.current.play()
+              .then(() => {
+                console.log('Video playing successfully');
+                setIsScanning(true);
+                setHasPermission(true);
+              })
+              .catch((error) => {
+                console.error('Error playing video:', error);
+                setHasPermission(false);
+              });
+          }
+        };
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
@@ -39,18 +58,26 @@ export default function ProductScan() {
   };
 
   const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
+    console.log('Stopping camera...');
+    if (stream) {
+      stream.getTracks().forEach(track => {
+        console.log('Stopping track:', track.kind);
+        track.stop();
+      });
+      setStream(null);
+    }
+    if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
     setIsScanning(false);
   };
 
   const simulateScan = () => {
+    console.log('Simulating scan...');
     // Simulate successful scan
     setScanResult('PRODUCT_12345');
     setTimeout(() => {
+      stopCamera();
       navigate('/product-details');
     }, 1500);
   };
@@ -96,6 +123,7 @@ export default function ProductScan() {
                 className="w-full h-full object-cover rounded-lg"
                 playsInline
                 muted
+                autoPlay
               />
               <canvas
                 ref={canvasRef}
@@ -128,6 +156,12 @@ export default function ProductScan() {
                 <div>
                   <p className="text-red-600 mb-4">Camera access denied</p>
                   <p className="text-gray-600 text-sm mb-4">Please allow camera access to scan products</p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="text-purple-600 text-sm underline"
+                  >
+                    Refresh and try again
+                  </button>
                 </div>
               ) : (
                 <div>
@@ -153,10 +187,10 @@ export default function ProductScan() {
 
         <Button 
           onClick={handleScan}
-          disabled={scanResult !== null}
+          disabled={scanResult !== null || hasPermission === false}
           className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800 disabled:opacity-50"
         >
-          {isScanning ? 'Tap to Scan' : 'Start Camera'}
+          {isScanning ? 'Tap to Scan' : hasPermission === false ? 'Camera Access Denied' : 'Start Camera'}
         </Button>
       </div>
     </div>
