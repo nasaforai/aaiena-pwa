@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   ArrowLeft,
@@ -16,10 +15,12 @@ import { useNavigate } from "react-router-dom";
 import {
   Carousel,
   CarouselContent,
+  CarouselDots,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import Topbar from "@/components/ui/topbar";
 
 export default function Store() {
   const navigate = useNavigate();
@@ -33,37 +34,39 @@ export default function Store() {
   };
 
   const ProductCard = ({ item }: { item: number }) => (
-    <div className="bg-gray-100 rounded-2xl overflow-hidden">
-      <div className="h-40 bg-gray-200 relative">
-        <div className="absolute bottom-2 right-2 bg-white rounded-full p-2">
+    <div>
+      <div className="h-56 rounded-2xl bg-gray-200 relative overflow-hidden">
+        <img
+          src="/images/dress.jpg"
+          alt={item.toString()}
+          className="absolute left-0 top-0 object-cover"
+        />
+        <div className="absolute bottom-12 right-2 bg-white rounded-full p-2">
           <ShoppingBag className="w-4 h-4 text-gray-600" />
         </div>
+
+        <div className="absolute left-0 bottom-0 bg-white/30 right-0 py-2 flex justify-center">
+          <button
+            onClick={handleProductClick}
+            className="text-sm text-white hover:text-purple-600 transition-colors mb-1 block"
+          >
+            View Details
+          </button>
+        </div>
       </div>
-      <div className="p-3">
-        <button
-          onClick={handleProductClick}
-          className="text-sm text-gray-600 hover:text-purple-600 transition-colors mb-1 block"
-        >
-          View Details
-        </button>
-        <p className="font-semibold">₹500 <span className="text-gray-400 line-through">₹1000</span></p>
+      <div className="px-2 pt-1">
+        <div className="text-xs flex gap-1 items-center">
+          <span className="text-gray-400 line-through">₹1000</span>
+          <span className="text-lg"> ₹500</span>
+          <span className="text-gray-400">50% off</span>
+        </div>
       </div>
     </div>
   );
 
   return (
     <div className="bg-white flex max-w-[480px] w-full flex-col overflow-hidden mx-auto min-h-screen">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-white border-b border-gray-100">
-        <button
-          onClick={handleBack}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          <ArrowLeft className="w-6 h-6 text-gray-700" />
-        </button>
-        <div className="text-red-600 text-2xl font-bold">H&M</div>
-        <ShoppingBag className="w-6 h-6 text-gray-700" />
-      </div>
+      <Topbar handleBack={() => handleBack()} />
 
       {/* Search Bar */}
       <div className="p-4">
@@ -162,7 +165,7 @@ export default function Store() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 px-4 pb-20">
+      <div className="flex-1 p-4">
         {/* Discount Section */}
         <div className="bg-gradient-to-r from-orange-400 to-yellow-500 rounded-2xl p-6 mb-4 text-white">
           <h3 className="text-xl font-bold mb-2">Discount</h3>
@@ -182,8 +185,9 @@ export default function Store() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="left-2" />
-              <CarouselNext className="right-2" />
+              {/* <CarouselPrevious className="left-2" />
+              <CarouselNext className="right-2" /> */}
+              <CarouselDots />
             </Carousel>
           </div>
 
@@ -198,8 +202,9 @@ export default function Store() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="left-2" />
-              <CarouselNext className="right-2" />
+              {/* <CarouselPrevious className="left-2" />
+              <CarouselNext className="right-2" /> */}
+              <CarouselDots />
             </Carousel>
           </div>
 
@@ -214,9 +219,40 @@ export default function Store() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="left-2" />
-              <CarouselNext className="right-2" />
+              {/* <CarouselPrevious className="left-2" />
+              <CarouselNext className="right-2" /> */}
+              <CarouselDots />
             </Carousel>
+          </div>
+        </div>
+
+        <div className="p-4 mt-6">
+          <div className="overflow-y-hidden h-24">
+            <div className="flex justify-between overflow-scroll flex-nowrap gap-6 pb-5 ">
+              {[
+                "Dress",
+                "Jeans",
+                "Trousers",
+                "Tops",
+                "Bags",
+                "Dress",
+                "Jeans",
+                "Trousers",
+                "Tops",
+                "Bags",
+              ].map((category, index) => (
+                <div key={category} className="flex flex-col items-center">
+                  <div className="w-16 h-16 bg-gray-200 rounded-full mb-2 relative overflow-hidden">
+                    <img
+                      src="/images/dress.jpg"
+                      alt={category}
+                      className=" absolute left-0 top-0 object-cover"
+                    />
+                  </div>
+                  <span className="text-xs text-gray-600">{category}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -229,7 +265,7 @@ export default function Store() {
         </div>
 
         {/* In Offer Carousel */}
-        <div className="mt-6">
+        <div className="mt-6 mb-20">
           <h3 className="font-bold text-lg mb-3">In Offer</h3>
           <Carousel className="w-full">
             <CarouselContent className="-ml-2 md:-ml-4">
@@ -239,8 +275,10 @@ export default function Store() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="left-2" />
-            <CarouselNext className="right-2" />
+            <CarouselDots />
+
+            {/* <CarouselPrevious className="left-2" />
+            <CarouselNext className="right-2" /> */}
           </Carousel>
         </div>
       </div>
