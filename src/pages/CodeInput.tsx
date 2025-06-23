@@ -26,7 +26,7 @@ export default function CodeInput() {
   };
 
   return (
-    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between p-4">
         <button

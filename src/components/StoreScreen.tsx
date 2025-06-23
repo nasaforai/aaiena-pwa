@@ -31,7 +31,7 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({
   };
 
   return (
-    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-white border-b border-gray-100">
         <button
@@ -223,7 +223,7 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 lg:max-w-sm w-full bg-white border-t border-gray-100 px-4 py-3">
+      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 lg:lg:max-w-sm w-full bg-white border-t border-gray-100 px-4 py-3">
         <div className="flex justify-around">
           <button className="flex flex-col items-center space-y-1">
             <Home className="w-5 h-5 text-purple-600" />

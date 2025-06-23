@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Phone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export default function WelcomeBack() {
+export default function SignIn() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -26,7 +26,7 @@ export default function WelcomeBack() {
   };
 
   return (
-    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between p-4">
         <button
@@ -49,15 +49,16 @@ export default function WelcomeBack() {
         {/* Social Login */}
         <div className="space-y-3 mb-6">
           <button className="w-full border border-gray-300 rounded-xl py-3 px-4 flex items-center justify-center space-x-3 hover:bg-gray-50 transition-colors">
-            <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-              G
-            </div>
+            <img
+              src="/icons/google.svg"
+              alt="google icon"
+              width={20}
+              height={20}
+            />
             <span className="text-gray-700">Continue with Google</span>
           </button>
           <button className="w-full border border-gray-300 rounded-xl py-3 px-4 flex items-center justify-center space-x-3 hover:bg-gray-50 transition-colors">
-            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-white text-xs">
-              📞
-            </div>
+            <Phone className="text-gray-800 w-5" />
             <span className="text-gray-700">Continue with Phone Number</span>
           </button>
         </div>
@@ -107,7 +108,7 @@ export default function WelcomeBack() {
         {/* QR Login */}
         <button
           onClick={handleQRLogin}
-          className="w-full text-gray-600 py-2 font-medium mb-8"
+          className="w-full text-gray-700 py-2 mb-8"
         >
           Login Via QR Code
         </button>

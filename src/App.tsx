@@ -19,7 +19,7 @@ const QRScanVirtual = React.lazy(() => import("./pages/QRScanVirtual"));
 const CodeInput = React.lazy(() => import("./pages/CodeInput"));
 const ProductScan = React.lazy(() => import("./pages/ProductScan"));
 const KioskProductScan = React.lazy(() => import("./pages/KioskProductScan"));
-const WelcomeBack = React.lazy(() => import("./pages/WelcomeBack"));
+const SignIn = React.lazy(() => import("./pages/SignIn"));
 const SignUp = React.lazy(() => import("./pages/SignUp"));
 const MeasurementProfile = React.lazy(
   () => import("./pages/MeasurementProfile")
@@ -56,7 +56,7 @@ const App = () => (
             <Route path="/code-input" element={<CodeInput />} />
             <Route path="/product-scan" element={<ProductScan />} />
             <Route path="/kiosk-product-scan" element={<KioskProductScan />} />
-            <Route path="/welcome-back" element={<WelcomeBack />} />
+            <Route path="/welcome-back" element={<SignIn />} />
             <Route path="/sign-up" element={<SignUp />} />
             <Route
               path="/measurement-profile"

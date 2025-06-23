@@ -14,17 +14,17 @@ export default function MeasurementProfile() {
   };
 
   return (
-    <div className="bg-gradient-to-b from-blue-400 to-purple-600 flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen relative">
+    <div className="bg-gradient-to-b from-blue-400 to-purple-600 flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen relative">
       {/* Overlay */}
       <div className="absolute inset-0 bg-black bg-opacity-50"></div>
 
       {/* Content */}
       <div className="relative z-10 flex-1 flex items-center justify-center p-6">
-        <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
+        <div className="bg-white rounded-2xl p-6 w-full lg:max-w-sm">
           {/* Purple gradient placeholder */}
           <div className="w-full h-32 bg-gradient-to-r from-purple-300 to-pink-300 rounded-xl mb-6"></div>
 
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
             Provide your precise measurements before proceeding.
           </h2>
 

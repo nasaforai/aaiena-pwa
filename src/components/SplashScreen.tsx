@@ -14,7 +14,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   }, [onComplete]);
 
   return (
-    <div className="bg-[#EDE1FC] flex lg:max-w-sm w-full flex-col items-center justify-center overflow-hidden mx-auto min-h-screen relative">
+    <div className="bg-[#EDE1FC] flex lg:lg:max-w-sm w-full flex-col items-center justify-center overflow-hidden mx-auto min-h-screen relative">
       <div className="flex flex-col items-center animate-fade-in">
         <img
           alt="Welcome illustration"

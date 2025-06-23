@@ -15,7 +15,7 @@ export default function ImageGuide() {
   };
 
   return (
-    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between p-4">
         <button
@@ -29,7 +29,7 @@ export default function ImageGuide() {
       {/* Content */}
       <div className="flex-1 px-6 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl font-semibold text-gray-900 mb-4">
             Image Guide For Best Results
           </h1>
         </div>
@@ -37,14 +37,22 @@ export default function ImageGuide() {
         {/* Image Examples */}
         <div className="flex space-x-4 mb-8">
           <div className="flex-1">
-            <div className="w-full h-64 bg-gray-100 rounded-2xl mb-2 relative overflow-hidden">
-              <div className="absolute inset-4 bg-gradient-to-b from-blue-300 to-blue-500 rounded-xl"></div>
-            </div>
+            <div
+              className="w-full h-64 rounded-2xl mb-2 relative overflow-hidden"
+              style={{
+                backgroundImage: `url(/images/side.png)`,
+                backgroundSize: "cover",
+              }}
+            ></div>
           </div>
           <div className="flex-1">
-            <div className="w-full h-64 bg-gray-100 rounded-2xl mb-2 relative overflow-hidden">
-              <div className="absolute inset-4 bg-gradient-to-b from-gray-300 to-gray-400 rounded-xl"></div>
-            </div>
+            <div
+              className="w-full h-64 rounded-2xl mb-2 relative overflow-hidden"
+              style={{
+                backgroundImage: `url(/images/back.png)`,
+                backgroundSize: "cover",
+              }}
+            ></div>
           </div>
         </div>
 
@@ -54,23 +62,23 @@ export default function ImageGuide() {
             For Best Results:
           </h3>
           <div className="space-y-3">
-            <div className="flex items-start space-x-3">
-              <div className="w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
-                1
+            <div className="flex items-start">
+              <div className="w-6 h-6 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
+                1.
               </div>
               <span className="text-gray-700">
                 Look straight at the camera.
               </span>
             </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
-                2
+            <div className="flex items-start">
+              <div className="w-6 h-6 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
+                2.
               </div>
               <span className="text-gray-700">Natural light works best.</span>
             </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
-                3
+            <div className="flex items-start">
+              <div className="w-6 h-6 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
+                3.
               </div>
               <span className="text-gray-700">
                 No hats, filters, or busy backgrounds.
@@ -89,7 +97,7 @@ export default function ImageGuide() {
 
         {/* Footer */}
         <div className="text-center">
-          <p className="text-gray-400 font-bold text-lg">Aaiena</p>
+          <p className="text-gray-400 font-semibold text-lg">Aaiena</p>
         </div>
       </div>
     </div>

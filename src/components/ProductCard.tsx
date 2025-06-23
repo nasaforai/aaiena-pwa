@@ -9,7 +9,7 @@ const ProductCard = ({
 }) => {
   return (
     <div>
-      <div className="h-56 rounded-2xl bg-gray-200 relative overflow-hidden">
+      <div className="h-48 rounded-2xl bg-gray-200 relative overflow-hidden">
         <img
           src="/images/dress.jpg"
           alt={item.toString()}
@@ -29,6 +29,7 @@ const ProductCard = ({
         </div>
       </div>
       <div className="px-2 pt-1">
+        <p className="text-xs">Miss Chase Women's V-Neck Maxi Dress</p>
         <div className="text-xs flex gap-1 items-center">
           <span className="text-gray-400 line-through">₹1000</span>
           <span className="text-lg"> ₹500</span>

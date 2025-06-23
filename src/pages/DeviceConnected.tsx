@@ -16,7 +16,7 @@ export default function DeviceConnected() {
   };
 
   return (
-    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Content */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
         {/* Success Icon */}

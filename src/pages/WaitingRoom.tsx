@@ -1,7 +1,15 @@
 import React, { useState } from "react";
-import { ArrowLeft, ShoppingCart } from "lucide-react";
+import { ArrowLeft, QrCode, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { RoomJoinDialog } from "@/components/RoomJoinDialog";
+import Topbar from "@/components/ui/topbar";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselDots,
+  CarouselItem,
+} from "@/components/ui/carousel";
+import ProductCard from "@/components/ProductCard";
 
 export default function WaitingRoom() {
   const navigate = useNavigate();
@@ -21,6 +29,8 @@ export default function WaitingRoom() {
     setShowVirtualDialog(true);
   };
 
+  const handleProductClick = (productId: string) => {};
+
   const rooms = [
     { id: "A1", status: "occupied", estimate: "3mins" },
     { id: "B1", status: "empty", estimate: "" },
@@ -32,29 +42,26 @@ export default function WaitingRoom() {
 
   return (
     <>
-      <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
+      <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen font-roboto">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 bg-white">
-          <button
-            onClick={handleBack}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-6 h-6 text-gray-700" />
-          </button>
-          <ShoppingCart className="w-6 h-6 text-gray-700" />
-        </div>
+        <Topbar handleBack={handleBack} />
 
         {/* Main Purple Section */}
-        <div className="mx-4 mb-4 bg-purple-400 rounded-2xl p-6 text-white text-center">
-          <h2 className="text-xl font-bold mb-2">
+        <div className="mx-4 mb-4 bg-gradient-to-t from-[#FCEDFF] to-[#DCC0FF] rounded-2xl p-6 text-center">
+          <h2 className="text-xl font-semibold mb-1 text-black">
             Secure Your Room In Seconds
           </h2>
-          <p className="text-sm opacity-90 mb-4">
+          <p className="text-sm text-gray-600 mb-4">
             Join Quickly And Check Your Fittings
           </p>
 
-          <div className="w-16 h-16 mx-auto mb-4 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-            <div className="w-8 h-8 bg-orange-400 rounded"></div>
+          <div className="mx-auto mb-6 flex items-center justify-center">
+            <img
+              src="/images/shopping.png"
+              alt="shopping illustraton"
+              width={83}
+              height={83}
+            />
           </div>
 
           <button
@@ -66,7 +73,7 @@ export default function WaitingRoom() {
 
           <button
             onClick={handleVirtualTryOn}
-            className="text-xs opacity-75 hover:opacity-100 transition-opacity"
+            className="text-xs px-1 py-2 rounded-lg text-gray-600 transition-opacity border border-gray-400 w-full"
           >
             Great News! Skip Waiting—Try Clothes Virtually Now
           </button>
@@ -76,7 +83,7 @@ export default function WaitingRoom() {
         <div className="px-4 mb-4">
           <div className="flex items-center space-x-2 mb-3">
             <span className="font-medium text-gray-900">Live Queue</span>
-            <span className="bg-orange-200 text-orange-800 px-2 py-1 rounded text-xs font-medium">
+            <span className="bg-red-200 text-red-800 px-2 py-1 rounded text-xs font-medium">
               BUSY
             </span>
           </div>
@@ -93,24 +100,22 @@ export default function WaitingRoom() {
           </div>
 
           {/* Room Grid */}
-          <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="grid grid-cols-2 gap-6 my-10">
             {rooms.map((room, index) => (
               <div
                 key={index}
-                className={`p-3 rounded-lg flex items-center justify-between ${
-                  room.status === "empty" ? "bg-green-100" : "bg-red-100"
-                }`}
+                className={`flex items-center justify-between gap-2`}
               >
                 <div
-                  className={`w-8 h-8 rounded flex items-center justify-center text-white text-sm font-bold ${
+                  className={`w-14 h-12 rounded flex items-center justify-center text-white text-sm font-bold ${
                     room.status === "empty" ? "bg-green-500" : "bg-red-500"
                   }`}
                 >
                   {room.id}
                 </div>
-                <div className="text-right">
+                <div className="text-left flex-1">
                   <div
-                    className={`text-xs font-medium ${
+                    className={`text-sm font-medium ${
                       room.status === "empty"
                         ? "text-green-700"
                         : "text-red-700"
@@ -119,7 +124,7 @@ export default function WaitingRoom() {
                     {room.status === "empty" ? "Empty" : "Occupied"}
                   </div>
                   {room.estimate && (
-                    <div className="text-xs text-gray-500">
+                    <div className="text-[10px] text-gray-500">
                       Time estimate: {room.estimate}
                     </div>
                   )}
@@ -129,19 +134,19 @@ export default function WaitingRoom() {
           </div>
 
           {/* Notification Toggle */}
-          <div className="flex items-center justify-between mb-4">
-            <span className="font-medium text-gray-900">
+          <div className="flex items-center justify-between mb-1 bg-purple-100 p-4 rounded-lg">
+            <span className="font-medium text-gray-900 text-md">
               Notify me when it's my turn
             </span>
             <button
               onClick={() => setNotifyToggle(!notifyToggle)}
               className={`w-12 h-6 rounded-full transition-colors ${
-                notifyToggle ? "bg-purple-500" : "bg-gray-300"
+                notifyToggle ? "bg-black" : "bg-gray-300"
               }`}
             >
               <div
-                className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                  notifyToggle ? "translate-x-6" : "translate-x-1"
+                className={`w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                  notifyToggle ? "translate-x-7" : "translate-x-1"
                 }`}
               ></div>
             </button>
@@ -152,112 +157,94 @@ export default function WaitingRoom() {
           </p>
 
           {/* QR Code Section */}
-          <div className="bg-yellow-100 rounded-2xl p-4 mb-4">
-            <h3 className="font-bold text-gray-900 mb-2">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 mb-4">
+            <h3 className="font-semibold text-yellow-800 mb-1">
               Get Live Queue Updates on Your Phone
             </h3>
-            <p className="text-sm text-gray-600 mb-3">
+            <p className="text-sm text-yellow-700 mb-3">
               Scan the QR code using your phone to get real-time updates and
               alerts
             </p>
 
-            <div className="w-24 h-24 bg-white rounded-lg mx-auto mb-3 flex items-center justify-center">
-              <div className="w-20 h-20 bg-gray-900 rounded grid grid-cols-3 gap-1 p-1">
-                {[...Array(9)].map((_, i) => (
-                  <div
-                    key={i}
-                    className={`bg-white rounded-sm ${
-                      Math.random() > 0.5 ? "opacity-100" : "opacity-0"
-                    }`}
-                  ></div>
-                ))}
-              </div>
-            </div>
+            {/* <div className="flex items-center"> */}
+            <img
+              src="/images/qr-code.png"
+              alt="qr coe"
+              width={80}
+              height={80}
+              className="mx-auto my-4"
+            />
+            {/* </div> */}
 
-            <button className="w-full bg-yellow-400 text-gray-900 py-2 rounded-xl font-medium mb-2">
-              📱 Connect My Phone
+            <button className="w-full border border-yellow-400 text-yellow-800 py-2 rounded-xl mb-2 flex items-center justify-center gap-1">
+              <QrCode className="w-4" /> <span> Connect My Phone</span>
             </button>
 
-            <p className="text-xs text-gray-500 text-center">
+            <p className="text-xs text-yellow-700 text-center">
               Already connected? Check your phone for updates
             </p>
           </div>
 
           {/* Live Update Section */}
-          <div className="bg-green-100 rounded-lg p-3 mb-4">
-            <span className="bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
+          <div className="border border-gray-300 rounded-lg px-3 py-4 mb-4">
+            <span className="bg-green-200 text-black px-2 py-1 rounded text-xs">
               Live Update
             </span>
-            <div className="mt-2 space-y-2">
+            <div className="mt-4 px-4 space-y-2 text-gray-700">
               <div className="flex justify-between">
                 <span className="text-sm">Now serving</span>
-                <span className="text-sm font-medium">5</span>
+                <span className="text-sm">5</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm">Occupied rooms</span>
-                <span className="text-sm font-medium">5/6</span>
+                <span className="text-sm">5/6</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm">Avg. wait per person</span>
-                <span className="text-sm font-medium">3 mins</span>
+                <span className="text-sm">3 mins</span>
               </div>
             </div>
           </div>
 
           {/* While Waiting Section */}
-          <h3 className="font-bold text-lg mb-3">
-            While Waiting, Explore Popular Styles!
-          </h3>
 
-          <div className="grid grid-cols-3 gap-3 mb-4">
-            {[1, 2, 3].map((item) => (
-              <div
-                key={item}
-                className="bg-gray-100 rounded-xl overflow-hidden"
-              >
-                <div className="h-32 bg-gray-200 relative">
-                  <button className="absolute bottom-2 right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                    <span className="text-xs">👍</span>
-                  </button>
-                </div>
-                <div className="p-2">
-                  <button className="text-xs text-purple-600">
-                    View Details
-                  </button>
-                  <p className="text-xs font-semibold">
-                    ₹500{" "}
-                    <span className="text-gray-400 line-through">₹700</span>
-                  </p>
-                </div>
-              </div>
-            ))}
+          <div className="mb-6">
+            <h3 className="font-semibold text-lg mb-3">
+              While Waiting, Explore Popular Styles!
+            </h3>
+            <Carousel className="w-full">
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {[1, 2, 3, 4].map((item) => (
+                  <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
+                    <ProductCard
+                      item={item}
+                      handleProductClick={handleProductClick}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselDots />
+            </Carousel>
           </div>
 
           {/* More T-Shirts Section */}
-          <h3 className="font-bold text-lg mb-3">More T-Shirts</h3>
-
-          <div className="grid grid-cols-2 gap-3">
-            {[1, 2].map((item) => (
-              <div
-                key={item}
-                className="bg-gray-100 rounded-xl overflow-hidden"
-              >
-                <div className="h-40 bg-gray-200 relative">
-                  <button className="absolute bottom-2 right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                    <span className="text-xs">👍</span>
-                  </button>
-                </div>
-                <div className="p-3">
-                  <button className="text-sm text-purple-600">
-                    View Details
-                  </button>
-                  <p className="text-sm font-semibold">
-                    ₹500{" "}
-                    <span className="text-gray-400 line-through">₹700</span>
-                  </p>
-                </div>
-              </div>
-            ))}
+          <div className="mb-6">
+            <h3 className="font-semibold text-lg mb-3">
+              More T-Shirts Section
+            </h3>
+            <Carousel className="w-full">
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {[1, 2, 3, 4].map((item) => (
+                  <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
+                    <ProductCard
+                      item={item}
+                      handleProductClick={handleProductClick}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselDots />
+            </Carousel>
           </div>
         </div>
       </div>

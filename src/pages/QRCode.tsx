@@ -2,6 +2,7 @@ import React from "react";
 import { ArrowLeft, Copy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export default function QRCode() {
   const navigate = useNavigate();
@@ -19,11 +20,16 @@ export default function QRCode() {
   };
 
   const copyCode = () => {
-    navigator.clipboard.writeText("TSRO - 23UH489");
+    try {
+      navigator.clipboard.writeText("TSRO - 23UH489");
+      toast.success("Code Copied Successfully");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
-    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between p-4">
         <button
@@ -65,23 +71,19 @@ export default function QRCode() {
         </div>
 
         {/* QR Code Section */}
-        <div className="bg-gray-50 rounded-2xl p-6 mb-6">
+        <div className="border border-gray-200 rounded-2xl p-6 mb-6">
           <h3 className="text-lg font-bold text-center mb-2">Scan QR Code</h3>
           <p className="text-sm text-gray-600 text-center mb-4">
             Use your phone camera to scan
           </p>
 
           <div className="w-48 h-48 mx-auto mb-4 bg-white rounded-lg flex items-center justify-center">
-            <div className="w-40 h-40 bg-gray-900 rounded grid grid-cols-8 gap-1 p-2">
-              {[...Array(64)].map((_, i) => (
-                <div
-                  key={i}
-                  className={`bg-white rounded-sm ${
-                    Math.random() > 0.5 ? "opacity-100" : "opacity-0"
-                  }`}
-                ></div>
-              ))}
-            </div>
+            <img
+              src="/images/qr-code.png"
+              alt="qrcode"
+              width={145}
+              height={145}
+            />
           </div>
 
           <p className="text-xs text-gray-500 text-center">
@@ -95,7 +97,9 @@ export default function QRCode() {
             Copy The Code To Continue In Kiosk
           </p>
           <div className="bg-purple-100 rounded-xl p-4 flex items-center justify-between">
-            <span className="font-mono text-lg font-bold">TSRO - 23UH489</span>
+            <span className="font-mono text-lg font-bold text-center flex-1">
+              TSRO - 23UH489
+            </span>
             <button
               onClick={copyCode}
               className="p-2 hover:bg-purple-200 rounded-lg transition-colors"
@@ -118,7 +122,7 @@ export default function QRCode() {
           </Button>
           <button
             onClick={handleBackToPhysical}
-            className="w-full text-gray-600 py-2 font-medium"
+            className="w-full border border-gray-500 rounded-xl text-gray-600 py-2 font-medium"
           >
             Back To Physical Try-On
           </button>

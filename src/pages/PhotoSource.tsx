@@ -1,4 +1,3 @@
-import React from "react";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,7 @@ export default function PhotoSource() {
   };
 
   return (
-    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between p-4">
         <button
@@ -31,23 +30,31 @@ export default function PhotoSource() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-6 py-8">
+      <div className="mt-20 flex-1 px-6 py-8">
         {/* Photo Examples */}
         <div className="flex space-x-4 mb-8">
           <div className="flex-1">
             <div className="w-full h-48 bg-gradient-to-b from-teal-300 to-teal-500 rounded-2xl mb-2 relative overflow-hidden">
-              <div className="absolute bottom-4 left-4 w-16 h-20 bg-blue-600 rounded-lg"></div>
+              <img
+                src="/images/dress.jpg"
+                alt="photo"
+                className="absolute left-0 top-0 object-cover"
+              />
             </div>
           </div>
           <div className="flex-1">
             <div className="w-full h-48 bg-gradient-to-b from-purple-300 to-pink-400 rounded-2xl mb-2 relative overflow-hidden">
-              <div className="absolute bottom-4 right-4 w-16 h-20 bg-white rounded-lg"></div>
+              <img
+                src="/images/dress.jpg"
+                alt="photo"
+                className="absolute left-0 top-0 object-cover"
+              />{" "}
             </div>
           </div>
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl font-semibold text-gray-900 mb-4">
             Choose Photo Source
           </h1>
         </div>
@@ -69,9 +76,9 @@ export default function PhotoSource() {
         </div>
 
         {/* Footer */}
-        <div className="text-center">
+        {/* <div className="text-center mt-auto">
           <p className="text-gray-400 font-bold text-lg">Aaiena</p>
-        </div>
+        </div> */}
       </div>
     </div>
   );

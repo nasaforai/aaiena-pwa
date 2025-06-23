@@ -103,7 +103,7 @@ export default function ProductDetails() {
   const sizes = ["XS", "S", "M", "L", "XL"];
 
   return (
-    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <Topbar handleBack={handleBack} />
 
@@ -358,7 +358,7 @@ export default function ProductDetails() {
       </div>
 
       {/* Bottom Action */}
-      <div className="fixed bottom-0 left-0 w-full lg:max-w-sm lg:left-1/2 lg:-translate-x-1/2">
+      <div className="fixed bottom-0 left-0 w-full lg:lg:max-w-sm lg:left-1/2 lg:-translate-x-1/2">
         <div className="shadow-xl">
           <div className="bg-purple-200 rounded-tr-2xl rounded-tl-2xl p-4">
             <div className="flex justify-between items-center mb-2">

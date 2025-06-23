@@ -45,7 +45,7 @@ export const FashionLaneScreen: React.FC<FashionLaneScreenProps> = ({
   };
 
   return (
-    <div className="bg-[#EDE1FC] flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen relative px-6 py-8">
+    <div className="bg-[#EDE1FC] flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen relative px-6 py-8">
       {/* H&M Logo */}
       <div className="flex justify-center mb-8">
         <div className="text-red-600 text-4xl font-bold">H&M</div>

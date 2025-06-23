@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Phone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +22,7 @@ export default function SignUp() {
   };
 
   return (
-    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between p-4">
         <button
@@ -41,7 +41,7 @@ export default function SignUp() {
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">
             Get Full Access
           </h1>
         </div>
@@ -91,15 +91,16 @@ export default function SignUp() {
         {/* Social Login */}
         <div className="space-y-3 mb-8">
           <button className="w-full border border-gray-300 rounded-xl py-3 px-4 flex items-center justify-center space-x-3 hover:bg-gray-50 transition-colors">
-            <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-              G
-            </div>
+            <img
+              src="/icons/google.svg"
+              alt="google icon"
+              width={20}
+              height={20}
+            />
             <span className="text-gray-700">Continue with Google</span>
           </button>
           <button className="w-full border border-gray-300 rounded-xl py-3 px-4 flex items-center justify-center space-x-3 hover:bg-gray-50 transition-colors">
-            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-white text-xs">
-              📞
-            </div>
+            <Phone className="text-gray-800 w-5" />
             <span className="text-gray-700">Continue with Phone Number</span>
           </button>
         </div>
