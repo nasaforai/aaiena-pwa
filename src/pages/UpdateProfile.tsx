@@ -1,45 +1,57 @@
-
-import React, { useState } from 'react';
-import { ArrowLeft, Camera } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import React, { useState } from "react";
+import { ArrowLeft, Camera } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function UpdateProfile() {
   const navigate = useNavigate();
-  const [selectedGender, setSelectedGender] = useState('Male');
-  const [selectedShirtSize, setSelectedShirtSize] = useState('XL');
-  const [height, setHeight] = useState('177');
-  const [weight, setWeight] = useState('60');
-  const [chest, setChest] = useState('96');
-  const [waist, setWaist] = useState('81');
-  const [pantsSize, setPantsSize] = useState('32');
-  const [stylePreferences, setStylePreferences] = useState(['Smart', 'Streetwear', 'Athletic']);
+  const [selectedGender, setSelectedGender] = useState("Male");
+  const [selectedShirtSize, setSelectedShirtSize] = useState("XL");
+  const [height, setHeight] = useState("177");
+  const [weight, setWeight] = useState("60");
+  const [chest, setChest] = useState("96");
+  const [waist, setWaist] = useState("81");
+  const [pantsSize, setPantsSize] = useState("32");
+  const [stylePreferences, setStylePreferences] = useState([
+    "Smart",
+    "Streetwear",
+    "Athletic",
+  ]);
 
   const handleBack = () => {
-    navigate('/image-guide');
+    navigate("/image-guide");
   };
 
   const handleSave = () => {
-    navigate('/fit-profile');
+    navigate("/fit-profile");
   };
 
   const toggleStylePreference = (style: string) => {
-    setStylePreferences(prev => 
-      prev.includes(style) 
-        ? prev.filter(s => s !== style)
-        : [...prev, style]
+    setStylePreferences((prev) =>
+      prev.includes(style) ? prev.filter((s) => s !== style) : [...prev, style]
     );
   };
 
-  const shirtSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-  const styles = ['Smart', 'Business', 'Casual', 'Vintage', 'Formal', 'Streetwear', 'Athletic'];
+  const shirtSizes = ["XS", "S", "M", "L", "XL", "XXL"];
+  const styles = [
+    "Smart",
+    "Business",
+    "Casual",
+    "Vintage",
+    "Formal",
+    "Streetwear",
+    "Athletic",
+  ];
 
   return (
-    <div className="bg-white flex max-w-[480px] w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
-        <button onClick={handleBack} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+        <button
+          onClick={handleBack}
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        >
           <ArrowLeft className="w-6 h-6 text-gray-700" />
         </button>
         <h1 className="text-lg font-bold">UPDATE PROFILE</h1>
@@ -48,9 +60,15 @@ export default function UpdateProfile() {
 
       {/* Tab Navigation */}
       <div className="flex border-b">
-        <button className="flex-1 py-3 px-4 text-center border-b-2 border-purple-600 font-medium">Profile</button>
-        <button className="flex-1 py-3 px-4 text-center text-gray-500">Size Guide</button>
-        <button className="flex-1 py-3 px-4 text-center text-gray-500">Style Rating</button>
+        <button className="flex-1 py-3 px-4 text-center border-b-2 border-purple-600 font-medium">
+          Profile
+        </button>
+        <button className="flex-1 py-3 px-4 text-center text-gray-500">
+          Size Guide
+        </button>
+        <button className="flex-1 py-3 px-4 text-center text-gray-500">
+          Style Rating
+        </button>
       </div>
 
       {/* Content */}
@@ -72,7 +90,7 @@ export default function UpdateProfile() {
         <div className="mb-6">
           <h3 className="font-medium mb-3">Your Current Photos</h3>
           <div className="flex space-x-3">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="w-16 h-16 bg-blue-200 rounded-lg"></div>
             ))}
           </div>
@@ -82,14 +100,14 @@ export default function UpdateProfile() {
         <div className="mb-6">
           <h3 className="font-medium mb-3">Gender</h3>
           <div className="flex space-x-3">
-            {['Male', 'Female'].map(gender => (
+            {["Male", "Female"].map((gender) => (
               <button
                 key={gender}
                 onClick={() => setSelectedGender(gender)}
                 className={`px-6 py-2 rounded-full font-medium ${
                   selectedGender === gender
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-gray-100 text-gray-700'
+                    ? "bg-gray-900 text-white"
+                    : "bg-gray-100 text-gray-700"
                 }`}
               >
                 {gender}
@@ -104,7 +122,7 @@ export default function UpdateProfile() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-gray-600 mb-1">Height</label>
-              <select 
+              <select
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
@@ -114,7 +132,7 @@ export default function UpdateProfile() {
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-1">Weight</label>
-              <select 
+              <select
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
@@ -124,7 +142,7 @@ export default function UpdateProfile() {
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-1">Chest</label>
-              <select 
+              <select
                 value={chest}
                 onChange={(e) => setChest(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
@@ -134,7 +152,7 @@ export default function UpdateProfile() {
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-1">Waist</label>
-              <select 
+              <select
                 value={waist}
                 onChange={(e) => setWaist(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
@@ -149,16 +167,18 @@ export default function UpdateProfile() {
         <div className="mb-6">
           <h3 className="font-medium mb-3">Sizing Information</h3>
           <div className="mb-4">
-            <label className="block text-sm text-gray-600 mb-2">Shirt Size</label>
+            <label className="block text-sm text-gray-600 mb-2">
+              Shirt Size
+            </label>
             <div className="flex space-x-2">
-              {shirtSizes.map(size => (
+              {shirtSizes.map((size) => (
                 <button
                   key={size}
                   onClick={() => setSelectedShirtSize(size)}
                   className={`px-3 py-2 rounded-lg font-medium ${
                     selectedShirtSize === size
-                      ? 'bg-gray-900 text-white'
-                      : 'bg-gray-100 text-gray-700'
+                      ? "bg-gray-900 text-white"
+                      : "bg-gray-100 text-gray-700"
                   }`}
                 >
                   {size}
@@ -167,8 +187,10 @@ export default function UpdateProfile() {
             </div>
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-2">Pants Size</label>
-            <select 
+            <label className="block text-sm text-gray-600 mb-2">
+              Pants Size
+            </label>
+            <select
               value={pantsSize}
               onChange={(e) => setPantsSize(e.target.value)}
               className="w-20 p-2 border border-gray-300 rounded-lg"
@@ -182,22 +204,24 @@ export default function UpdateProfile() {
         <div className="mb-8">
           <h3 className="font-medium mb-3">Style Preferences</h3>
           <div className="grid grid-cols-2 gap-3">
-            {styles.map(style => (
+            {styles.map((style) => (
               <button
                 key={style}
                 onClick={() => toggleStylePreference(style)}
                 className={`p-3 rounded-lg border text-left ${
                   stylePreferences.includes(style)
-                    ? 'bg-gray-900 text-white border-gray-900'
-                    : 'bg-white text-gray-700 border-gray-300'
+                    ? "bg-gray-900 text-white border-gray-900"
+                    : "bg-white text-gray-700 border-gray-300"
                 }`}
               >
                 <div className="flex items-center space-x-2">
-                  <div className={`w-4 h-4 rounded border ${
-                    stylePreferences.includes(style)
-                      ? 'bg-white border-white'
-                      : 'border-gray-400'
-                  }`}>
+                  <div
+                    className={`w-4 h-4 rounded border ${
+                      stylePreferences.includes(style)
+                        ? "bg-white border-white"
+                        : "border-gray-400"
+                    }`}
+                  >
                     {stylePreferences.includes(style) && (
                       <div className="w-full h-full flex items-center justify-center">
                         <div className="w-2 h-2 bg-gray-900 rounded"></div>
@@ -212,7 +236,7 @@ export default function UpdateProfile() {
         </div>
 
         {/* Save Button */}
-        <Button 
+        <Button
           onClick={handleSave}
           className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800 mb-4"
         >

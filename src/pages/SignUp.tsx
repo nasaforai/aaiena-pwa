@@ -1,32 +1,34 @@
-
-import React, { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import React, { useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function SignUp() {
   const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
   const handleBack = () => {
-    navigate('/welcome-back');
+    navigate("/welcome-back");
   };
 
   const handleSignUp = () => {
-    navigate('/measurement-profile');
+    navigate("/measurement-profile");
   };
 
   const handleLogin = () => {
-    navigate('/welcome-back');
+    navigate("/welcome-back");
   };
 
   return (
-    <div className="bg-white flex max-w-[480px] w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between p-4">
-        <button onClick={handleBack} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+        <button
+          onClick={handleBack}
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        >
           <ArrowLeft className="w-6 h-6 text-gray-700" />
         </button>
       </div>
@@ -39,13 +41,17 @@ export default function SignUp() {
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Get Full Access</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Get Full Access
+          </h1>
         </div>
 
         {/* Form */}
         <div className="space-y-4 mb-8">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Name
+            </label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -54,7 +60,9 @@ export default function SignUp() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Email
+            </label>
             <Input
               type="email"
               value={email}
@@ -66,7 +74,7 @@ export default function SignUp() {
         </div>
 
         {/* Sign Up Button */}
-        <Button 
+        <Button
           onClick={handleSignUp}
           className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800 mb-6"
         >
@@ -83,26 +91,30 @@ export default function SignUp() {
         {/* Social Login */}
         <div className="space-y-3 mb-8">
           <button className="w-full border border-gray-300 rounded-xl py-3 px-4 flex items-center justify-center space-x-3 hover:bg-gray-50 transition-colors">
-            <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">G</div>
+            <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+              G
+            </div>
             <span className="text-gray-700">Continue with Google</span>
           </button>
           <button className="w-full border border-gray-300 rounded-xl py-3 px-4 flex items-center justify-center space-x-3 hover:bg-gray-50 transition-colors">
-            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-white text-xs">📞</div>
+            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-white text-xs">
+              📞
+            </div>
             <span className="text-gray-700">Continue with Phone Number</span>
           </button>
         </div>
 
         {/* Terms */}
         <p className="text-xs text-gray-500 text-center mb-8">
-          By continuing, you agree to the{' '}
-          <button className="underline">Terms of Service</button>{' '}
-          and acknowledge you've read our{' '}
+          By continuing, you agree to the{" "}
+          <button className="underline">Terms of Service</button> and
+          acknowledge you've read our{" "}
           <button className="underline">Privacy Policy</button>.
         </p>
 
         {/* Login */}
         <p className="text-center text-gray-600">
-          Already Have An Account?{' '}
+          Already Have An Account?{" "}
           <button onClick={handleLogin} className="text-blue-600 font-medium">
             Log In
           </button>

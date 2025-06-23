@@ -1,13 +1,23 @@
-
-import React from 'react';
-import { ArrowLeft, Search, ShoppingBag, User, Heart, Home, MessageCircle } from 'lucide-react';
+import React from "react";
+import {
+  ArrowLeft,
+  Search,
+  ShoppingBag,
+  User,
+  Heart,
+  Home,
+  MessageCircle,
+} from "lucide-react";
 
 interface StoreScreenProps {
   onBack?: () => void;
   onProductSelect?: () => void;
 }
 
-export const StoreScreen: React.FC<StoreScreenProps> = ({ onBack, onProductSelect }) => {
+export const StoreScreen: React.FC<StoreScreenProps> = ({
+  onBack,
+  onProductSelect,
+}) => {
   const handleBack = () => {
     if (onBack) {
       onBack();
@@ -21,10 +31,10 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({ onBack, onProductSelec
   };
 
   return (
-    <div className="bg-white flex max-w-[480px] w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-white border-b border-gray-100">
-        <button 
+        <button
           onClick={handleBack}
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
         >
@@ -75,7 +85,10 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({ onBack, onProductSelec
       {/* Designer Picks */}
       <div className="mx-4 mb-4 bg-purple-400 rounded-2xl p-4 text-white">
         <h3 className="font-bold text-lg mb-2">DESIGNER PICKS</h3>
-        <p className="text-sm opacity-90 mb-3">Fashion Trends Selected Just For You! Handpicked Designer Brands Including Limited Edition Fashion Finds!</p>
+        <p className="text-sm opacity-90 mb-3">
+          Fashion Trends Selected Just For You! Handpicked Designer Brands
+          Including Limited Edition Fashion Finds!
+        </p>
         <button className="bg-white text-purple-500 px-6 py-2 rounded-xl text-sm font-medium">
           Explore Now
         </button>
@@ -85,12 +98,14 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({ onBack, onProductSelec
       <div className="px-4 mb-4">
         <h3 className="font-bold text-lg mb-3">Shop All</h3>
         <div className="flex justify-between">
-          {['Dress', 'Jeans', 'Trousers', 'Tops', 'Bags'].map((category, index) => (
-            <div key={category} className="flex flex-col items-center">
-              <div className="w-12 h-12 bg-gray-200 rounded-full mb-1"></div>
-              <span className="text-xs text-gray-600">{category}</span>
-            </div>
-          ))}
+          {["Dress", "Jeans", "Trousers", "Tops", "Bags"].map(
+            (category, index) => (
+              <div key={category} className="flex flex-col items-center">
+                <div className="w-12 h-12 bg-gray-200 rounded-full mb-1"></div>
+                <span className="text-xs text-gray-600">{category}</span>
+              </div>
+            )
+          )}
         </div>
       </div>
 
@@ -108,10 +123,13 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({ onBack, onProductSelec
             <h3 className="font-bold text-lg mb-3">Trending Now</h3>
             <div className="grid grid-cols-2 gap-4">
               {[1, 2].map((item) => (
-                <div key={item} className="bg-gray-100 rounded-2xl overflow-hidden">
+                <div
+                  key={item}
+                  className="bg-gray-100 rounded-2xl overflow-hidden"
+                >
                   <div className="h-40 bg-gray-200"></div>
                   <div className="p-3">
-                    <button 
+                    <button
                       onClick={handleProductClick}
                       className="text-sm text-gray-600 hover:text-purple-600 transition-colors"
                     >
@@ -128,10 +146,13 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({ onBack, onProductSelec
             <h3 className="font-bold text-lg mb-3">Recently Tried</h3>
             <div className="grid grid-cols-2 gap-4">
               {[1, 2].map((item) => (
-                <div key={item} className="bg-gray-100 rounded-2xl overflow-hidden">
+                <div
+                  key={item}
+                  className="bg-gray-100 rounded-2xl overflow-hidden"
+                >
                   <div className="h-40 bg-gray-200"></div>
                   <div className="p-3">
-                    <button 
+                    <button
                       onClick={handleProductClick}
                       className="text-sm text-gray-600 hover:text-purple-600 transition-colors"
                     >
@@ -148,10 +169,13 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({ onBack, onProductSelec
             <h3 className="font-bold text-lg mb-3">Newest</h3>
             <div className="grid grid-cols-2 gap-4">
               {[1, 2].map((item) => (
-                <div key={item} className="bg-gray-100 rounded-2xl overflow-hidden">
+                <div
+                  key={item}
+                  className="bg-gray-100 rounded-2xl overflow-hidden"
+                >
                   <div className="h-40 bg-gray-200"></div>
                   <div className="p-3">
-                    <button 
+                    <button
                       onClick={handleProductClick}
                       className="text-sm text-gray-600 hover:text-purple-600 transition-colors"
                     >
@@ -178,10 +202,13 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({ onBack, onProductSelec
           <h3 className="font-bold text-lg mb-3">In Offer</h3>
           <div className="grid grid-cols-2 gap-4">
             {[1, 2].map((item) => (
-              <div key={item} className="bg-gray-100 rounded-2xl overflow-hidden">
+              <div
+                key={item}
+                className="bg-gray-100 rounded-2xl overflow-hidden"
+              >
                 <div className="h-40 bg-gray-200"></div>
                 <div className="p-3">
-                  <button 
+                  <button
                     onClick={handleProductClick}
                     className="text-sm text-gray-600 hover:text-purple-600 transition-colors"
                   >
@@ -196,7 +223,7 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({ onBack, onProductSelec
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 max-w-[480px] w-full bg-white border-t border-gray-100 px-4 py-3">
+      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 lg:max-w-sm w-full bg-white border-t border-gray-100 px-4 py-3">
         <div className="flex justify-around">
           <button className="flex flex-col items-center space-y-1">
             <Home className="w-5 h-5 text-purple-600" />

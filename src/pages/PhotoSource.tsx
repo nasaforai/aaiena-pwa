@@ -1,29 +1,31 @@
-
-import React from 'react';
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import React from "react";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export default function PhotoSource() {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    navigate('/measurement-profile');
+    navigate("/measurement-profile");
   };
 
   const handleTakePhoto = () => {
-    navigate('/image-guide');
+    navigate("/image-guide");
   };
 
   const handleChooseGallery = () => {
-    navigate('/image-guide');
+    navigate("/image-guide");
   };
 
   return (
-    <div className="bg-white flex max-w-[480px] w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between p-4">
-        <button onClick={handleBack} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+        <button
+          onClick={handleBack}
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        >
           <ArrowLeft className="w-6 h-6 text-gray-700" />
         </button>
       </div>
@@ -45,18 +47,20 @@ export default function PhotoSource() {
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Choose Photo Source</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            Choose Photo Source
+          </h1>
         </div>
 
         {/* Buttons */}
         <div className="space-y-3 mb-8">
-          <Button 
+          <Button
             onClick={handleTakePhoto}
             className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800"
           >
             Take Photo
           </Button>
-          <button 
+          <button
             onClick={handleChooseGallery}
             className="w-full text-gray-600 py-2 font-medium"
           >

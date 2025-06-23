@@ -21,6 +21,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import Topbar from "@/components/ui/topbar";
+import ProductCard from "@/components/ProductCard";
 
 export default function Store() {
   const navigate = useNavigate();
@@ -33,39 +34,8 @@ export default function Store() {
     navigate("/product-details");
   };
 
-  const ProductCard = ({ item }: { item: number }) => (
-    <div>
-      <div className="h-56 rounded-2xl bg-gray-200 relative overflow-hidden">
-        <img
-          src="/images/dress.jpg"
-          alt={item.toString()}
-          className="absolute left-0 top-0 object-cover"
-        />
-        <div className="absolute bottom-12 right-2 bg-white rounded-full p-2">
-          <ShoppingBag className="w-4 h-4 text-gray-600" />
-        </div>
-
-        <div className="absolute left-0 bottom-0 bg-white/30 right-0 py-2 flex justify-center">
-          <button
-            onClick={handleProductClick}
-            className="text-sm text-white hover:text-purple-600 transition-colors mb-1 block"
-          >
-            View Details
-          </button>
-        </div>
-      </div>
-      <div className="px-2 pt-1">
-        <div className="text-xs flex gap-1 items-center">
-          <span className="text-gray-400 line-through">₹1000</span>
-          <span className="text-lg"> ₹500</span>
-          <span className="text-gray-400">50% off</span>
-        </div>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="bg-white flex max-w-[480px] w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       <Topbar handleBack={() => handleBack()} />
 
       {/* Search Bar */}
@@ -181,7 +151,10 @@ export default function Store() {
               <CarouselContent className="-ml-2 md:-ml-4">
                 {[1, 2, 3, 4].map((item) => (
                   <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
-                    <ProductCard item={item} />
+                    <ProductCard
+                      item={item}
+                      handleProductClick={handleProductClick}
+                    />
                   </CarouselItem>
                 ))}
               </CarouselContent>
@@ -198,7 +171,10 @@ export default function Store() {
               <CarouselContent className="-ml-2 md:-ml-4">
                 {[1, 2, 3, 4].map((item) => (
                   <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
-                    <ProductCard item={item} />
+                    <ProductCard
+                      item={item}
+                      handleProductClick={handleProductClick}
+                    />
                   </CarouselItem>
                 ))}
               </CarouselContent>
@@ -215,7 +191,10 @@ export default function Store() {
               <CarouselContent className="-ml-2 md:-ml-4">
                 {[1, 2, 3, 4].map((item) => (
                   <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
-                    <ProductCard item={item} />
+                    <ProductCard
+                      item={item}
+                      handleProductClick={handleProductClick}
+                    />
                   </CarouselItem>
                 ))}
               </CarouselContent>
@@ -271,7 +250,10 @@ export default function Store() {
             <CarouselContent className="-ml-2 md:-ml-4">
               {[1, 2, 3, 4].map((item) => (
                 <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
-                  <ProductCard item={item} />
+                  <ProductCard
+                    item={item}
+                    handleProductClick={handleProductClick}
+                  />
                 </CarouselItem>
               ))}
             </CarouselContent>
@@ -284,7 +266,7 @@ export default function Store() {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 max-w-[480px] w-full bg-white border-t border-gray-100 px-4 py-3">
+      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 lg:max-w-sm w-full bg-white border-t border-gray-100 px-4 py-3">
         <div className="flex justify-around">
           <button className="flex flex-col items-center space-y-1">
             <Home className="w-5 h-5 text-purple-600" />

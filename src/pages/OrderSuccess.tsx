@@ -1,27 +1,26 @@
-
-import React, { useEffect } from 'react';
-import { ArrowLeft, ShoppingCart } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import React, { useEffect } from "react";
+import { ArrowLeft, ShoppingCart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export default function OrderSuccess() {
   const navigate = useNavigate();
 
   useEffect(() => {
     // Clear cart after successful order
-    localStorage.removeItem('cartItems');
+    localStorage.removeItem("cartItems");
   }, []);
 
   const handleGoHome = () => {
-    navigate('/');
+    navigate("/");
   };
 
   return (
-    <div className="bg-white flex max-w-[480px] w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-white border-b border-gray-100">
-        <button 
-          onClick={() => navigate('/store')}
+        <button
+          onClick={() => navigate("/store")}
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
         >
           <ArrowLeft className="w-6 h-6 text-gray-700" />
@@ -35,9 +34,7 @@ export default function OrderSuccess() {
           <h1 className="text-xl font-bold text-gray-900 mb-2">
             Thanks! You're all set.
           </h1>
-          <p className="text-gray-600">
-            Pick up your item at the counter.
-          </p>
+          <p className="text-gray-600">Pick up your item at the counter.</p>
         </div>
 
         {/* Success Illustration */}
@@ -54,7 +51,9 @@ export default function OrderSuccess() {
         </div>
 
         <div className="text-center mb-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-2">Congratulations</h2>
+          <h2 className="text-lg font-bold text-gray-900 mb-2">
+            Congratulations
+          </h2>
           <p className="text-gray-600">
             Your order is sent to the counter.
             <br />
@@ -65,7 +64,9 @@ export default function OrderSuccess() {
         {/* Order Details */}
         <div className="w-full bg-gray-50 rounded-lg p-4 mb-6">
           <div className="flex justify-between items-center mb-4">
-            <span className="font-medium text-gray-900">Order ID: 123456789</span>
+            <span className="font-medium text-gray-900">
+              Order ID: 123456789
+            </span>
             <button className="text-purple-600 font-medium flex items-center">
               ORDER DETAILS
               <ArrowLeft className="w-4 h-4 ml-1 rotate-180" />
@@ -86,9 +87,7 @@ export default function OrderSuccess() {
             <span className="text-gray-600">Discount</span>
             <span className="font-medium text-green-600">-₹100.0</span>
           </div>
-          <div className="text-xs text-gray-500">
-            &lt;COUPON&gt; applied
-          </div>
+          <div className="text-xs text-gray-500">&lt;COUPON&gt; applied</div>
           <div className="flex justify-between">
             <span className="text-gray-600">Packaging</span>
             <span className="font-medium">₹50 Free</span>
@@ -100,14 +99,14 @@ export default function OrderSuccess() {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-blue-100 p-3 rounded-lg mb-4">
           <p className="text-sm text-center text-blue-800">
             You're saving ₹199 on this order!
           </p>
         </div>
 
-        <Button 
+        <Button
           onClick={handleGoHome}
           className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium"
         >

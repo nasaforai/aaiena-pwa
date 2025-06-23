@@ -1,36 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect } from "react";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export default function Payment() {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<any[]>([]);
-  const [selectedPayment, setSelectedPayment] = useState('google-pay');
+  const [selectedPayment, setSelectedPayment] = useState("google-pay");
 
   useEffect(() => {
-    const items = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
     setCartItems(items);
   }, []);
 
   const getTotal = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return cartItems.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
   };
 
   const getDiscountTotal = () => {
-    return cartItems.reduce((total, item) => total + ((item.originalPrice - item.price) * item.quantity), 0);
+    return cartItems.reduce(
+      (total, item) =>
+        total + (item.originalPrice - item.price) * item.quantity,
+      0
+    );
   };
 
   const handlePayment = () => {
-    navigate('/order-success');
+    navigate("/order-success");
   };
 
   return (
-    <div className="bg-white flex max-w-[480px] w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <div className="flex items-center p-4 bg-white border-b border-gray-100">
-        <button 
-          onClick={() => navigate('/checkout')}
+        <button
+          onClick={() => navigate("/checkout")}
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors mr-3"
         >
           <ArrowLeft className="w-6 h-6 text-gray-700" />
@@ -49,17 +56,19 @@ export default function Payment() {
               </div>
               <span className="font-medium">UPI</span>
             </div>
-            <span className="text-sm text-gray-600">Google Pay, Paytm, Phonepe & More</span>
+            <span className="text-sm text-gray-600">
+              Google Pay, Paytm, Phonepe & More
+            </span>
           </div>
 
           {/* Google Pay */}
           <div className="flex items-center space-x-3 p-3 mb-2">
-            <input 
-              type="radio" 
-              name="payment" 
+            <input
+              type="radio"
+              name="payment"
               id="google-pay"
-              checked={selectedPayment === 'google-pay'}
-              onChange={() => setSelectedPayment('google-pay')}
+              checked={selectedPayment === "google-pay"}
+              onChange={() => setSelectedPayment("google-pay")}
               className="w-4 h-4 text-purple-600"
             />
             <div className="flex items-center space-x-3">
@@ -69,8 +78,8 @@ export default function Payment() {
             </div>
           </div>
 
-          {selectedPayment === 'google-pay' && (
-            <Button 
+          {selectedPayment === "google-pay" && (
+            <Button
               onClick={handlePayment}
               className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium mb-4"
             >
@@ -80,12 +89,12 @@ export default function Payment() {
 
           {/* Paytm */}
           <div className="flex items-center space-x-3 p-3 mb-2">
-            <input 
-              type="radio" 
-              name="payment" 
+            <input
+              type="radio"
+              name="payment"
               id="paytm"
-              checked={selectedPayment === 'paytm'}
-              onChange={() => setSelectedPayment('paytm')}
+              checked={selectedPayment === "paytm"}
+              onChange={() => setSelectedPayment("paytm")}
               className="w-4 h-4 text-purple-600"
             />
             <div className="flex items-center space-x-3">
@@ -96,12 +105,12 @@ export default function Payment() {
 
           {/* Other UPI */}
           <div className="flex items-center space-x-3 p-3 mb-4">
-            <input 
-              type="radio" 
-              name="payment" 
+            <input
+              type="radio"
+              name="payment"
               id="other-upi"
-              checked={selectedPayment === 'other-upi'}
-              onChange={() => setSelectedPayment('other-upi')}
+              checked={selectedPayment === "other-upi"}
+              onChange={() => setSelectedPayment("other-upi")}
               className="w-4 h-4 text-purple-600"
             />
             <div className="flex items-center space-x-3">
@@ -159,11 +168,11 @@ export default function Payment() {
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Discount</span>
-            <span className="font-medium text-green-600">-₹{getDiscountTotal()}</span>
+            <span className="font-medium text-green-600">
+              -₹{getDiscountTotal()}
+            </span>
           </div>
-          <div className="text-xs text-gray-500">
-            &lt;COUPON&gt; applied
-          </div>
+          <div className="text-xs text-gray-500">&lt;COUPON&gt; applied</div>
           <div className="flex justify-between">
             <span className="text-gray-600">Packaging</span>
             <span className="font-medium">₹50 Free</span>
@@ -171,11 +180,13 @@ export default function Payment() {
           <div className="border-t pt-2">
             <div className="flex justify-between">
               <span className="font-semibold text-gray-900">TOTAL</span>
-              <span className="font-semibold text-gray-900">₹{getTotal() - 100}</span>
+              <span className="font-semibold text-gray-900">
+                ₹{getTotal() - 100}
+              </span>
             </div>
           </div>
         </div>
-        
+
         <div className="bg-blue-100 p-3 rounded-lg">
           <p className="text-sm text-center text-blue-800">
             You're saving ₹{getDiscountTotal() + 100} on this order!

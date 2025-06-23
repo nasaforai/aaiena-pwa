@@ -1,8 +1,26 @@
 import React, { useState } from "react";
-import { ArrowLeft, Heart, ShoppingCart, Plus, Minus } from "lucide-react";
+import {
+  ArrowLeft,
+  Heart,
+  ShoppingCart,
+  Plus,
+  Minus,
+  ArrowDown,
+  ChevronDown,
+  ArrowRight,
+  Shirt,
+  UsersRound,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Topbar from "@/components/ui/topbar";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselDots,
+  CarouselItem,
+} from "@/components/ui/carousel";
+import ProductCard from "@/components/ProductCard";
 
 export default function ProductDetails() {
   const navigate = useNavigate();
@@ -14,6 +32,8 @@ export default function ProductDetails() {
   const handleBack = () => {
     navigate("/store");
   };
+
+  const handleProductClick = (productId: string) => {};
 
   const handleAddToCart = () => {
     // Add to cart logic
@@ -50,6 +70,10 @@ export default function ProductDetails() {
     handleAddToCart();
   };
 
+  const handleJoinRoom = () => {
+    navigate("/waiting-room");
+  };
+
   const handleAddToWishlist = () => {
     const wishlistItems = JSON.parse(
       localStorage.getItem("wishlistItems") || "[]"
@@ -79,7 +103,7 @@ export default function ProductDetails() {
   const sizes = ["XS", "S", "M", "L", "XL"];
 
   return (
-    <div className="bg-white flex max-w-[480px] w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <Topbar handleBack={handleBack} />
 
@@ -121,7 +145,7 @@ export default function ProductDetails() {
       </div>
 
       {/* Product Info */}
-      <div className="px-4 mb-6">
+      <div className="px-4">
         <h1 className="text-xl font-semibold text-gray-900 mb-2">
           Drop-Shoulder Cotton Tee | Relaxed Fit, All-Day Comfort.
         </h1>
@@ -132,183 +156,259 @@ export default function ProductDetails() {
         </div>
       </div>
 
-      {/* Color Selection */}
-      <div className="px-4 mb-4">
-        <span className="font-medium text-gray-900 mb-3 block">Color:</span>
-        <div className="flex space-x-3">
-          {colors.map((color) => (
-            <button
-              key={color.name}
-              onClick={() => setSelectedColor(color.name)}
-              className={`w-8 h-8 rounded ${color.bg} ${
-                selectedColor === color.name ? "ring-2 ring-purple-500" : ""
-              }`}
-            />
-          ))}
+      <div className="flex justify-between">
+        {/* Size Selection */}
+        <div className="px-4 mb-4">
+          <span className="font-medium text-gray-900 mb-3 block">Sizes:</span>
+          <div className="flex space-x-3">
+            {sizes.map((size) => (
+              <button
+                key={size}
+                onClick={() => setSelectedSize(size)}
+                className={`text-sm w-8 h-8 rounded-md border border-gray-300 ${
+                  selectedSize === size ? "ring-2 ring-purple-500" : ""
+                }`}
+              >
+                {size}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Color Selection */}
+        <div className="px-4 mb-4">
+          <span className="font-medium text-gray-900 mb-3 block">Color:</span>
+          <div className="flex space-x-3">
+            {colors.map((color) => (
+              <button
+                key={color.name}
+                onClick={() => setSelectedColor(color.name)}
+                className={`w-8 h-8 rounded ${color.bg} ${
+                  selectedColor === color.name ? "ring-2 ring-purple-500" : ""
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Recommendation Section */}
-      <div className="px-4 mb-4">
-        <div className="flex items-center space-x-2 mb-3">
-          <span className="font-medium text-gray-900">Recommendation</span>
-          <div className="w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center">
-            <span className="text-xs text-gray-600">i</span>
+      {isLoggedIn && (
+        <div className="px-4 mb-4">
+          <div className="flex items-center space-x-2 mb-3">
+            <span className="font-medium text-gray-900">Recommendation</span>
+            <div className="w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center">
+              <span className="text-xs text-gray-600">i</span>
+            </div>
           </div>
-        </div>
 
-        {/* Size Chart */}
-        <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-4 mb-4">
-          <h3 className="font-bold text-gray-900 mb-3">My Size</h3>
-          <p className="text-sm text-gray-600 mb-3">
-            Tailored to match your exact measurements
-          </p>
+          {/* Size Chart */}
+          <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-4 mb-4">
+            <h3 className="font-bold text-gray-900 mb-3">My Size</h3>
+            <p className="text-sm text-gray-600 mb-3">
+              Tailored to match your exact measurements
+            </p>
 
-          {/* Circular Size Chart */}
-          <div className="flex justify-center mb-4">
-            <div className="relative w-32 h-32">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-200 to-purple-200"></div>
-              <div className="absolute inset-2 rounded-full bg-gradient-to-r from-pink-200 to-yellow-200"></div>
-              <div className="absolute inset-4 rounded-full bg-gradient-to-r from-green-200 to-blue-200"></div>
-              <div className="absolute inset-6 rounded-full bg-white flex items-center justify-center">
-                <span className="text-sm font-bold text-gray-700">Sizes</span>
+            {/* Circular Size Chart */}
+            <div className="flex justify-center mb-4">
+              <div className="relative w-32 h-32">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-200 to-purple-200"></div>
+                <div className="absolute inset-2 rounded-full bg-gradient-to-r from-pink-200 to-yellow-200"></div>
+                <div className="absolute inset-4 rounded-full bg-gradient-to-r from-green-200 to-blue-200"></div>
+                <div className="absolute inset-6 rounded-full bg-white flex items-center justify-center">
+                  <span className="text-sm font-bold text-gray-700">Sizes</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Size Options */}
-          <div className="flex justify-between text-center mb-4">
-            <div className="text-xs">
-              <div className="font-medium">Large size</div>
-              <div className="text-gray-600">(XL,XXL)</div>
+            {/* Size Options */}
+            <div className="flex justify-between text-center mb-4">
+              <div className="text-xs">
+                <div className="font-medium">Large size</div>
+                <div className="text-gray-600">(XL,XXL)</div>
+              </div>
+              <div className="text-xs">
+                <div className="font-medium text-purple-600">Medium size</div>
+                <div className="text-gray-600">(M)</div>
+              </div>
+              <div className="text-xs">
+                <div className="font-medium">Small size</div>
+                <div className="text-gray-600">(S)</div>
+              </div>
             </div>
-            <div className="text-xs">
-              <div className="font-medium text-purple-600">Medium size</div>
-              <div className="text-gray-600">(M)</div>
-            </div>
-            <div className="text-xs">
-              <div className="font-medium">Small size</div>
-              <div className="text-gray-600">(S)</div>
-            </div>
-          </div>
 
-          {/* Best Fit */}
-          <div className="bg-purple-100 rounded-xl p-3 mb-2">
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-gray-900">
-                Best Fit: Large Size
-              </span>
+            {/* Best Fit */}
+            <div className="bg-purple-100 rounded-xl p-3 mb-2">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-gray-900">
+                  Best Fit: Large Size
+                </span>
+              </div>
+              <p className="text-xs text-gray-600 mt-1">
+                We recommend Large "L" as the best fit for you—it offers a
+                comfortable and well-balanced look.
+              </p>
             </div>
-            <p className="text-xs text-gray-600 mt-1">
-              We recommend Large "L" as the best fit for you—it offers a
-              comfortable and well-balanced look.
+
+            <div className="bg-gray-100 rounded-xl p-3">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-gray-900">
+                  Other Fit: Medium Size
+                </span>
+              </div>
+              <p className="text-xs text-gray-600 mt-1">
+                Medium as the right fit for you—it could feel a bit snug. Great
+                if you like tighter-fitting clothes.
+              </p>
+            </div>
+
+            <p className="text-xs text-gray-500 mt-2">
+              *95% users said true to size
             </p>
           </div>
 
-          <div className="bg-gray-100 rounded-xl p-3">
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-gray-900">
-                Other Fit: Medium Size
-              </span>
-            </div>
-            <p className="text-xs text-gray-600 mt-1">
-              Medium as the right fit for you—it could feel a bit snug. Great if
-              you like tighter-fitting clothes.
-            </p>
-          </div>
-
-          <p className="text-xs text-gray-500 mt-2">
-            *95% users said true to size
-          </p>
+          <Button className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium mb-4">
+            Try Now
+          </Button>
         </div>
+      )}
 
-        <Button className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium mb-4">
-          Try Now
-        </Button>
-      </div>
+      <div className="bg-gray-100 w-full h-2 my-4"></div>
 
       {/* Product Information */}
+      <p className="text-md text-gray-800 mb-6 px-4">Product Information</p>
       <div className="px-4 space-y-4 mb-6">
         <div className="border-b border-gray-200 pb-3">
           <button className="flex justify-between items-center w-full">
-            <span className="font-medium text-gray-900">PRODUCT DETAILS</span>
-            <span className="text-gray-400">▼</span>
+            <span className="text-sm text-gray-800">PRODUCT DETAILS</span>
+            <ChevronDown className="text-gray-400 h-5" />
           </button>
         </div>
         <div className="border-b border-gray-200 pb-3">
           <button className="flex justify-between items-center w-full">
-            <span className="font-medium text-gray-900">KNOW YOUR PRODUCT</span>
-            <span className="text-gray-400">▼</span>
-          </button>
-        </div>
-        <div className="border-b border-gray-200 pb-3">
-          <button className="flex justify-between items-center w-full">
-            <span className="font-medium text-gray-900">
-              PRODUCT MEASUREMENTS
-            </span>
-            <span className="text-gray-400">▼</span>
+            <span className="text-sm text-gray-800">KNOW YOUR PRODUCT</span>
+            <ChevronDown className="text-gray-400 h-5" />
           </button>
         </div>
       </div>
 
       {/* Try Another Button */}
-      <div className="px-4 mb-6">
-        <Button
-          variant="outline"
-          className="w-full py-3 rounded-xl font-medium border-gray-300"
-        >
-          Try Another
-        </Button>
-      </div>
+      {isLoggedIn && (
+        <div className="px-4 mb-6">
+          <Button
+            variant="outline"
+            className="w-full py-3 rounded-xl font-medium border-gray-300"
+          >
+            Try Another
+          </Button>
+        </div>
+      )}
+
+      <div className="bg-gray-100 w-full h-2 my-4"></div>
 
       {/* Find Similar */}
-      <div className="px-4 mb-6">
-        <h3 className="font-bold text-lg mb-3">Find Similar</h3>
-        <div className="flex space-x-3">
-          {[1, 2, 3].map((item) => (
-            <div
-              key={item}
-              className="flex-1 bg-gray-100 rounded-2xl overflow-hidden"
-            >
-              <div className="h-32 bg-gray-200 relative">
-                <button className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                  <Heart className="w-4 h-4 text-gray-600" />
-                </button>
-              </div>
-              <div className="p-2">
-                <p className="text-xs text-gray-600">View Details</p>
-                <p className="text-sm font-semibold">₹500 ₹700</p>
-              </div>
-            </div>
-          ))}
-        </div>
+      <div className="mb-6">
+        <h3 className="font-semibold text-lg mb-3">Find Similar</h3>
+        <Carousel className="w-full">
+          <CarouselContent className="-ml-2 md:-ml-4">
+            {[1, 2, 3, 4].map((item) => (
+              <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
+                <ProductCard
+                  item={item}
+                  handleProductClick={handleProductClick}
+                />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselDots />
+        </Carousel>
+      </div>
+
+      <div className="py-10 mb-6 flex flex-col items-center justify-center bg-yellow-300">
+        <img
+          src="/icons/tShirt.svg"
+          alt="dress icon"
+          height={24}
+          width={24}
+          className="mb-1"
+        />
+        <p className="text-xl">Struggling to spot your fit?</p>
+        <button className="flex shadow-sm bg-white items-center rounded-md pl-10 pr-8 py-2 mt-4">
+          <span>Set your profile</span>
+          <ArrowRight className="h-4 ml-1" />
+        </button>
+      </div>
+
+      {/* You might also like */}
+      <div className="mb-48">
+        <h3 className="font-semibold text-lg mb-3">You might also like</h3>
+        <Carousel className="w-full">
+          <CarouselContent className="-ml-2 md:-ml-4">
+            {[1, 2, 3, 4].map((item) => (
+              <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
+                <ProductCard
+                  item={item}
+                  handleProductClick={handleProductClick}
+                />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselDots />
+        </Carousel>
       </div>
 
       {/* Bottom Action */}
-      <div className="px-4 pb-6">
-        <div className="bg-purple-100 rounded-2xl p-4 mb-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-700">2A Moderate</span>
-            <div className="flex space-x-2">
-              <span className="bg-purple-200 px-2 py-1 rounded text-sm">
-                2A
-              </span>
-              <span className="bg-purple-200 px-2 py-1 rounded text-sm">
-                3C
-              </span>
+      <div className="fixed bottom-0 left-0 w-full lg:max-w-sm lg:left-1/2 lg:-translate-x-1/2">
+        <div className="shadow-xl">
+          <div className="bg-purple-200 rounded-tr-2xl rounded-tl-2xl p-4">
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <UsersRound className="w-5" />
+                  <span className="text-md font-semibold text-gray-700">
+                    Moderate
+                  </span>
+                </div>
+                <button
+                  className="text-xs text-white bg-purple-400 font-medium px-4 py-2 rounded-md"
+                  onClick={handleJoinRoom}
+                >
+                  JOIN ROOM
+                </button>
+              </div>
+              <div className="flex flex-col space-y-2">
+                <p>JOIN EMPTY ROOMS:</p>
+                <div className="flex space-x-2">
+                  <span className="bg-purple-50 shadow-md py-2 px-4 rounded text-md">
+                    2A
+                  </span>
+                  <span className="bg-purple-50 shadow-md py-2 px-4 rounded text-md">
+                    3C
+                  </span>
+                  <span className="bg-purple-50 shadow-md py-2 px-4 rounded text-md">
+                    2B
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
-          <button className="text-xs text-purple-600 font-medium">
-            JOIN EMPTY ROOMS
-          </button>
-        </div>
 
-        <Button
-          onClick={handleBuyNow}
-          className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium"
-        >
-          Buy Now
-        </Button>
+          <div className="px-4 py-2 bg-white shadow-md flex gap-4">
+            <Button
+              onClick={handleBuyNow}
+              className="px-6 flex-1  bg-gray-900 text-white py-3 rounded-lg font-medium"
+            >
+              Buy Now
+            </Button>
+
+            <Button
+              onClick={handleBuyNow}
+              className="flex-1 px-6 bg-gray-900 text-white py-3 rounded-lg font-medium"
+            >
+              Try Virtually
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

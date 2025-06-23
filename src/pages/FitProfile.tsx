@@ -1,29 +1,31 @@
-
-import React from 'react';
-import { ArrowLeft, User, Activity, Shirt, Ruler, Star } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import React from "react";
+import { ArrowLeft, User, Activity, Shirt, Ruler, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export default function FitProfile() {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    navigate('/update-profile');
+    navigate("/update-profile");
   };
 
   const handleContinue = () => {
-    navigate('/device-connected');
+    navigate("/device-connected");
   };
 
   const handleEditProfile = () => {
-    navigate('/update-profile');
+    navigate("/update-profile");
   };
 
   return (
-    <div className="bg-white flex max-w-[480px] w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
-        <button onClick={handleBack} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+        <button
+          onClick={handleBack}
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        >
           <ArrowLeft className="w-6 h-6 text-gray-700" />
         </button>
         <h1 className="text-lg font-bold">MY FIT PROFILE</h1>
@@ -84,8 +86,11 @@ export default function FitProfile() {
             <div>
               <p className="font-medium">Dress Style Rating</p>
               <div className="flex space-x-1">
-                {[1, 2, 3, 4].map(i => (
-                  <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                {[1, 2, 3, 4].map((i) => (
+                  <Star
+                    key={i}
+                    className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                  />
                 ))}
                 <Star className="w-4 h-4 text-gray-300" />
                 <span className="text-sm text-gray-600 ml-2">8/10</span>
@@ -96,13 +101,13 @@ export default function FitProfile() {
 
         {/* Buttons */}
         <div className="space-y-3">
-          <Button 
+          <Button
             onClick={handleContinue}
             className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800"
           >
             Continue
           </Button>
-          <button 
+          <button
             onClick={handleEditProfile}
             className="w-full text-gray-600 py-2 font-medium"
           >
