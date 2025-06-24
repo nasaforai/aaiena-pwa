@@ -1,9 +1,20 @@
 import React from "react";
-import { ArrowLeft, User, Activity, Shirt, Ruler, Star } from "lucide-react";
+import {
+  ArrowLeft,
+  User,
+  Activity,
+  Shirt,
+  Ruler,
+  Star,
+  Camera,
+  Pen,
+  UserPen,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 export default function FitProfile() {
+  const profileImage = "/images/profile.png";
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -36,61 +47,78 @@ export default function FitProfile() {
       <div className="flex-1 px-4 py-6">
         {/* Profile Image */}
         <div className="text-center mb-6">
-          <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-3 relative">
-            <div className="absolute bottom-0 right-0 w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center">
-              <div className="w-3 h-3 bg-white rounded"></div>
+          <div
+            className="w-28 h-28 bg-gray-200 rounded-full mx-auto mb-2 relative"
+            style={{
+              backgroundImage: `url(${profileImage})`,
+              backgroundSize: "cover",
+              backgroundRepeat: "no-repeat",
+            }}
+          >
+            <div className="absolute bottom-0 right-0 w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center">
+              <UserPen className="w-5 h-5 text-black" />
             </div>
           </div>
-          <h2 className="font-bold text-lg mb-2">Jiya Raghav</h2>
-          <button className="bg-purple-100 text-purple-600 px-4 py-1 rounded-full text-sm">
+          <h2 className="font-bold text-lg flex items-center justify-center">
+            <span>Jiya Raghav </span>
+            {/* <Pen className="h-4" /> */}
+          </h2>
+          <button className="bg-purple-200 text-black px-16 py-4 rounded-xl text-m mt-2">
             Upgrade your Plan
           </button>
         </div>
 
         {/* Profile Details */}
         <div className="space-y-4 mb-8">
-          <div className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-            <User className="w-5 h-5 text-gray-600" />
+          <div className="flex items-center space-x-4 px-3 pt-3 pb-6 border-b border-gray-200">
+            <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
+              <img src="/icons/user.svg" alt="" width={24} height={24} />
+            </div>
             <div>
               <p className="font-medium">Your Gender</p>
               <p className="text-sm text-gray-600">Male</p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-            <Activity className="w-5 h-5 text-gray-600" />
+          <div className="flex items-center space-x-4 px-3 pt-3 pb-6 border-b border-gray-200">
+            <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
+              <img src="/icons/measure.svg" alt="" width={28} height={28} />
+            </div>{" "}
             <div>
               <p className="font-medium">Body Measurement</p>
               <p className="text-sm text-gray-600">Height: 177 , Weight: 60</p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-            <Shirt className="w-5 h-5 text-gray-600" />
+          <div className="flex items-center space-x-4 px-3 pt-3 pb-6 border-b border-gray-200">
+            <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
+              <img src="/icons/shirt.svg" alt="" width={20} height={20} />
+            </div>
             <div>
               <p className="font-medium">Sizing Information</p>
               <p className="text-sm text-gray-600">XL</p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-            <Ruler className="w-5 h-5 text-gray-600" />
+          <div className="flex items-center space-x-4 px-3 pt-3 pb-6 border-b border-gray-200">
+            <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
+              <img src="/icons/reel.png" alt="" width={28} height={28} />
+            </div>
             <div>
               <p className="font-medium">Additional Measurements</p>
               <p className="text-sm text-gray-600">Pants size: 32</p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-            <Star className="w-5 h-5 text-gray-600" />
+          <div className="flex items-center space-x-4 px-3 pt-3 pb-6  border-b border-gray-200">
+            <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
+              <img src="/icons/start.svg" alt="" width={24} height={24} />
+            </div>
             <div>
               <p className="font-medium">Dress Style Rating</p>
               <div className="flex space-x-1">
                 {[1, 2, 3, 4].map((i) => (
-                  <Star
-                    key={i}
-                    className="w-4 h-4 fill-yellow-400 text-yellow-400"
-                  />
+                  <Star key={i} className="w-4 h-4 fill-black" />
                 ))}
                 <Star className="w-4 h-4 text-gray-300" />
                 <span className="text-sm text-gray-600 ml-2">8/10</span>
@@ -103,7 +131,7 @@ export default function FitProfile() {
         <div className="space-y-3">
           <Button
             onClick={handleContinue}
-            className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800"
+            className="w-full bg-gray-900 text-white py-6 rounded-xl font-medium hover:bg-gray-800"
           >
             Continue
           </Button>

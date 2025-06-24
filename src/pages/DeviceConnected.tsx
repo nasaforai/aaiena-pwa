@@ -8,29 +8,36 @@ export default function DeviceConnected() {
 
   const handleContinueOnMobile = () => {
     // This would typically redirect to the virtual try-on experience
-    navigate("/");
+    localStorage.setItem("isLoggedIn", "true");
+    navigate("/store");
   };
 
   const handleStickWithKiosk = () => {
-    navigate("/waiting-room");
+    localStorage.setItem("isLoggedIn", "true");
+    navigate("/store");
   };
 
   return (
     <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
-        {/* Success Icon */}
-        <div className="w-20 h-20 bg-purple-600 rounded-2xl flex items-center justify-center mb-8">
-          <Check className="w-10 h-10 text-white" />
-        </div>
+      <div className="flex-1 flex flex-col items-center justify-between px-6 py-8">
+        <div className="flex flex-col items-center justify-center mt-20">
+          <img
+            src="/icons/success.svg"
+            alt="success icon"
+            width={55}
+            height={55}
+            className="mb-4"
+          />
 
-        {/* Title */}
-        <h1 className="text-2xl font-bold text-gray-900 mb-2 text-center">
-          Device Connected!
-        </h1>
-        <p className="text-gray-600 text-center mb-12">
-          Continue Your Experience Seamlessly
-        </p>
+          {/* Title */}
+          <h1 className="text-2xl font-bold text-gray-900 mb-2 text-center">
+            Device Connected!
+          </h1>
+          <p className="text-gray-600 text-center mb-12">
+            Continue Your Experience Seamlessly
+          </p>
+        </div>
 
         {/* Options */}
         <div className="w-full bg-purple-100 rounded-2xl p-6 mb-8">
@@ -41,7 +48,7 @@ export default function DeviceConnected() {
           <div className="space-y-3">
             <Button
               onClick={handleContinueOnMobile}
-              className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800"
+              className="w-full bg-gray-900 text-white py-6 rounded-xl font-medium hover:bg-gray-800"
             >
               Continue On Mobile
             </Button>

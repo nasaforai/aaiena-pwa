@@ -27,7 +27,8 @@ export default function ProductDetails() {
   const [selectedSize, setSelectedSize] = useState("M");
   const [selectedColor, setSelectedColor] = useState("white");
   const [quantity, setQuantity] = useState(1);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const isLoggedIn = true;
+  // localStorage.getItem("isLoggedIn") === "true"
 
   const handleBack = () => {
     navigate("/store");

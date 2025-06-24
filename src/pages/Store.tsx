@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   ArrowLeft,
   Search,
@@ -10,6 +10,7 @@ import {
   MoveUp,
   ArrowDown,
   ArrowUp,
+  Camera,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -22,9 +23,12 @@ import {
 } from "@/components/ui/carousel";
 import Topbar from "@/components/ui/topbar";
 import ProductCard from "@/components/ProductCard";
+import { Progress } from "@/components/ui/progress";
 
 export default function Store() {
   const navigate = useNavigate();
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  const [notifyToggle, setNotifyToggle] = useState(true);
 
   const handleBack = () => {
     navigate("/fashion-lane");
@@ -37,6 +41,13 @@ export default function Store() {
   return (
     <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       <Topbar handleBack={() => handleBack()} />
+
+      {isLoggedIn && (
+        <h1 className="p-4 text-2xl font-medium">
+          Hello, <br />
+          Welcome Back John!
+        </h1>
+      )}
 
       {/* Search Bar */}
       <div className="p-4">
@@ -59,6 +70,48 @@ export default function Store() {
           </div>
           <p className="text-2xl font-bold">Moderate</p>
         </div>
+
+        {isLoggedIn && (
+          <>
+            <div className="rounded-xl m-4 bg-[#FFF3D3] border border-[#FFD25C] p-4 text-[#342601]">
+              <div className="flex justify-between">
+                <p>Your turn coming up</p>
+                <p>4:00 min left</p>
+              </div>
+              <Progress
+                className="bg-[#FFDD82] [&>div]:bg-[#FFB900] [&>div]:rounded-full mt-4 mb-2"
+                value={20}
+              />
+              <p className="text-sm">
+                You have 5 minutes per session—switch to your phone to continue
+                smoothly.
+              </p>
+
+              <button className="py-4 w-full rounded-xl border border-[#FFB900] mt-8">
+                Switch to Mobile
+              </button>
+            </div>
+
+            {/* Notification Toggle */}
+            <div className="flex items-center justify-between mb-1 px-10 py-4 rounded-lg">
+              <span className="font-medium text-gray-900 text-md">
+                Notify me when it's my turn
+              </span>
+              <button
+                onClick={() => setNotifyToggle(!notifyToggle)}
+                className={`w-12 h-6 rounded-full transition-colors ${
+                  notifyToggle ? "bg-purple-600" : "bg-gray-300"
+                }`}
+              >
+                <div
+                  className={`w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                    notifyToggle ? "translate-x-7" : "translate-x-1"
+                  }`}
+                ></div>
+              </button>
+            </div>
+          </>
+        )}
 
         <div className="p-4 flex flex-col gap-2">
           <div className="flex gap-4">
@@ -84,14 +137,16 @@ export default function Store() {
           <button className="w-full mt-3 text-purple-600 border-2 border-purple-600 py-3 rounded-xl text-lg font-medium">
             Try Virtually
           </button>
-          <button className="w-full mt-2 bg-purple-100 text-black py-3 rounded-xl text-md font-medium">
-            Log In To See Full Preview →
-          </button>
+          {!isLoggedIn && (
+            <button className="w-full mt-2 bg-purple-100 text-black py-3 rounded-xl text-md font-medium">
+              Log In To See Full Preview →
+            </button>
+          )}
         </div>
       </div>
 
       {/* Designer Picks section */}
-      <div className="mx-4 mb-4 bg-purple-400 rounded-2xl p-4 text-white text-center">
+      <div className="mx-4 mb-4 bg-purple-400 rounded-2xl py-10 px-4 text-white text-center">
         <h3 className="font-bold text-xl mb-2">DESIGNER PICKS</h3>
         <p className="text-sm opacity-90 mb-3">
           Exclusive styles handpicked by top designers.Discover
@@ -137,9 +192,63 @@ export default function Store() {
       {/* Main Content Area */}
       <div className="flex-1 p-4">
         {/* Discount Section */}
-        <div className="bg-gradient-to-r from-orange-400 to-yellow-500 rounded-2xl p-6 mb-4 text-white">
+        {/* <div className="bg-gradient-to-r from-orange-400 to-yellow-500 rounded-2xl p-6 mb-4 text-white">
           <h3 className="text-xl font-bold mb-2">Discount</h3>
           <p className="text-sm mb-2">New Users Only</p>
+        </div> */}
+
+        <div className=" mb-10">
+          <Carousel className="w-full">
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {[1, 2, 3, 4].map((item) => (
+                <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
+                  <div
+                    className="relative h-52 rounded-xl"
+                    style={{
+                      backgroundImage: "url(images/dress.jpg)",
+                      backgroundSize: "cover",
+                    }}
+                  >
+                    <div className="absolute bottom-2 left-0 w-full flex flex-col text-white items-center">
+                      <p className="font-bold">Discount</p>
+                      <p className="font-bold">New Users Only</p>
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselDots />
+          </Carousel>
+        </div>
+
+        {/* Category Carousel */}
+        <div className="h-10 overflow-y-hidden mt-10 mb-6">
+          <div className="flex space-x-4 flex-nowrap pb-5 overflow-x-scroll">
+            <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
+              All
+            </div>
+            <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
+              Women
+            </div>
+            <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
+              Men
+            </div>
+            <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
+              Kids
+            </div>
+            <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
+              All
+            </div>
+            <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
+              Man
+            </div>
+            <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
+              Women
+            </div>
+            <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
+              Kids
+            </div>
+          </div>
         </div>
 
         {/* Product Carousels */}
@@ -236,9 +345,10 @@ export default function Store() {
         </div>
 
         {/* What's New Section */}
-        <div className="mt-6 bg-gradient-to-r from-pink-400 to-red-500 rounded-2xl p-6 text-white text-center">
-          <h3 className="font-bold text-lg mb-2">WHAT'S NEW!</h3>
-          <button className="bg-white text-pink-500 px-6 py-2 rounded-xl text-sm font-medium">
+        <div className="mt-6 bg-gradient-to-r from-pink-400 to-red-500 rounded-2xl px-6 py-10 text-white text-center">
+          <p className="my-4 text-md">SEE ALL LATEST</p>
+          <h3 className="font-medium text-3xl mb-4">WHAT'S NEW!</h3>
+          <button className="bg-white text-black px-10 py-2 rounded-xl text-sm font-medium">
             See All
           </button>
         </div>
@@ -277,8 +387,8 @@ export default function Store() {
             <span className="text-xs text-gray-400">Cart</span>
           </button>
           <button className="flex flex-col items-center space-y-1">
-            <MessageCircle className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Social</span>
+            <Camera className="w-5 h-5 text-gray-400" />
+            <span className="text-xs text-gray-400">Scan</span>
           </button>
           <button className="flex flex-col items-center space-y-1">
             <Heart className="w-5 h-5 text-gray-400" />

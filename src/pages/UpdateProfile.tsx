@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { ArrowLeft, Camera } from "lucide-react";
+import { ArrowLeft, Camera, Edit, Pen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function UpdateProfile() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function UpdateProfile() {
   const [chest, setChest] = useState("96");
   const [waist, setWaist] = useState("81");
   const [pantsSize, setPantsSize] = useState("32");
+  const profileImage = "/images/profile.png";
   const [stylePreferences, setStylePreferences] = useState([
     "Smart",
     "Streetwear",
@@ -75,13 +77,23 @@ export default function UpdateProfile() {
       <div className="flex-1 px-4 py-6 overflow-y-auto">
         {/* Profile Image */}
         <div className="text-center mb-6">
-          <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-2 relative">
-            <div className="absolute bottom-0 right-0 w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-              <Camera className="w-4 h-4 text-white" />
+          <div
+            className="w-28 h-28 bg-gray-200 rounded-full mx-auto mb-2 relative"
+            style={{
+              backgroundImage: `url(${profileImage})`,
+              backgroundSize: "cover",
+              backgroundRepeat: "no-repeat",
+            }}
+          >
+            <div className="absolute bottom-0 right-0 w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center">
+              <Camera className="w-5 h-5 text-black" />
             </div>
           </div>
-          <h2 className="font-bold text-lg">Jiya Raghav ✏️</h2>
-          <button className="bg-purple-100 text-purple-600 px-4 py-1 rounded-full text-sm mt-2">
+          <h2 className="font-bold text-lg flex items-center justify-center">
+            <span>Jiya Raghav </span>
+            <Pen className="h-4" />
+          </h2>
+          <button className="bg-purple-200 text-black px-16 py-4 rounded-xl text-m mt-2">
             Upgrade your Plan
           </button>
         </div>
@@ -91,23 +103,34 @@ export default function UpdateProfile() {
           <h3 className="font-medium mb-3">Your Current Photos</h3>
           <div className="flex space-x-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="w-16 h-16 bg-blue-200 rounded-lg"></div>
+              <div
+                key={i}
+                className=" w-20 h-20 overflow-hidden bg-blue-200 rounded-lg relative"
+              >
+                <img
+                  src="/images/dress.jpg"
+                  alt=""
+                  className="absolute object-cover rounded-lg"
+                />
+              </div>
             ))}
           </div>
         </div>
 
+        <div className="bg-gray-100 my-8 py-1 w-full"></div>
+
         {/* Gender */}
-        <div className="mb-6">
+        <div className="mb-10">
           <h3 className="font-medium mb-3">Gender</h3>
           <div className="flex space-x-3">
             {["Male", "Female"].map((gender) => (
               <button
                 key={gender}
                 onClick={() => setSelectedGender(gender)}
-                className={`px-6 py-2 rounded-full font-medium ${
+                className={`px-10 py-2 rounded-xl font-medium ${
                   selectedGender === gender
                     ? "bg-gray-900 text-white"
-                    : "bg-gray-100 text-gray-700"
+                    : "border border-gray-200 text-gray-700"
                 }`}
               >
                 {gender}
@@ -119,53 +142,54 @@ export default function UpdateProfile() {
         {/* Body Measurements */}
         <div className="mb-6">
           <h3 className="font-medium mb-3">Body Measurement (cm)</h3>
+          <div className="bg-gray-200 py-px mb-4"></div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-gray-600 mb-1">Height</label>
-              <select
-                value={height}
+              <input
+                defaultValue={height}
+                type="number"
                 onChange={(e) => setHeight(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
-              >
-                <option value="177">177</option>
-              </select>
+              ></input>
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-1">Weight</label>
-              <select
-                value={weight}
+              <input
+                defaultValue={weight}
+                type="number"
                 onChange={(e) => setWeight(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
-              >
-                <option value="60">60</option>
-              </select>
+              ></input>
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-1">Chest</label>
-              <select
-                value={chest}
+              <input
+                defaultValue={chest}
+                type="number"
                 onChange={(e) => setChest(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
-              >
-                <option value="96">96</option>
-              </select>
+              ></input>
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-1">Waist</label>
-              <select
-                value={waist}
+              <input
+                defaultValue={waist}
+                type="number"
                 onChange={(e) => setWaist(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
-              >
-                <option value="81">81</option>
-              </select>
+              ></input>
             </div>
           </div>
         </div>
 
+        <div className="bg-gray-100 my-8 py-1 w-full"></div>
+
         {/* Sizing Information */}
         <div className="mb-6">
           <h3 className="font-medium mb-3">Sizing Information</h3>
+          <div className="bg-gray-200 py-px mb-4"></div>
+
           <div className="mb-4">
             <label className="block text-sm text-gray-600 mb-2">
               Shirt Size
@@ -175,10 +199,10 @@ export default function UpdateProfile() {
                 <button
                   key={size}
                   onClick={() => setSelectedShirtSize(size)}
-                  className={`px-3 py-2 rounded-lg font-medium ${
+                  className={`w-12  h-10 rounded-lg font-medium ${
                     selectedShirtSize === size
                       ? "bg-gray-900 text-white"
-                      : "bg-gray-100 text-gray-700"
+                      : "border border-gray-200 text-gray-700 hover:bg-gray-100"
                   }`}
                 >
                   {size}
@@ -190,47 +214,27 @@ export default function UpdateProfile() {
             <label className="block text-sm text-gray-600 mb-2">
               Pants Size
             </label>
-            <select
-              value={pantsSize}
+            <input
+              defaultValue={pantsSize}
+              type="number"
               onChange={(e) => setPantsSize(e.target.value)}
-              className="w-20 p-2 border border-gray-300 rounded-lg"
-            >
-              <option value="32">32</option>
-            </select>
+              className="w-full p-2 border border-gray-300 rounded-lg"
+            ></input>
           </div>
         </div>
+
+        <div className="bg-gray-100 my-8 py-1 w-full"></div>
 
         {/* Style Preferences */}
         <div className="mb-8">
           <h3 className="font-medium mb-3">Style Preferences</h3>
+          <div className="bg-gray-200 py-px mb-4"></div>
           <div className="grid grid-cols-2 gap-3">
             {styles.map((style) => (
-              <button
-                key={style}
-                onClick={() => toggleStylePreference(style)}
-                className={`p-3 rounded-lg border text-left ${
-                  stylePreferences.includes(style)
-                    ? "bg-gray-900 text-white border-gray-900"
-                    : "bg-white text-gray-700 border-gray-300"
-                }`}
-              >
-                <div className="flex items-center space-x-2">
-                  <div
-                    className={`w-4 h-4 rounded border ${
-                      stylePreferences.includes(style)
-                        ? "bg-white border-white"
-                        : "border-gray-400"
-                    }`}
-                  >
-                    {stylePreferences.includes(style) && (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <div className="w-2 h-2 bg-gray-900 rounded"></div>
-                      </div>
-                    )}
-                  </div>
-                  <span>{style}</span>
-                </div>
-              </button>
+              <div className="flex items-center gap-2">
+                <Checkbox key={style}>{style}</Checkbox>
+                <label className="block text-md text-gray-600">{style}</label>
+              </div>
             ))}
           </div>
         </div>
@@ -238,13 +242,13 @@ export default function UpdateProfile() {
         {/* Save Button */}
         <Button
           onClick={handleSave}
-          className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800 mb-4"
+          className="w-full bg-gray-900 text-white py-4 rounded-xl font-medium hover:bg-gray-800 mb-4"
         >
           Save Profile
         </Button>
 
         {/* Footer */}
-        <div className="text-center">
+        <div className="text-center mt-20">
           <p className="text-gray-400 font-bold text-lg">Aaiena</p>
         </div>
       </div>
