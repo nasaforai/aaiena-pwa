@@ -2,6 +2,12 @@ import React, { useState, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function Payment() {
   const navigate = useNavigate();
@@ -47,115 +53,135 @@ export default function Payment() {
 
       {/* Payment Options */}
       <div className="flex-1 p-4">
-        {/* UPI Section */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-3">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center">
-                <span className="text-white text-xs font-bold">UPI</span>
+        <Accordion type="single" collapsible defaultValue="upi" className="w-full">
+          {/* UPI Section */}
+          <AccordionItem value="upi" className="border-none">
+            <AccordionTrigger className="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-3 hover:no-underline">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">UPI</span>
+                </div>
+                <span className="font-medium">UPI</span>
               </div>
-              <span className="font-medium">UPI</span>
-            </div>
-            <span className="text-sm text-gray-600">
-              Google Pay, Paytm, Phonepe & More
-            </span>
-          </div>
-
-          {/* Google Pay */}
-          <div className="flex items-center space-x-3 p-3 mb-2">
-            <input
-              type="radio"
-              name="payment"
-              id="google-pay"
-              checked={selectedPayment === "google-pay"}
-              onChange={() => setSelectedPayment("google-pay")}
-              className="w-4 h-4 text-purple-600"
-            />
-            <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 bg-purple-600 rounded-full"></div>
-              <div className="w-6 h-6 bg-orange-500 rounded"></div>
-              <span className="font-medium">Google Pay</span>
-            </div>
-          </div>
-
-          {selectedPayment === "google-pay" && (
-            <Button
-              onClick={handlePayment}
-              className="w-full bg-gray-900 text-white py-6 rounded-xl font-medium mb-4"
-            >
-              Pay ₹ {getTotal() - 100}
-            </Button>
-          )}
-
-          {/* Paytm */}
-          <div className="flex items-center space-x-3 p-3 mb-2">
-            <input
-              type="radio"
-              name="payment"
-              id="paytm"
-              checked={selectedPayment === "paytm"}
-              onChange={() => setSelectedPayment("paytm")}
-              className="w-4 h-4 text-purple-600"
-            />
-            <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 bg-blue-600 rounded-full"></div>
-              <span className="font-medium">Paytm</span>
-            </div>
-          </div>
-
-          {/* Other UPI */}
-          <div className="flex items-center space-x-3 p-3 mb-4">
-            <input
-              type="radio"
-              name="payment"
-              id="other-upi"
-              checked={selectedPayment === "other-upi"}
-              onChange={() => setSelectedPayment("other-upi")}
-              className="w-4 h-4 text-purple-600"
-            />
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center">
-                <span className="text-white text-xs font-bold">UPI</span>
+              <span className="text-sm text-gray-600">
+                Google Pay, Paytm, Phonepe & More
+              </span>
+            </AccordionTrigger>
+            <AccordionContent className="pb-4">
+              {/* Google Pay */}
+              <div className="flex items-center space-x-3 p-3 mb-2">
+                <input
+                  type="radio"
+                  name="payment"
+                  id="google-pay"
+                  checked={selectedPayment === "google-pay"}
+                  onChange={() => setSelectedPayment("google-pay")}
+                  className="w-4 h-4 text-purple-600"
+                />
+                <div className="flex items-center space-x-3">
+                  <div className="w-6 h-6 bg-purple-600 rounded-full"></div>
+                  <div className="w-6 h-6 bg-orange-500 rounded"></div>
+                  <span className="font-medium">Google Pay</span>
+                </div>
               </div>
-              <span className="font-medium">Other UPI</span>
-            </div>
-          </div>
-        </div>
 
-        {/* Other Payment Options */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 bg-gray-400 rounded"></div>
-              <span className="font-medium">Credit/Debit Card</span>
-            </div>
-            <span className="text-gray-400">▼</span>
-          </div>
+              {selectedPayment === "google-pay" && (
+                <Button
+                  onClick={handlePayment}
+                  className="w-full bg-gray-900 text-white py-6 rounded-xl font-medium mb-4"
+                >
+                  Pay ₹ {getTotal() - 100}
+                </Button>
+              )}
 
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 bg-blue-600 rounded"></div>
-              <span className="font-medium">Net Banking</span>
-            </div>
-            <span className="text-gray-400">▼</span>
-          </div>
+              {/* Paytm */}
+              <div className="flex items-center space-x-3 p-3 mb-2">
+                <input
+                  type="radio"
+                  name="payment"
+                  id="paytm"
+                  checked={selectedPayment === "paytm"}
+                  onChange={() => setSelectedPayment("paytm")}
+                  className="w-4 h-4 text-purple-600"
+                />
+                <div className="flex items-center space-x-3">
+                  <div className="w-6 h-6 bg-blue-600 rounded-full"></div>
+                  <span className="font-medium">Paytm</span>
+                </div>
+              </div>
 
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 bg-green-600 rounded"></div>
-              <span className="font-medium">Shop now & pay later</span>
-            </div>
-            <span className="text-gray-400">▼</span>
-          </div>
+              {/* Other UPI */}
+              <div className="flex items-center space-x-3 p-3 mb-4">
+                <input
+                  type="radio"
+                  name="payment"
+                  id="other-upi"
+                  checked={selectedPayment === "other-upi"}
+                  onChange={() => setSelectedPayment("other-upi")}
+                  className="w-4 h-4 text-purple-600"
+                />
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">UPI</span>
+                  </div>
+                  <span className="font-medium">Other UPI</span>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
 
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 bg-yellow-500 rounded"></div>
-              <span className="font-medium">Have a Gift Card?</span>
-            </div>
-            <span className="text-gray-400">▼</span>
-          </div>
-        </div>
+          {/* Credit/Debit Card Section */}
+          <AccordionItem value="card" className="border-none mb-4">
+            <AccordionTrigger className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:no-underline">
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-gray-400 rounded"></div>
+                <span className="font-medium">Credit/Debit Card</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="p-3">
+              <p className="text-gray-600">Credit/Debit card options will be shown here.</p>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Net Banking Section */}
+          <AccordionItem value="netbanking" className="border-none mb-4">
+            <AccordionTrigger className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:no-underline">
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-blue-600 rounded"></div>
+                <span className="font-medium">Net Banking</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="p-3">
+              <p className="text-gray-600">Net banking options will be shown here.</p>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Shop now & pay later Section */}
+          <AccordionItem value="paylater" className="border-none mb-4">
+            <AccordionTrigger className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:no-underline">
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-green-600 rounded"></div>
+                <span className="font-medium">Shop now & pay later</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="p-3">
+              <p className="text-gray-600">Pay later options will be shown here.</p>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Gift Card Section */}
+          <AccordionItem value="giftcard" className="border-none mb-4">
+            <AccordionTrigger className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:no-underline">
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-yellow-500 rounded"></div>
+                <span className="font-medium">Have a Gift Card?</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="p-3">
+              <p className="text-gray-600">Gift card options will be shown here.</p>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
 
       {/* Payment Details */}
