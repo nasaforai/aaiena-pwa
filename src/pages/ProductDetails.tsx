@@ -21,6 +21,7 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import ProductCard from "@/components/ProductCard";
+import { RadialBarChart, RadialBar, ResponsiveContainer, Cell } from "recharts";
 
 export default function ProductDetails() {
   const navigate = useNavigate();
@@ -29,6 +30,13 @@ export default function ProductDetails() {
   const [quantity, setQuantity] = useState(1);
   const isLoggedIn = true;
   // localStorage.getItem("isLoggedIn") === "true"
+
+  // Chart data for size visualization
+  const sizeChartData = [
+    { name: "Small", value: 25, fill: "#3B82F6" }, // Blue
+    { name: "Medium", value: 50, fill: "#8B5CF6" }, // Purple
+    { name: "Large", value: 75, fill: "#EC4899" }, // Pink
+  ];
 
   const handleBack = () => {
     navigate("/store");
@@ -210,15 +218,24 @@ export default function ProductDetails() {
               Tailored to match your exact measurements
             </p>
 
-            {/* Circular Size Chart */}
+            {/* Radial Chart */}
             <div className="flex justify-center mb-4">
-              <div className="relative w-32 h-32">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-200 to-purple-200"></div>
-                <div className="absolute inset-2 rounded-full bg-gradient-to-r from-pink-200 to-yellow-200"></div>
-                <div className="absolute inset-4 rounded-full bg-gradient-to-r from-green-200 to-blue-200"></div>
-                <div className="absolute inset-6 rounded-full bg-white flex items-center justify-center">
-                  <span className="text-sm font-bold text-gray-700">Sizes</span>
-                </div>
+              <div className="w-32 h-32">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadialBarChart
+                    cx="50%"
+                    cy="50%"
+                    innerRadius="20%"
+                    outerRadius="90%"
+                    data={sizeChartData}
+                  >
+                    <RadialBar
+                      dataKey="value"
+                      cornerRadius={4}
+                      fill="#8884d8"
+                    />
+                  </RadialBarChart>
+                </ResponsiveContainer>
               </div>
             </div>
 
