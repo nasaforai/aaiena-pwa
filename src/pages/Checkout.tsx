@@ -66,30 +66,30 @@ export default function Checkout() {
         {cartItems.map((item, index) => (
           <div
             key={index}
-            className="flex items-center space-x-3 mb-4 p-3 rounded-lg"
+            className="flex items-start space-x-3 mb-4 p-3 rounded-lg"
           >
             <img
               src={item.image}
               alt={item.name}
-              className="w-16 h-16 rounded-lg object-cover"
+              className="w-24 h-20 rounded-lg object-cover"
             />
             <div className="flex-1">
               <p className="text-sm text-gray-600">Fit & Regular</p>
-              <p className="font-medium text-gray-900 text-sm mb-1">
+              <p className="font-medium text-gray-900 text-sm mb-1 w-8/12 truncate text-ellipsis">
                 {item.name}
               </p>
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-end justify-between">
+                <div className="flex-1">
                   <p className="text-sm text-gray-600">Size : {item.size}</p>
-                  <p className="font-semibold text-gray-900">
-                    ₹{item.price}{" "}
-                    <span className="text-gray-500 line-through text-xs">
+                  <div className="text-gray-900">
+                    <span>₹{item.price}</span>
+                    <span className="text-gray-500 line-through text-xs ml-1">
                       ₹{item.originalPrice}
-                    </span>{" "}
-                    <span className="text-green-600 text-xs">15% OFF</span>
-                  </p>
+                    </span>
+                    <span className="text-gray-500 text-xs ml-1">15% OFF</span>
+                  </div>
                 </div>
-                <div className="flex items-center bg-gray-100">
+                <div className="flex items-center bg-gray-100 flex-1 ml-1">
                   <button
                     onClick={() => updateQuantity(index, item.quantity - 1)}
                     className="w-6 h-6 rounded flex items-center justify-center"
