@@ -12,7 +12,7 @@ export default function QRCode() {
   };
 
   const handleContinue = () => {
-    navigate("/welcome-back");
+    navigate("/sign-in");
   };
 
   const handleBackToPhysical = () => {

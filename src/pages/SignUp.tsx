@@ -10,7 +10,7 @@ export default function SignUp() {
   const [email, setEmail] = useState("");
 
   const handleBack = () => {
-    navigate("/welcome-back");
+    navigate("/sign-in");
   };
 
   const handleSignUp = () => {
@@ -18,7 +18,7 @@ export default function SignUp() {
   };
 
   const handleLogin = () => {
-    navigate("/welcome-back");
+    navigate("/sign-in");
   };
 
   return (

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import React, { Suspense } from "react";
+import ScrollToTop from "./components/ScrollToTop";
 
 // Lazy load all page components
 const Index = React.lazy(() => import("./pages/Index"));
@@ -44,6 +45,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Suspense fallback={<div>Loading...</div>}>
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/fashion-lane" element={<FashionLane />} />
@@ -56,7 +58,7 @@ const App = () => (
             <Route path="/code-input" element={<CodeInput />} />
             <Route path="/product-scan" element={<ProductScan />} />
             <Route path="/kiosk-product-scan" element={<KioskProductScan />} />
-            <Route path="/welcome-back" element={<SignIn />} />
+            <Route path="/sign-in" element={<SignIn />} />
             <Route path="/sign-up" element={<SignUp />} />
             <Route
               path="/measurement-profile"

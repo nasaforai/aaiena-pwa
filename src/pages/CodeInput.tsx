@@ -20,7 +20,7 @@ export default function CodeInput() {
       if (isProductScan) {
         navigate("/product-details");
       } else {
-        navigate("/welcome-back");
+        navigate("/sign-in");
       }
     }
   };

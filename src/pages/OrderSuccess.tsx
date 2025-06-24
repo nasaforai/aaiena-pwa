@@ -1,18 +1,39 @@
-import React, { useEffect } from "react";
-import { ArrowLeft, ShoppingCart } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ArrowLeft, ChevronRight, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 export default function OrderSuccess() {
   const navigate = useNavigate();
+  const [cartItems, setCartItems] = useState<any[]>([]);
 
   useEffect(() => {
     // Clear cart after successful order
-    localStorage.removeItem("cartItems");
+    const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
+    setCartItems(items);
+
+    return () => {
+      localStorage.removeItem("cartItems");
+    };
   }, []);
 
   const handleGoHome = () => {
     navigate("/");
+  };
+
+  const getTotal = () => {
+    return cartItems.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
+  };
+
+  const getDiscountTotal = () => {
+    return cartItems.reduce(
+      (total, item) =>
+        total + (item.originalPrice - item.price) * item.quantity,
+      0
+    );
   };
 
   return (
@@ -29,32 +50,29 @@ export default function OrderSuccess() {
       </div>
 
       {/* Success Content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6">
+      <div className="flex-1 flex flex-col items-center justify-center">
         <div className="text-center mb-8">
           <h1 className="text-xl font-bold text-gray-900 mb-2">
-            Thanks! You're all set.
+            Thanks! You're all set. <br />
+            Pick up your item at the counter.
           </h1>
-          <p className="text-gray-600">Pick up your item at the counter.</p>
         </div>
 
         {/* Success Illustration */}
         <div className="mb-8">
-          <div className="w-32 h-32 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl flex items-center justify-center mb-4">
-            <div className="relative">
-              <div className="w-16 h-20 bg-blue-500 rounded-lg"></div>
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 rounded flex items-center justify-center">
-                <div className="w-4 h-3 bg-white rounded-sm"></div>
-              </div>
-              <div className="absolute -bottom-2 -left-2 w-12 h-8 bg-orange-300 rounded-lg"></div>
-            </div>
-          </div>
+          <img
+            src="/icons/payment.png"
+            alt="payment success icon"
+            width={118}
+            height={118}
+          />
         </div>
 
         <div className="text-center mb-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-2">
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
             Congratulations
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-sm">
             Your order is sent to the counter.
             <br />
             Please visit to collect it!
@@ -63,55 +81,66 @@ export default function OrderSuccess() {
 
         {/* Order Details */}
         <div className="w-full bg-gray-50 rounded-lg p-4 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <span className="font-medium text-gray-900">
+          <div className="flex justify-between items-center">
+            <span className="font-medium text-sm text-gray-900">
               Order ID: 123456789
             </span>
-            <button className="text-purple-600 font-medium flex items-center">
+            <button className="text-gray-800 font-medium flex items-center">
               ORDER DETAILS
-              <ArrowLeft className="w-4 h-4 ml-1 rotate-180" />
+              <ChevronRight className="w-4 h-4 ml-1" />
             </button>
           </div>
         </div>
       </div>
 
       {/* Payment Details */}
-      <div className="bg-gray-50 p-4">
+      <div className="p-4">
         <h3 className="font-semibold text-gray-900 mb-3">PAYMENT DETAILS</h3>
         <div className="space-y-2 mb-4">
           <div className="flex justify-between">
             <span className="text-gray-600">Bag Total</span>
-            <span className="font-medium">₹774</span>
+            <span className="font-medium">₹{getTotal()}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Discount</span>
-            <span className="font-medium text-green-600">-₹100.0</span>
+            <span className="font-medium text-gray-400">
+              -₹{getDiscountTotal()}
+            </span>
           </div>
           <div className="text-xs text-gray-500">&lt;COUPON&gt; applied</div>
           <div className="flex justify-between">
             <span className="text-gray-600">Packaging</span>
-            <span className="font-medium">₹50 Free</span>
+            <div>
+              <span className="text-xs text-gray-400 line-through mr-1">
+                ₹50
+              </span>
+              <span className="font-medium"> Free</span>
+            </div>
           </div>
-          <div className="border-t pt-2">
+          <div className="border-t border-dashed border-gray-300 pt-2">
             <div className="flex justify-between">
               <span className="font-semibold text-gray-900">TOTAL</span>
-              <span className="font-semibold text-gray-900">600.00</span>
+              <span className="font-semibold text-gray-900">
+                ₹{getTotal() - 100}
+              </span>
             </div>
           </div>
         </div>
 
-        <div className="bg-blue-100 p-3 rounded-lg mb-4">
-          <p className="text-sm text-center text-blue-800">
-            You're saving ₹199 on this order!
+        <div className="bg-blue-50 p-3 rounded-lg mb-4">
+          <p className="text-sm text-center text-gray-800">
+            You're saving ₹{getDiscountTotal() + 100} on this order!
           </p>
         </div>
 
-        <Button
-          onClick={handleGoHome}
-          className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium"
+        <button
+          onClick={() => {
+            navigate("/store");
+          }}
+          className="bg-black py-4 rounded-xl my-4 w-full text-white"
         >
           Home
-        </Button>
+        </button>
       </div>
     </div>
   );

@@ -29,9 +29,7 @@ export default function ProductDetails() {
   const [selectedSize, setSelectedSize] = useState("M");
   const [selectedColor, setSelectedColor] = useState("white");
   const [quantity, setQuantity] = useState(1);
-  const isLoggedIn = true;
-  // localStorage.getItem("isLoggedIn") === "true"
-
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
   // Chart data for size visualization
   const sizeChartData = [
     { name: "Small", value: 25, fill: "#FFD188" },
@@ -77,7 +75,11 @@ export default function ProductDetails() {
   };
 
   const handleBuyNow = () => {
-    handleAddToCart();
+    if (isLoggedIn) {
+      handleAddToCart();
+    } else {
+      navigate("/sign-in");
+    }
   };
 
   const handleJoinRoom = () => {

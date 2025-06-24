@@ -90,9 +90,27 @@ export default function WaitingRoom() {
 
           <div className="flex items-center space-x-2 mb-4">
             <div className="flex -space-x-2">
-              <div className="w-8 h-8 bg-blue-300 rounded-full border-2 border-white"></div>
-              <div className="w-8 h-8 bg-pink-300 rounded-full border-2 border-white"></div>
-              <div className="w-8 h-8 bg-yellow-300 rounded-full border-2 border-white"></div>
+              <div className="w-8 h-8 rounded-full relative">
+                <img
+                  src="/images/profile.png"
+                  alt="profile pic"
+                  className="absolute left-0 top-0 object-cover"
+                />
+              </div>
+              <div className="w-8 h-8 rounded-full relative  border-2 border-white">
+                <img
+                  src="/images/profile.png"
+                  alt="profile pic"
+                  className="absolute left-0 top-0 object-cover"
+                />
+              </div>
+              <div className="w-8 h-8 rounded-full relative  border-2 border-white">
+                <img
+                  src="/images/profile.png"
+                  alt="profile pic"
+                  className="absolute left-0 top-0 object-cover"
+                />
+              </div>
             </div>
             <span className="text-sm text-gray-600">
               3 people ahead of you checked in
