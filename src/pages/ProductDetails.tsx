@@ -10,6 +10,7 @@ import {
   ArrowRight,
   Shirt,
   UsersRound,
+  UserPen,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -33,9 +34,9 @@ export default function ProductDetails() {
 
   // Chart data for size visualization
   const sizeChartData = [
-    { name: "Small", value: 25, fill: "#3B82F6" }, // Blue
-    { name: "Medium", value: 50, fill: "#8B5CF6" }, // Purple
-    { name: "Large", value: 75, fill: "#EC4899" }, // Pink
+    { name: "Small", value: 25, fill: "#FFD188" },
+    { name: "Medium", value: 50, fill: "#FF98D4" },
+    { name: "Large", value: 75, fill: "#9BC7FD" },
   ];
 
   const handleBack = () => {
@@ -212,82 +213,92 @@ export default function ProductDetails() {
           </div>
 
           {/* Size Chart */}
-          <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-4 mb-4">
-            <h3 className="font-bold text-gray-900 mb-3">My Size</h3>
-            <p className="text-sm text-gray-600 mb-3">
-              Tailored to match your exact measurements
-            </p>
-
-            {/* Radial Chart */}
-            <div className="flex justify-center mb-4">
-              <div className="w-32 h-32">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadialBarChart
-                    cx="50%"
-                    cy="50%"
-                    innerRadius="20%"
-                    outerRadius="90%"
-                    data={sizeChartData}
-                  >
-                    <RadialBar
-                      dataKey="value"
-                      cornerRadius={4}
-                      fill="#8884d8"
-                    />
-                  </RadialBarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Size Options */}
-            <div className="flex justify-between text-center mb-4">
-              <div className="text-xs">
-                <div className="font-medium">Large size</div>
-                <div className="text-gray-600">(XL,XXL)</div>
-              </div>
-              <div className="text-xs">
-                <div className="font-medium text-purple-600">Medium size</div>
-                <div className="text-gray-600">(M)</div>
-              </div>
-              <div className="text-xs">
-                <div className="font-medium">Small size</div>
-                <div className="text-gray-600">(S)</div>
-              </div>
-            </div>
-
-            {/* Best Fit */}
-            <div className="bg-purple-100 rounded-xl p-3 mb-2">
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-900">
-                  Best Fit: Large Size
-                </span>
-              </div>
-              <p className="text-xs text-gray-600 mt-1">
-                We recommend Large "L" as the best fit for you—it offers a
-                comfortable and well-balanced look.
+          {isLoggedIn && (
+            <div className="bg-gradient-to-t from-[#F1E8FF] to-[#EBE1FD] rounded-2xl p-6 mb-4">
+              <h3 className="font-semibold text-gray-900 mb-1 text-2xl flex justify-between">
+                <span> My Size</span>
+                <UserPen />
+              </h3>
+              <p className="text-sm text-gray-600">
+                Tailored to match your exact measurements
               </p>
-            </div>
 
-            <div className="bg-gray-100 rounded-xl p-3">
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-900">
-                  Other Fit: Medium Size
-                </span>
+              {/* Radial Chart */}
+              <div className="flex justify-center">
+                <div className="w-72 h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadialBarChart
+                      cx="50%"
+                      cy="50%"
+                      innerRadius="20%"
+                      outerRadius="80%"
+                      data={sizeChartData}
+                    >
+                      <RadialBar dataKey="value" cornerRadius={4} />
+                    </RadialBarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
-              <p className="text-xs text-gray-600 mt-1">
-                Medium as the right fit for you—it could feel a bit snug. Great
-                if you like tighter-fitting clothes.
+
+              {/* Size Options */}
+              <div className="flex justify-between text-left mb-4">
+                <div className="text-xs">
+                  <div className="w-6 h-6 rounded-md mb-1 bg-[#9BC7FD]"></div>
+                  <div className="text-sm">Large size</div>
+                  <div className="text-gray-800 text-lg">(XL,XXL)</div>
+                </div>
+                <div className="text-xs">
+                  <div className="w-6 h-6 rounded-md mb-1 bg-[#FF98D4]"></div>
+                  <div className="text-sm">Medium size</div>
+                  <div className="text-gray-800 text-lg">(M)</div>
+                </div>
+                <div className="text-xs">
+                  <div className="w-6 h-6 rounded-md mb-1 bg-[#FFD188]"></div>
+                  <div className="text-sm">Small size</div>
+                  <div className="text-gray-800 text-lg">(S)</div>
+                </div>
+              </div>
+
+              {/* Best Fit */}
+              <div className="bg-purple-200 rounded-xl p-4 mb-4 mt-10">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-900">
+                    <span className="font-medium">Best Fit:</span>
+                    <span className="bg-orange-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
+                      Large Size
+                    </span>
+                  </span>
+                </div>
+                <p className="text-xs text-gray-600 mt-2">
+                  We recommend Large "L" as the best fit for you—it offers a
+                  comfortable and well-balanced look.
+                </p>
+              </div>
+
+              <div className="bg-white rounded-xl p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-900">
+                    <span className="font-medium">Other Fit:</span>
+                    <span className="bg-purple-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
+                      Medium Size
+                    </span>
+                  </span>
+                </div>
+                <p className="text-xs text-gray-600 mt-2">
+                  Medium as the right fit for you—it could feel a bit snug.
+                  Great if you like tighter-fitting clothes.
+                </p>
+              </div>
+
+              <p className="text-xs text-gray-500 mt-4 ml-2">
+                *95% users said true to size
               </p>
+
+              <Button className="w-full bg-gray-900 text-white py-6 rounded-xl font-medium mt-6 mb-4">
+                Try Now
+              </Button>
             </div>
-
-            <p className="text-xs text-gray-500 mt-2">
-              *95% users said true to size
-            </p>
-          </div>
-
-          <Button className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium mb-4">
-            Try Now
-          </Button>
+          )}
         </div>
       )}
 
@@ -315,7 +326,7 @@ export default function ProductDetails() {
         <div className="px-4 mb-6">
           <Button
             variant="outline"
-            className="w-full py-3 rounded-xl font-medium border-gray-300"
+            className="w-full py-6 rounded-xl font-medium border-gray-500"
           >
             Try Another
           </Button>
@@ -325,7 +336,7 @@ export default function ProductDetails() {
       <div className="bg-gray-100 w-full h-2 my-4"></div>
 
       {/* Find Similar */}
-      <div className="mb-6">
+      <div className="mb-6 px-4">
         <h3 className="font-semibold text-lg mb-3">Find Similar</h3>
         <Carousel className="w-full">
           <CarouselContent className="-ml-2 md:-ml-4">
@@ -358,7 +369,7 @@ export default function ProductDetails() {
       </div>
 
       {/* You might also like */}
-      <div className="mb-48">
+      <div className="mb-48 px-4">
         <h3 className="font-semibold text-lg mb-3">You might also like</h3>
         <Carousel className="w-full">
           <CarouselContent className="-ml-2 md:-ml-4">

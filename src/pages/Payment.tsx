@@ -81,7 +81,7 @@ export default function Payment() {
           {selectedPayment === "google-pay" && (
             <Button
               onClick={handlePayment}
-              className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium mb-4"
+              className="w-full bg-gray-900 text-white py-6 rounded-xl font-medium mb-4"
             >
               Pay ₹ {getTotal() - 100}
             </Button>
@@ -159,7 +159,7 @@ export default function Payment() {
       </div>
 
       {/* Payment Details */}
-      <div className="bg-gray-50 p-4">
+      <div className="p-4">
         <h3 className="font-semibold text-gray-900 mb-3">PAYMENT DETAILS</h3>
         <div className="space-y-2 mb-4">
           <div className="flex justify-between">
@@ -168,16 +168,21 @@ export default function Payment() {
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Discount</span>
-            <span className="font-medium text-green-600">
+            <span className="font-medium text-gray-400">
               -₹{getDiscountTotal()}
             </span>
           </div>
           <div className="text-xs text-gray-500">&lt;COUPON&gt; applied</div>
           <div className="flex justify-between">
             <span className="text-gray-600">Packaging</span>
-            <span className="font-medium">₹50 Free</span>
+            <div>
+              <span className="text-xs text-gray-400 line-through mr-1">
+                ₹50
+              </span>
+              <span className="font-medium"> Free</span>
+            </div>
           </div>
-          <div className="border-t pt-2">
+          <div className="border-t border-dashed border-gray-300 pt-2">
             <div className="flex justify-between">
               <span className="font-semibold text-gray-900">TOTAL</span>
               <span className="font-semibold text-gray-900">
@@ -187,8 +192,8 @@ export default function Payment() {
           </div>
         </div>
 
-        <div className="bg-blue-100 p-3 rounded-lg">
-          <p className="text-sm text-center text-blue-800">
+        <div className="bg-blue-50 p-3 rounded-lg mb-4">
+          <p className="text-sm text-center text-gray-800">
             You're saving ₹{getDiscountTotal() + 100} on this order!
           </p>
         </div>
