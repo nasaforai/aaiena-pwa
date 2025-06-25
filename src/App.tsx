@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -35,6 +36,7 @@ const Checkout = React.lazy(() => import("./pages/Checkout"));
 const Payment = React.lazy(() => import("./pages/Payment"));
 const OrderSuccess = React.lazy(() => import("./pages/OrderSuccess"));
 const Wishlist = React.lazy(() => import("./pages/Wishlist"));
+const TryVirtually = React.lazy(() => import("./pages/TryVirtually"));
 
 const queryClient = new QueryClient();
 
@@ -74,6 +76,7 @@ const App = () => (
             <Route path="/payment" element={<Payment />} />
             <Route path="/order-success" element={<OrderSuccess />} />
             <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/try-virtually" element={<TryVirtually />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
