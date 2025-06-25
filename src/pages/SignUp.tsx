@@ -37,7 +37,7 @@ export default function SignUp() {
       <div className="flex-1 px-6 py-8">
         {/* H&M Logo */}
         <div className="flex justify-center mb-8">
-          <div className="text-red-600 text-4xl font-bold">H&M</div>
+          <img src="/images/hm.png" alt="h&m logo" width={82} height={54} />
         </div>
 
         <div className="text-center mb-8">

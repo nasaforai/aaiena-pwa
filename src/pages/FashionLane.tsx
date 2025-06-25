@@ -43,7 +43,7 @@ export default function FashionLane() {
     <div className="bg-gradient-to-t from-[#FFE3F5] to-[#E8E1FF] flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen px-6 py-8 font-roboto">
       {/* H&M Logo */}
       <div className="flex justify-center mb-8">
-        <div className="text-red-600 text-4xl font-bold">H&M</div>
+        <img src="/images/hm.png" alt="h&m logo" height={54} width={82} />
       </div>
 
       {/* Title */}

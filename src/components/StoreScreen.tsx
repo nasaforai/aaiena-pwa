@@ -40,7 +40,7 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({
         >
           <ArrowLeft className="w-6 h-6 text-gray-700" />
         </button>
-        <div className="text-red-600 text-2xl font-bold">H&M</div>
+        <img src="/images/hm.png" alt="h&m logo" />
         <ShoppingBag className="w-6 h-6 text-gray-700" />
       </div>
 

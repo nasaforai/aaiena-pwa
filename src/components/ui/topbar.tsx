@@ -1,7 +1,9 @@
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const Topbar = ({ handleBack }) => {
+  const navigate = useNavigate();
   return (
     <>
       {/* Header */}
@@ -12,8 +14,13 @@ const Topbar = ({ handleBack }) => {
         >
           <ArrowLeft className="w-6 h-6 text-gray-700" />
         </button>
-        <div className="text-red-600 text-2xl font-bold">H&M</div>
-        <div className="relative">
+        <img src="/images/hm.png" alt="h&m logo" width={40} height={40} />
+        <div
+          className="relative"
+          onClick={() => {
+            navigate("/cart");
+          }}
+        >
           <ShoppingCart className="w-6 h-6 text-gray-700" />
           {JSON.parse(localStorage.getItem("cartItems") || "[]").length > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
