@@ -12,7 +12,7 @@ import {
   ArrowUp,
   Camera,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { createSearchParams, useNavigate } from "react-router-dom";
 import {
   Carousel,
   CarouselContent,
@@ -42,7 +42,8 @@ export default function Store() {
     if (isLoggedIn) {
       navigate("/try-virtually");
     } else {
-      navigate("/sign-in");
+      // Use string form for navigate to ensure query params are added
+      navigate(`/sign-in?${createSearchParams({ back: "store" })}`);
     }
   };
 

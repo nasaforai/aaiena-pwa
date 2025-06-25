@@ -12,7 +12,7 @@ import {
   UsersRound,
   UserPen,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { createSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Topbar from "@/components/ui/topbar";
 import {
@@ -78,7 +78,7 @@ export default function ProductDetails() {
     if (isLoggedIn) {
       handleAddToCart();
     } else {
-      navigate("/sign-in");
+      navigate(`/sign-in?${createSearchParams({ back: "product-details" })}`);
     }
   };
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ArrowLeft, Phone } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -8,9 +8,13 @@ export default function SignIn() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [queryParams] = useSearchParams();
+  const backRoute = queryParams.get("back");
+
+  console.log(window.location.href);
 
   const handleBack = () => {
-    navigate("/qr-code");
+    navigate(backRoute ? `/${backRoute}` : "/qr-code");
   };
 
   const handleLogin = () => {
