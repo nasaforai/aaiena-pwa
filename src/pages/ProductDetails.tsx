@@ -82,6 +82,14 @@ export default function ProductDetails() {
     }
   };
 
+  const handleTryVirtually = () => {
+    if (isLoggedIn) {
+      navigate("/try-virtually");
+    } else {
+      navigate(`/sign-in?${createSearchParams({ back: "product-details" })}`);
+    }
+  };
+
   const handleJoinRoom = () => {
     navigate("/waiting-room");
   };
@@ -147,7 +155,10 @@ export default function ProductDetails() {
                   <span className="text-lg"> ₹500</span>
                   <span className="text-gray-400">50% off</span>
                 </div>
-                <button className="bg-[#12002C] hover:bg-black/80 rounded-md text-white text-sm px-5 py-1">
+                <button
+                  className="bg-[#12002C] hover:bg-black/80 rounded-md text-white text-sm px-5 py-1"
+                  onClick={handleBuyNow}
+                >
                   Buy Now
                 </button>
               </div>
@@ -441,7 +452,7 @@ export default function ProductDetails() {
             </Button>
 
             <Button
-              onClick={handleBuyNow}
+              onClick={handleTryVirtually}
               className="flex-1 px-6 bg-gray-900 text-white py-3 rounded-lg font-medium"
             >
               Try Virtually
