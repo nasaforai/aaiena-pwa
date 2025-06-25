@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft } from "lucide-react";
+import {
+  ArrowLeft,
+  CreditCard,
+  GiftIcon,
+  Landmark,
+  WalletMinimal,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -53,17 +59,25 @@ export default function Payment() {
 
       {/* Payment Options */}
       <div className="flex-1 p-4">
-        <Accordion type="single" collapsible defaultValue="upi" className="w-full">
+        <Accordion
+          type="single"
+          collapsible
+          defaultValue="upi"
+          className="w-full"
+        >
           {/* UPI Section */}
           <AccordionItem value="upi" className="border-none">
             <AccordionTrigger className="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-3 hover:no-underline">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">UPI</span>
-                </div>
+                <img
+                  src="/icons/upi.png"
+                  alt="upi logo"
+                  width={40}
+                  height={15}
+                />
                 <span className="font-medium">UPI</span>
               </div>
-              <span className="text-sm text-gray-600">
+              <span className="text-xs text-gray-600">
                 Google Pay, Paytm, Phonepe & More
               </span>
             </AccordionTrigger>
@@ -79,8 +93,12 @@ export default function Payment() {
                   className="w-4 h-4 text-purple-600"
                 />
                 <div className="flex items-center space-x-3">
-                  <div className="w-6 h-6 bg-purple-600 rounded-full"></div>
-                  <div className="w-6 h-6 bg-orange-500 rounded"></div>
+                  <img
+                    src="/icons/gpay.svg"
+                    alt="gpay icon"
+                    width={26}
+                    height={26}
+                  />
                   <span className="font-medium">Google Pay</span>
                 </div>
               </div>
@@ -105,7 +123,12 @@ export default function Payment() {
                   className="w-4 h-4 text-purple-600"
                 />
                 <div className="flex items-center space-x-3">
-                  <div className="w-6 h-6 bg-blue-600 rounded-full"></div>
+                  <img
+                    src="/icons/paytm.svg"
+                    alt="paytm icon"
+                    width={44}
+                    height={12}
+                  />
                   <span className="font-medium">Paytm</span>
                 </div>
               </div>
@@ -121,9 +144,12 @@ export default function Payment() {
                   className="w-4 h-4 text-purple-600"
                 />
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">UPI</span>
-                  </div>
+                  <img
+                    src="/icons/upi.png"
+                    alt="upi logo"
+                    width={40}
+                    height={15}
+                  />
                   <span className="font-medium">Other UPI</span>
                 </div>
               </div>
@@ -134,12 +160,14 @@ export default function Payment() {
           <AccordionItem value="card" className="border-none mb-4">
             <AccordionTrigger className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:no-underline">
               <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-gray-400 rounded"></div>
+                <CreditCard />
                 <span className="font-medium">Credit/Debit Card</span>
               </div>
             </AccordionTrigger>
             <AccordionContent className="p-3">
-              <p className="text-gray-600">Credit/Debit card options will be shown here.</p>
+              <p className="text-gray-600">
+                Credit/Debit card options will be shown here.
+              </p>
             </AccordionContent>
           </AccordionItem>
 
@@ -147,12 +175,14 @@ export default function Payment() {
           <AccordionItem value="netbanking" className="border-none mb-4">
             <AccordionTrigger className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:no-underline">
               <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-blue-600 rounded"></div>
+                <Landmark />
                 <span className="font-medium">Net Banking</span>
               </div>
             </AccordionTrigger>
             <AccordionContent className="p-3">
-              <p className="text-gray-600">Net banking options will be shown here.</p>
+              <p className="text-gray-600">
+                Net banking options will be shown here.
+              </p>
             </AccordionContent>
           </AccordionItem>
 
@@ -160,12 +190,14 @@ export default function Payment() {
           <AccordionItem value="paylater" className="border-none mb-4">
             <AccordionTrigger className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:no-underline">
               <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-green-600 rounded"></div>
+                <WalletMinimal />
                 <span className="font-medium">Shop now & pay later</span>
               </div>
             </AccordionTrigger>
             <AccordionContent className="p-3">
-              <p className="text-gray-600">Pay later options will be shown here.</p>
+              <p className="text-gray-600">
+                Pay later options will be shown here.
+              </p>
             </AccordionContent>
           </AccordionItem>
 
@@ -173,12 +205,14 @@ export default function Payment() {
           <AccordionItem value="giftcard" className="border-none mb-4">
             <AccordionTrigger className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:no-underline">
               <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-yellow-500 rounded"></div>
+                <GiftIcon />
                 <span className="font-medium">Have a Gift Card?</span>
               </div>
             </AccordionTrigger>
             <AccordionContent className="p-3">
-              <p className="text-gray-600">Gift card options will be shown here.</p>
+              <p className="text-gray-600">
+                Gift card options will be shown here.
+              </p>
             </AccordionContent>
           </AccordionItem>
         </Accordion>

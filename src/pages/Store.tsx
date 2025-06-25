@@ -121,7 +121,7 @@ export default function Store() {
               <div className="flex items-center">
                 <ArrowUp className="text-green-500 w-4 h-4" />
                 <p className="text-green-500 text-sm">-18 min from usual</p>
-              </div>{" "}
+              </div>
             </div>
 
             <div className="flex flex-col shadow-xl rounded-xl bg-white p-4 gap-2 flex-1">
