@@ -38,6 +38,14 @@ export default function Store() {
     navigate("/product-details");
   };
 
+  const handleTry = () => {
+    if (isLoggedIn) {
+      navigate("/try-virtually");
+    } else {
+      navigate("/sign-in");
+    }
+  };
+
   return (
     <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       <Topbar handleBack={() => handleBack()} />
@@ -134,11 +142,19 @@ export default function Store() {
             </div>
           </div>
 
-          <button className="w-full mt-3 text-purple-600 border-2 border-purple-600 py-3 rounded-xl text-lg font-medium">
+          <button
+            className="w-full mt-3 text-purple-600 border-2 border-purple-600 py-3 rounded-xl text-lg font-medium"
+            onClick={handleTry}
+          >
             Try Virtually
           </button>
           {!isLoggedIn && (
-            <button className="w-full mt-2 bg-purple-100 text-black py-3 rounded-xl text-md font-medium">
+            <button
+              className="w-full mt-2 bg-purple-100 text-black py-3 rounded-xl text-md font-medium"
+              onClick={() => {
+                navigate("/sign-in");
+              }}
+            >
               Log In To See Full Preview →
             </button>
           )}

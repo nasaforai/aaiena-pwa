@@ -296,7 +296,12 @@ export default function ProductDetails() {
                 *95% users said true to size
               </p>
 
-              <Button className="w-full bg-gray-900 text-white py-6 rounded-xl font-medium mt-6 mb-4">
+              <Button
+                onClick={() => {
+                  navigate("/try-virtually");
+                }}
+                className="w-full bg-gray-900 text-white py-6 rounded-xl font-medium mt-6 mb-4"
+              >
                 Try Now
               </Button>
             </div>
@@ -329,6 +334,9 @@ export default function ProductDetails() {
           <Button
             variant="outline"
             className="w-full py-6 rounded-xl font-medium border-gray-500"
+            onClick={() => {
+              navigate("/try-virtually");
+            }}
           >
             Try Another
           </Button>
