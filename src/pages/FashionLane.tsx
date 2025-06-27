@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { QrCode, Camera, Monitor } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { createSearchParams, useNavigate } from "react-router-dom";
 
 export default function FashionLane() {
   const navigate = useNavigate();
@@ -9,10 +9,15 @@ export default function FashionLane() {
   const handleContinue = () => {
     if (selectedOption === 1) {
       // Scan The Product - go to QR scan screen
-      navigate("/qr-scan-product");
+      navigate(
+        `/qr-code?${createSearchParams({
+          back: "fashion-lane",
+          to: "product-scan",
+        })}`
+      );
     } else if (selectedOption === 2) {
       // Try On Virtually - go to QR scan screen
-      navigate("/qr-scan-virtual");
+      navigate(`/qr-code?${createSearchParams({ back: "fashion-lane" })}`);
     } else if (selectedOption === 3) {
       navigate("/store");
     }

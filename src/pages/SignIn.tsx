@@ -11,8 +11,6 @@ export default function SignIn() {
   const [queryParams] = useSearchParams();
   const backRoute = queryParams.get("back");
 
-  console.log(window.location.href);
-
   const handleBack = () => {
     navigate(backRoute ? `/${backRoute}` : "/qr-code");
   };
