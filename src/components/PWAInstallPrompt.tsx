@@ -110,7 +110,7 @@ export const PWAInstallPrompt: React.FC = () => {
           {!isIOS && (
             <ActionButton
               onClick={handleInstallClick}
-              className="text-xs px-2! py-1! w-auto"
+              className="text-xs px-2! py-1! w-auto!"
             >
               Install
             </ActionButton>
