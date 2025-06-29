@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { ActionButton } from "./ActionButton";
 
@@ -97,21 +96,21 @@ export const PWAInstallPrompt: React.FC = () => {
   }
 
   return (
-    <div className="fixed top-4 left-4 right-4 bg-white rounded-lg shadow-lg p-3 z-50 lg:max-w-sm mx-auto border">
-      <div className="flex flex-col gap-2">
-        <div>
-          <h3 className="text-sm font-medium text-[#12002C]">Install Aaiena</h3>
+    <div className="fixed top-4 left-4 right-4 bg-white rounded-lg shadow-lg p-2 z-50 lg:max-w-sm mx-auto border">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex-1">
+          <h3 className="text-xs font-medium text-[#12002C]">Install Aaiena</h3>
           <p className="text-xs text-gray-600">
             {isIOS
-              ? "Add to home screen for better experience."
-              : "Install for better experience!"}
+              ? "Add to home screen"
+              : "Install for better experience"}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-1">
           {!isIOS && (
             <ActionButton
               onClick={handleInstallClick}
-              className="flex-1 text-xs py-1 px-2"
+              className="text-xs px-2 py-1"
             >
               Install
             </ActionButton>
