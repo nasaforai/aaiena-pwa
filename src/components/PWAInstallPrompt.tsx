@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { ActionButton } from "./ActionButton";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -96,24 +95,22 @@ export const PWAInstallPrompt: React.FC = () => {
   }
 
   return (
-    <div className="fixed top-4 left-4 right-4 bg-white rounded-lg shadow-lg p-2 z-50 lg:max-w-sm mx-auto border">
-      <div className="flex items-center justify-between gap-2">
+    <div className="fixed top-2 left-4 right-4 bg-white rounded-lg shadow-lg p-2 z-50 max-w-xs mx-auto border">
+      <div className="flex items-center justify-between gap-2 pl-2">
         <div className="flex-1">
           <h3 className="text-xs font-medium text-[#12002C]">Install Aaiena</h3>
           <p className="text-xs text-gray-600">
-            {isIOS
-              ? "Add to home screen"
-              : "Install for better experience"}
+            {isIOS ? "Add to home screen" : "Install for better experience"}
           </p>
         </div>
         <div className="flex gap-1">
           {!isIOS && (
-            <ActionButton
+            <button
               onClick={handleInstallClick}
-              className="text-xs px-2! w-auto!"
+              className="text-xs bg-purple-300 px-2 hover:bg-purple-400 transition-colors duration-300 rounded-sm"
             >
               Install
-            </ActionButton>
+            </button>
           )}
           <button
             onClick={handleDismiss}
