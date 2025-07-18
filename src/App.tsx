@@ -54,41 +54,30 @@ const App = () => {
             <ScrollToTop />
             <Routes>
               <Route path="/" element={<Index />} />
-              {deviceType === 'mobile' ? (
-                <>
-                  <Route path="/fashion-lane" element={<FashionLane />} />
-                  <Route path="/store" element={<Store />} />
-                  <Route path="/product-details" element={<ProductDetails />} />
-                  <Route path="/waiting-room" element={<WaitingRoom />} />
-                  <Route path="/qr-code" element={<QRCode />} />
-                  <Route path="/qr-scan-product" element={<QRScanProduct />} />
-                  <Route path="/qr-scan-virtual" element={<QRScanVirtual />} />
-                  <Route path="/code-input" element={<CodeInput />} />
-                  <Route path="/product-scan" element={<ProductScan />} />
-                  <Route path="/kiosk-product-scan" element={<KioskProductScan />} />
-                  <Route path="/sign-in" element={<SignIn />} />
-                  <Route path="/sign-up" element={<SignUp />} />
-                  <Route path="/measurement-profile" element={<MeasurementProfile />} />
-                  <Route path="/photo-source" element={<PhotoSource />} />
-                  <Route path="/image-guide" element={<ImageGuide />} />
-                  <Route path="/update-profile" element={<UpdateProfile />} />
-                  <Route path="/fit-profile" element={<FitProfile />} />
-                  <Route path="/device-connected" element={<DeviceConnected />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/payment" element={<Payment />} />
-                  <Route path="/order-success" element={<OrderSuccess />} />
-                  <Route path="/wishlist" element={<Wishlist />} />
-                  <Route path="/try-virtually" element={<TryVirtually />} />
-                </>
-              ) : (
-                <>
-                  {/* Desktop/Tablet routes - limited set */}
-                  <Route path="/fashion-lane" element={<FashionLane />} />
-                  <Route path="/store" element={<Store />} />
-                  <Route path="/product-details" element={<ProductDetails />} />
-                </>
-              )}
+              <Route path="/fashion-lane" element={<FashionLane />} />
+              <Route path="/store" element={<Store />} />
+              <Route path="/product-details" element={<ProductDetails />} />
+              <Route path="/waiting-room" element={<WaitingRoom />} />
+              <Route path="/qr-code" element={<QRCode />} />
+              <Route path="/qr-scan-product" element={<QRScanProduct />} />
+              <Route path="/qr-scan-virtual" element={<QRScanVirtual />} />
+              <Route path="/code-input" element={<CodeInput />} />
+              <Route path="/product-scan" element={<ProductScan />} />
+              <Route path="/kiosk-product-scan" element={<KioskProductScan />} />
+              <Route path="/sign-in" element={<SignIn />} />
+              <Route path="/sign-up" element={<SignUp />} />
+              <Route path="/measurement-profile" element={<MeasurementProfile />} />
+              <Route path="/photo-source" element={<PhotoSource />} />
+              <Route path="/image-guide" element={<ImageGuide />} />
+              <Route path="/update-profile" element={<UpdateProfile />} />
+              <Route path="/fit-profile" element={<FitProfile />} />
+              <Route path="/device-connected" element={<DeviceConnected />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/payment" element={<Payment />} />
+              <Route path="/order-success" element={<OrderSuccess />} />
+              <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/try-virtually" element={<TryVirtually />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
