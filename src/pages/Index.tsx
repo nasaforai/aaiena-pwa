@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { SplashScreen } from "@/components/SplashScreen";
 import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Index() {
   const navigate = useNavigate();
   const [showSplash, setShowSplash] = useState(true);
+  const isMobile = useIsMobile();
+
   useEffect(() => {
     localStorage.removeItem("isLoggedIn");
   }, []);
 
   const handleSplashComplete = () => {
     setShowSplash(false);
-    navigate("/fashion-lane");
+    console.log(isMobile);
+    navigate(isMobile ? "/sign-in" : "/fashion-lane");
   };
 
   if (showSplash) {

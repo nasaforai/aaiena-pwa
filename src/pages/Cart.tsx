@@ -9,12 +9,14 @@ import {
   ChevronRight,
   QrCode,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 export default function Cart() {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<any[]>([]);
+  const [queryParams] = useSearchParams();
+  const backRoute = queryParams.get("back");
 
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
@@ -59,12 +61,16 @@ export default function Cart() {
     navigate("/checkout");
   };
 
+  const handleBack = () => {
+    navigate(backRoute ? `/${backRoute}` : "/store");
+  };
+
   return (
     <div className="bg-gray-100 flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <div className="flex items-center p-4 bg-white border-b border-gray-100">
         <button
-          onClick={() => navigate("/store")}
+          onClick={handleBack}
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors mr-3"
         >
           <ArrowLeft className="w-6 h-6 text-gray-700" />

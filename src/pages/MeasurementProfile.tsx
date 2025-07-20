@@ -10,7 +10,9 @@ export default function MeasurementProfile() {
   };
 
   const handleNoThanks = () => {
-    navigate("/photo-source");
+    localStorage.setItem("hasMeasurements", "false");
+    localStorage.setItem("isLoggedIn", "true");
+    navigate("/store");
   };
 
   return (

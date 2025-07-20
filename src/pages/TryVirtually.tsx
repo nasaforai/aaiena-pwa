@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/carousel";
 import ProductCard from "@/components/ProductCard";
 import { RadialBarChart, RadialBar, ResponsiveContainer, Cell } from "recharts";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function TryVirtually() {
   const navigate = useNavigate();
@@ -30,6 +31,8 @@ export default function TryVirtually() {
   const [selectedColor, setSelectedColor] = useState("white");
   const [quantity, setQuantity] = useState(1);
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  const hasMeasurements = localStorage.getItem("hasMeasurements") === "true";
+  const isMobile = useIsMobile();
   // Chart data for size visualization
   const sizeChartData = [
     { name: "Small", value: 25, fill: "#FFD188" },
@@ -71,7 +74,7 @@ export default function TryVirtually() {
     }
 
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
-    navigate("/cart");
+    navigate("/cart?back=try-virtually");
   };
 
   const handleBuyNow = () => {
@@ -147,7 +150,10 @@ export default function TryVirtually() {
                   <span className="text-lg"> ₹500</span>
                   <span className="text-gray-400">50% off</span>
                 </div>
-                <button className="bg-[#12002C] hover:bg-black/80 rounded-md text-white text-sm px-5 py-1">
+                <button
+                  className="bg-[#12002C] hover:bg-black/80 rounded-md text-white text-sm px-5 py-1"
+                  onClick={handleBuyNow}
+                >
                   Buy Now
                 </button>
               </div>
@@ -355,20 +361,22 @@ export default function TryVirtually() {
         </Carousel>
       </div>
 
-      <div className="py-10 mb-6 flex flex-col items-center justify-center bg-yellow-300">
-        <img
-          src="/icons/tShirt.svg"
-          alt="dress icon"
-          height={24}
-          width={24}
-          className="mb-1"
-        />
-        <p className="text-xl">Struggling to spot your fit?</p>
-        <button className="flex shadow-sm bg-white items-center rounded-md pl-10 pr-8 py-2 mt-4">
-          <span>Set your profile</span>
-          <ArrowRight className="h-4 ml-1" />
-        </button>
-      </div>
+      {!hasMeasurements && (
+        <div className="py-10 mb-6 flex flex-col items-center justify-center bg-yellow-300">
+          <img
+            src="/icons/tShirt.svg"
+            alt="dress icon"
+            height={24}
+            width={24}
+            className="mb-1"
+          />
+          <p className="text-xl">Struggling to spot your fit?</p>
+          <button className="flex shadow-sm bg-white items-center rounded-md pl-10 pr-8 py-2 mt-4">
+            <span>Set your profile</span>
+            <ArrowRight className="h-4 ml-1" />
+          </button>
+        </div>
+      )}
 
       {/* You might also like */}
       <div className="mb-48 px-4">
@@ -391,38 +399,40 @@ export default function TryVirtually() {
       {/* Bottom Action */}
       <div className="fixed bottom-0 left-0 w-full lg:lg:max-w-sm lg:left-1/2 lg:-translate-x-1/2">
         <div className="shadow-xl">
-          <div className="bg-purple-200 rounded-tr-2xl rounded-tl-2xl p-4">
-            <div className="flex justify-between items-center mb-2">
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <UsersRound className="w-5" />
-                  <span className="text-md font-semibold text-gray-700">
-                    Moderate
-                  </span>
+          {!isMobile && (
+            <div className="bg-purple-200 rounded-tr-2xl rounded-tl-2xl p-4">
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <UsersRound className="w-5" />
+                    <span className="text-md font-semibold text-gray-700">
+                      Moderate
+                    </span>
+                  </div>
+                  <button
+                    className="text-xs text-white bg-purple-400 font-medium px-4 py-2 rounded-md"
+                    onClick={handleJoinRoom}
+                  >
+                    JOIN ROOM
+                  </button>
                 </div>
-                <button
-                  className="text-xs text-white bg-purple-400 font-medium px-4 py-2 rounded-md"
-                  onClick={handleJoinRoom}
-                >
-                  JOIN ROOM
-                </button>
-              </div>
-              <div className="flex flex-col space-y-2">
-                <p>JOIN EMPTY ROOMS:</p>
-                <div className="flex space-x-2">
-                  <span className="bg-purple-50 shadow-md py-2 px-4 rounded text-md">
-                    2A
-                  </span>
-                  <span className="bg-purple-50 shadow-md py-2 px-4 rounded text-md">
-                    3C
-                  </span>
-                  <span className="bg-purple-50 shadow-md py-2 px-4 rounded text-md">
-                    2B
-                  </span>
+                <div className="flex flex-col space-y-2">
+                  <p>JOIN EMPTY ROOMS:</p>
+                  <div className="flex space-x-2">
+                    <span className="bg-purple-50 shadow-md py-2 px-4 rounded text-md">
+                      2A
+                    </span>
+                    <span className="bg-purple-50 shadow-md py-2 px-4 rounded text-md">
+                      3C
+                    </span>
+                    <span className="bg-purple-50 shadow-md py-2 px-4 rounded text-md">
+                      2B
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           <div className="px-4 py-2 bg-white shadow-md flex gap-4">
             <Button
@@ -432,12 +442,12 @@ export default function TryVirtually() {
               Buy Now
             </Button>
 
-            <Button
+            {/* <Button
               onClick={handleBuyNow}
               className="flex-1 px-6 bg-gray-900 text-white py-3 rounded-lg font-medium"
             >
               Try Virtually
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>

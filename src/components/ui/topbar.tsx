@@ -1,18 +1,20 @@
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const Topbar = ({ handleBack }) => {
+const Topbar = ({ handleBack, showBack = true }) => {
   const navigate = useNavigate();
   return (
     <>
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-white border-b border-gray-100">
-        <button
-          onClick={() => handleBack()}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          <ArrowLeft className="w-6 h-6 text-gray-700" />
-        </button>
+        {showBack && (
+          <button
+            onClick={() => handleBack()}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="w-6 h-6 text-gray-700" />
+          </button>
+        )}
         <img src="/images/hm.png" alt="h&m logo" width={40} height={40} />
         <div
           className="relative"

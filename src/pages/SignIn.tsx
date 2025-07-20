@@ -3,6 +3,7 @@ import { ArrowLeft, Phone } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [queryParams] = useSearchParams();
   const backRoute = queryParams.get("back");
+  const isMobile = useIsMobile();
 
   const handleBack = () => {
     navigate(backRoute ? `/${backRoute}` : "/qr-code");
@@ -30,14 +32,16 @@ export default function SignIn() {
   return (
     <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between p-4">
-        <button
-          onClick={handleBack}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          <ArrowLeft className="w-6 h-6 text-gray-700" />
-        </button>
-      </div>
+      {!isMobile && (
+        <div className="flex items-center justify-between p-4">
+          <button
+            onClick={handleBack}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="w-6 h-6 text-gray-700" />
+          </button>
+        </div>
+      )}
 
       {/* Content */}
       <div className="flex-1 px-6 py-8">

@@ -9,10 +9,12 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Checkout() {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<any[]>([]);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
@@ -45,7 +47,11 @@ export default function Checkout() {
   };
 
   const handleProceedToPayment = () => {
-    navigate("/payment");
+    if (isMobile) {
+      navigate("/payment");
+    } else {
+      navigate("/qr-code?back=checkout");
+    }
   };
 
   return (
@@ -193,11 +199,13 @@ export default function Checkout() {
           onClick={handleProceedToPayment}
           className="w-full bg-gray-900 text-white py-6 rounded-xl font-medium"
         >
-          Checkout via Mobile App
+          {isMobile ? "Checkout" : "Checkout via Mobile App"}
         </Button>
-        <Button className="w-full rounded-xl font-medium bg-transparent text-gray-900">
-          Pay at Counter
-        </Button>
+        {!isMobile && (
+          <Button className="w-full rounded-xl font-medium bg-transparent text-gray-900">
+            Pay at Counter
+          </Button>
+        )}
       </div>
     </div>
   );

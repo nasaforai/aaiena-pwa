@@ -1,44 +1,92 @@
-import * as React from "react"
+import * as React from "react";
 
-const MOBILE_BREAKPOINT = 768
-
-export type DeviceType = 'mobile' | 'tablet' | 'desktop'
+export type DeviceType = "mobile" | "tablet" | "desktop";
 
 export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(
+    undefined
+  );
 
   React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    }
-    mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener("change", onChange)
-  }, [])
+    const detectMobile = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
 
-  return !!isMobile
+      // Mobile detection patterns
+      const mobilePatterns = [
+        /android.*mobile/,
+        /iphone/,
+        /ipod/,
+        /blackberry/,
+        /windows phone/,
+        /opera mini/,
+        /mobile.*firefox/,
+        /mobile.*chrome/,
+        /mobile.*safari/,
+      ];
+
+      const isMobileDevice = mobilePatterns.some((pattern) =>
+        pattern.test(userAgent)
+      );
+      setIsMobile(isMobileDevice);
+    };
+
+    detectMobile();
+  }, []);
+
+  return !!isMobile;
 }
 
 export function useDeviceType(): DeviceType {
-  const [deviceType, setDeviceType] = React.useState<DeviceType>('desktop')
+  const [deviceType, setDeviceType] = React.useState<DeviceType>("desktop");
 
   React.useEffect(() => {
     const detectDevice = () => {
-      const width = window.innerWidth
-      if (width < 768) {
-        setDeviceType('mobile')
-      } else if (width < 1024) {
-        setDeviceType('tablet')
+      const userAgent = navigator.userAgent.toLowerCase();
+
+      // Mobile detection patterns
+      const mobilePatterns = [
+        /android.*mobile/,
+        /iphone/,
+        /ipod/,
+        /blackberry/,
+        /windows phone/,
+        /opera mini/,
+        /mobile.*firefox/,
+        /mobile.*chrome/,
+        /mobile.*safari/,
+      ];
+
+      // Tablet detection patterns
+      const tabletPatterns = [
+        /ipad/,
+        /android(?!.*mobile)/,
+        /tablet/,
+        /playbook/,
+        /kindle/,
+      ];
+
+      // Check if it's a mobile device
+      const isMobile = mobilePatterns.some((pattern) =>
+        pattern.test(userAgent)
+      );
+
+      // Check if it's a tablet device
+      const isTablet = tabletPatterns.some((pattern) =>
+        pattern.test(userAgent)
+      );
+
+      if (isMobile) {
+        setDeviceType("mobile");
+      } else if (isTablet) {
+        setDeviceType("tablet");
       } else {
-        setDeviceType('desktop')
+        setDeviceType("desktop");
       }
-    }
+    };
 
-    detectDevice()
-    window.addEventListener('resize', detectDevice)
-    return () => window.removeEventListener('resize', detectDevice)
-  }, [])
+    detectDevice();
+    // Note: userAgent doesn't change on resize, so we don't need resize listener
+  }, []);
 
-  return deviceType
+  return deviceType;
 }

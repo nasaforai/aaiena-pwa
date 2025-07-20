@@ -22,7 +22,10 @@ export default function FitProfile() {
   };
 
   const handleContinue = () => {
-    navigate("/device-connected");
+    localStorage.setItem("hasMeasurements", "true");
+    localStorage.setItem("isLoggedIn", "true");
+    navigate("/store");
+    // navigate("/device-connected");
   };
 
   const handleEditProfile = () => {

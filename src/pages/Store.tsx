@@ -24,11 +24,13 @@ import {
 import Topbar from "@/components/ui/topbar";
 import ProductCard from "@/components/ProductCard";
 import { Progress } from "@/components/ui/progress";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Store() {
   const navigate = useNavigate();
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
   const [notifyToggle, setNotifyToggle] = useState(true);
+  const isMobile = useIsMobile();
 
   const handleBack = () => {
     navigate("/fashion-lane");
@@ -49,7 +51,10 @@ export default function Store() {
 
   return (
     <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
-      <Topbar handleBack={() => handleBack()} />
+      <Topbar
+        handleBack={() => handleBack()}
+        showBack={isMobile ? false : true}
+      />
 
       {isLoggedIn && (
         <h1 className="p-4 text-2xl font-medium">
@@ -71,96 +76,98 @@ export default function Store() {
       </div>
 
       {/* Queue Status */}
-      <div className="mx-4 mb-4 bg-white shadow-lg shadow-purple-200 rounded-2xl text-white">
-        <div className="bg-gradient-to-tl from-[#DBACFF] to-[#6A00FF] rounded-tl-2xl rounded-tr-2xl px-4 py-3">
-          <div className="flex justify-between items-center mb-2">
-            <p className="text-sm opacity-90">Queue Status</p>
-            <p className="text-sm">5 minutes</p>
-          </div>
-          <p className="text-2xl font-bold">Moderate</p>
-        </div>
-
-        {isLoggedIn && (
-          <>
-            <div className="rounded-xl m-4 bg-[#FFF3D3] border border-[#FFD25C] p-4 text-[#342601]">
-              <div className="flex justify-between">
-                <p>Your turn coming up</p>
-                <p>4:00 min left</p>
-              </div>
-              <Progress
-                className="bg-[#FFDD82] [&>div]:bg-[#FFB900] [&>div]:rounded-full mt-4 mb-2"
-                value={20}
-              />
-              <p className="text-sm">
-                You have 5 minutes per session—switch to your phone to continue
-                smoothly.
-              </p>
-
-              <button className="py-4 w-full rounded-xl border border-[#FFB900] mt-8">
-                Switch to Mobile
-              </button>
+      {!isMobile && (
+        <div className="mx-4 mb-4 bg-white shadow-lg shadow-purple-200 rounded-2xl text-white">
+          <div className="bg-gradient-to-tl from-[#DBACFF] to-[#6A00FF] rounded-tl-2xl rounded-tr-2xl px-4 py-3">
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-sm opacity-90">Queue Status</p>
+              <p className="text-sm">5 minutes</p>
             </div>
+            <p className="text-2xl font-bold">Moderate</p>
+          </div>
 
-            {/* Notification Toggle */}
-            <div className="flex items-center justify-between mb-1 px-10 py-4 rounded-lg">
-              <span className="font-medium text-gray-900 text-md">
-                Notify me when it's my turn
-              </span>
-              <button
-                onClick={() => setNotifyToggle(!notifyToggle)}
-                className={`w-12 h-6 rounded-full transition-colors ${
-                  notifyToggle ? "bg-purple-600" : "bg-gray-300"
-                }`}
-              >
-                <div
-                  className={`w-4 h-4 bg-white rounded-full shadow transition-transform ${
-                    notifyToggle ? "translate-x-7" : "translate-x-1"
+          {isLoggedIn && (
+            <>
+              <div className="rounded-xl m-4 bg-[#FFF3D3] border border-[#FFD25C] p-4 text-[#342601]">
+                <div className="flex justify-between">
+                  <p>Your turn coming up</p>
+                  <p>4:00 min left</p>
+                </div>
+                <Progress
+                  className="bg-[#FFDD82] [&>div]:bg-[#FFB900] [&>div]:rounded-full mt-4 mb-2"
+                  value={20}
+                />
+                <p className="text-sm">
+                  You have 5 minutes per session—switch to your phone to
+                  continue smoothly.
+                </p>
+
+                <button className="py-4 w-full rounded-xl border border-[#FFB900] mt-8">
+                  Switch to Mobile
+                </button>
+              </div>
+
+              {/* Notification Toggle */}
+              <div className="flex items-center justify-between mb-1 px-10 py-4 rounded-lg">
+                <span className="font-medium text-gray-900 text-md">
+                  Notify me when it's my turn
+                </span>
+                <button
+                  onClick={() => setNotifyToggle(!notifyToggle)}
+                  className={`w-12 h-6 rounded-full transition-colors ${
+                    notifyToggle ? "bg-purple-600" : "bg-gray-300"
                   }`}
-                ></div>
-              </button>
-            </div>
-          </>
-        )}
-
-        <div className="p-4 flex flex-col gap-2">
-          <div className="flex gap-4">
-            <div className="flex flex-col shadow-lg rounded-xl bg-white p-4 gap-2 flex-1">
-              <p className="text-gray-400 text-sm">Current Users</p>
-              <p className="text-black text-2xl">4</p>
-              <div className="flex items-center">
-                <ArrowUp className="text-green-500 w-4 h-4" />
-                <p className="text-green-500 text-sm">-18 min from usual</p>
+                >
+                  <div
+                    className={`w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                      notifyToggle ? "translate-x-7" : "translate-x-1"
+                    }`}
+                  ></div>
+                </button>
               </div>
-            </div>
-
-            <div className="flex flex-col shadow-xl rounded-xl bg-white p-4 gap-2 flex-1">
-              <p className="text-gray-400 text-sm">Average Wait</p>
-              <p className="text-black text-2xl">5 min</p>
-              <div className="flex items-center">
-                <ArrowDown className="text-red-500 w-4 h-4" />
-                <p className="text-red-500 text-sm">-18 min from usual</p>
-              </div>
-            </div>
-          </div>
-
-          <button
-            className="w-full mt-3 text-purple-600 border-2 border-purple-600 py-3 rounded-xl text-lg font-medium"
-            onClick={handleTry}
-          >
-            Try Virtually
-          </button>
-          {!isLoggedIn && (
-            <button
-              className="w-full mt-2 bg-purple-100 text-black py-3 rounded-xl text-md font-medium"
-              onClick={() => {
-                navigate(`/sign-in?${createSearchParams({ back: "store" })}`);
-              }}
-            >
-              Log In To See Full Preview →
-            </button>
+            </>
           )}
+
+          <div className="p-4 flex flex-col gap-2">
+            <div className="flex gap-4">
+              <div className="flex flex-col shadow-lg rounded-xl bg-white p-4 gap-2 flex-1">
+                <p className="text-gray-400 text-sm">Current Users</p>
+                <p className="text-black text-2xl">4</p>
+                <div className="flex items-center">
+                  <ArrowUp className="text-green-500 w-4 h-4" />
+                  <p className="text-green-500 text-sm">-18 min from usual</p>
+                </div>
+              </div>
+
+              <div className="flex flex-col shadow-xl rounded-xl bg-white p-4 gap-2 flex-1">
+                <p className="text-gray-400 text-sm">Average Wait</p>
+                <p className="text-black text-2xl">5 min</p>
+                <div className="flex items-center">
+                  <ArrowDown className="text-red-500 w-4 h-4" />
+                  <p className="text-red-500 text-sm">-18 min from usual</p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              className="w-full mt-3 text-purple-600 border-2 border-purple-600 py-3 rounded-xl text-lg font-medium"
+              onClick={handleTry}
+            >
+              Try Virtually
+            </button>
+            {!isLoggedIn && (
+              <button
+                className="w-full mt-2 bg-purple-100 text-black py-3 rounded-xl text-md font-medium"
+                onClick={() => {
+                  navigate(`/sign-in?${createSearchParams({ back: "store" })}`);
+                }}
+              >
+                Log In To See Full Preview →
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Designer Picks section */}
       <div className="mx-4 mb-4 bg-purple-400 rounded-2xl py-10 px-4 text-white text-center">

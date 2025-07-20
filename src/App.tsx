@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import React, { Suspense } from "react";
 import ScrollToTop from "./components/ScrollToTop";
-import { useDeviceType } from "@/hooks/use-mobile";
+import { useDeviceType, useIsMobile } from "@/hooks/use-mobile";
 
 // Lazy load all page components
 const Index = React.lazy(() => import("./pages/Index"));
@@ -42,8 +41,6 @@ const TryVirtually = React.lazy(() => import("./pages/TryVirtually"));
 const queryClient = new QueryClient();
 
 const App = () => {
-  const deviceType = useDeviceType();
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -63,10 +60,16 @@ const App = () => {
               <Route path="/qr-scan-virtual" element={<QRScanVirtual />} />
               <Route path="/code-input" element={<CodeInput />} />
               <Route path="/product-scan" element={<ProductScan />} />
-              <Route path="/kiosk-product-scan" element={<KioskProductScan />} />
+              <Route
+                path="/kiosk-product-scan"
+                element={<KioskProductScan />}
+              />
               <Route path="/sign-in" element={<SignIn />} />
               <Route path="/sign-up" element={<SignUp />} />
-              <Route path="/measurement-profile" element={<MeasurementProfile />} />
+              <Route
+                path="/measurement-profile"
+                element={<MeasurementProfile />}
+              />
               <Route path="/photo-source" element={<PhotoSource />} />
               <Route path="/image-guide" element={<ImageGuide />} />
               <Route path="/update-profile" element={<UpdateProfile />} />
