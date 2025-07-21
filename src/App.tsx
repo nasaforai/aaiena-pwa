@@ -31,6 +31,8 @@ const ImageGuide = React.lazy(() => import("./pages/ImageGuide"));
 const UpdateProfile = React.lazy(() => import("./pages/UpdateProfile"));
 const FitProfile = React.lazy(() => import("./pages/FitProfile"));
 const DeviceConnected = React.lazy(() => import("./pages/DeviceConnected"));
+const DeviceConnectFlow = React.lazy(() => import("./pages/DeviceConnectFlow"));
+
 const Cart = React.lazy(() => import("./pages/Cart"));
 const Checkout = React.lazy(() => import("./pages/Checkout"));
 const Payment = React.lazy(() => import("./pages/Payment"));
@@ -75,6 +77,10 @@ const App = () => {
               <Route path="/update-profile" element={<UpdateProfile />} />
               <Route path="/fit-profile" element={<FitProfile />} />
               <Route path="/device-connected" element={<DeviceConnected />} />
+              <Route
+                path="/device-connect-flow"
+                element={<DeviceConnectFlow />}
+              />
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/payment" element={<Payment />} />

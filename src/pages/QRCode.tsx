@@ -19,7 +19,19 @@ export default function QRCode() {
   };
 
   const handleBackToPhysical = () => {
-    navigate("/waiting-room");
+    navigate("/store");
+  };
+
+  const continueMobile = () => {
+    try {
+      navigator.clipboard.writeText(
+        `${window.location.origin}/device-connect-flow` +
+          (backRoute ? `?back=${backRoute}` : "")
+      );
+      toast.success("Qr code Copied Successfully");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const copyCode = () => {
@@ -80,7 +92,10 @@ export default function QRCode() {
             Use your phone camera to scan
           </p>
 
-          <div className="w-48 h-48 mx-auto mb-4 bg-white rounded-lg flex items-center justify-center">
+          <div
+            onClick={continueMobile}
+            className="w-48 h-48 mx-auto mb-4 bg-white rounded-lg flex items-center justify-center"
+          >
             <img
               src="/images/qr-code.png"
               alt="qrcode"

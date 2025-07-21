@@ -14,7 +14,7 @@ export default function DeviceConnected() {
 
   const handleStickWithKiosk = () => {
     localStorage.setItem("isLoggedIn", "true");
-    navigate("/store");
+    navigator.clipboard.writeText(window.location.origin + "/store");
   };
 
   return (

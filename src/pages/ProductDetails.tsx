@@ -81,7 +81,11 @@ export default function ProductDetails() {
     if (isLoggedIn) {
       handleAddToCart();
     } else {
-      navigate(`/sign-in?${createSearchParams({ back: "product-details" })}`);
+      if (isMobile) {
+        navigate(`/sign-in?${createSearchParams({ back: "product-details" })}`);
+      } else {
+        navigate("/qr-code?back=product-details");
+      }
     }
   };
 
@@ -93,7 +97,11 @@ export default function ProductDetails() {
         navigate("/measurement-profile");
       }
     } else {
-      navigate(`/sign-in?${createSearchParams({ back: "product-details" })}`);
+      if (isMobile) {
+        navigate(`/sign-in?${createSearchParams({ back: "product-details" })}`);
+      } else {
+        navigate("/qr-code?back=sign-in");
+      }
     }
   };
 
@@ -315,13 +323,7 @@ export default function ProductDetails() {
               </p>
 
               <Button
-                onClick={() => {
-                  if (hasMeasurements) {
-                    navigate("/try-virtually");
-                  } else {
-                    navigate("/measurement-profile");
-                  }
-                }}
+                onClick={handleTryVirtually}
                 className="w-full bg-gray-900 text-white py-6 rounded-xl font-medium mt-6 mb-4"
               >
                 Try Now

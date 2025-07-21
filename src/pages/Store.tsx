@@ -45,7 +45,7 @@ export default function Store() {
       navigate("/try-virtually");
     } else {
       // Use string form for navigate to ensure query params are added
-      navigate(`/sign-in?${createSearchParams({ back: "store" })}`);
+      navigate(`/qr-code?${createSearchParams({ back: "store" })}`);
     }
   };
 
@@ -159,7 +159,7 @@ export default function Store() {
               <button
                 className="w-full mt-2 bg-purple-100 text-black py-3 rounded-xl text-md font-medium"
                 onClick={() => {
-                  navigate(`/sign-in?${createSearchParams({ back: "store" })}`);
+                  navigate(`/qr-code?${createSearchParams({ back: "store" })}`);
                 }}
               >
                 Log In To See Full Preview →

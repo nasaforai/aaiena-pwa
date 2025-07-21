@@ -6,6 +6,7 @@ export default function MeasurementProfile() {
   const navigate = useNavigate();
 
   const handleContinue = () => {
+    localStorage.setItem("hasMeasurements", "true");
     navigate("/photo-source");
   };
 
