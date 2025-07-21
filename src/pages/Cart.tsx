@@ -11,12 +11,14 @@ import {
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Cart() {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [queryParams] = useSearchParams();
   const backRoute = queryParams.get("back");
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
@@ -134,28 +136,30 @@ export default function Cart() {
         </div>
 
         {/* Timer */}
-        <div className="bg-[#FFFBED] border border-[#FFE6A2] rounded-lg p-3 mb-4 text-[#584001] mx-4 py-4">
-          <div className="flex justify-between items-center">
-            <span className="text-xs">Limited to 5 mins</span>
-            <span className="text-sm bg-[#FFF0C6] px-2 py-1 rounded-sm">
-              2:28 min
-            </span>
-          </div>
+        {!isMobile && (
+          <div className="bg-[#FFFBED] border border-[#FFE6A2] rounded-lg p-3 mb-4 text-[#584001] mx-4 py-4">
+            <div className="flex justify-between items-center">
+              <span className="text-xs">Limited to 5 mins</span>
+              <span className="text-sm bg-[#FFF0C6] px-2 py-1 rounded-sm">
+                2:28 min
+              </span>
+            </div>
 
-          <h3 className="font-semibold mb-3">Proceed to try product</h3>
-          <div className="space-y-2 ">
-            <Button className="w-full bg-[#FFE08D] hover:bg-amber-200 py-2 rounded-lg font-medium text-[#584001]">
-              <QrCode className="w-4 h-4" />
-              Switch To Mobile
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full py-2 rounded-lg font-medium bg-transparent border-[#FFB900] hover:bg-amber-200"
-            >
-              Try Product
-            </Button>
+            <h3 className="font-semibold mb-3">Proceed to try product</h3>
+            <div className="space-y-2 ">
+              <Button className="w-full bg-[#FFE08D] hover:bg-amber-200 py-2 rounded-lg font-medium text-[#584001]">
+                <QrCode className="w-4 h-4" />
+                Switch To Mobile
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full py-2 rounded-lg font-medium bg-transparent border-[#FFB900] hover:bg-amber-200"
+              >
+                Try Product
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Payment Details */}
