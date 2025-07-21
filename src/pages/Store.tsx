@@ -44,8 +44,7 @@ export default function Store() {
     if (isLoggedIn) {
       navigate("/try-virtually");
     } else {
-      // Use string form for navigate to ensure query params are added
-      navigate(`/qr-code?${createSearchParams({ back: "store" })}`);
+      navigate("/qr-code?back=sign-in");
     }
   };
 

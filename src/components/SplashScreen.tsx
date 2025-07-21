@@ -5,6 +5,8 @@ interface SplashScreenProps {
 }
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
+  localStorage.clear();
+
   useEffect(() => {
     const timer = setTimeout(() => {
       onComplete();
