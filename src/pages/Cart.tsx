@@ -81,7 +81,7 @@ export default function Cart() {
       </div>
 
       {/* Cart Items */}
-      <div className="flex-1">
+      <div className="lg:flex-1">
         {cartItems.map((item, index) => (
           <div
             key={index}
