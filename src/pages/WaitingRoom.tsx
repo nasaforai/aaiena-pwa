@@ -10,12 +10,14 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import ProductCard from "@/components/ProductCard";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function WaitingRoom() {
   const navigate = useNavigate();
   const [notifyToggle, setNotifyToggle] = useState(true);
   const [showJoinDialog, setShowJoinDialog] = useState(false);
   const [showVirtualDialog, setShowVirtualDialog] = useState(false);
+  const isMobile = useIsMobile();
 
   const handleBack = () => {
     navigate("/product-details");
@@ -175,34 +177,35 @@ export default function WaitingRoom() {
           </p>
 
           {/* QR Code Section */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 mb-4">
-            <h3 className="font-semibold text-yellow-800 mb-1">
-              Get Live Queue Updates on Your Phone
-            </h3>
-            <p className="text-sm text-yellow-700 mb-3">
-              Scan the QR code using your phone to get real-time updates and
-              alerts
-            </p>
+          {!isMobile && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 mb-4">
+              <h3 className="font-semibold text-yellow-800 mb-1">
+                Get Live Queue Updates on Your Phone
+              </h3>
+              <p className="text-sm text-yellow-700 mb-3">
+                Scan the QR code using your phone to get real-time updates and
+                alerts
+              </p>
 
-            {/* <div className="flex items-center"> */}
-            <img
-              src="/images/qr-code.png"
-              alt="qr coe"
-              width={80}
-              height={80}
-              className="mx-auto my-4"
-            />
-            {/* </div> */}
+              {/* <div className="flex items-center"> */}
+              <img
+                src="/images/qr-code.png"
+                alt="qr coe"
+                width={80}
+                height={80}
+                className="mx-auto my-4"
+              />
+              {/* </div> */}
 
-            <button className="w-full border border-yellow-400 text-yellow-800 py-2 rounded-xl mb-2 flex items-center justify-center gap-1">
-              <QrCode className="w-4" /> <span> Connect My Phone</span>
-            </button>
+              <button className="w-full border border-yellow-400 text-yellow-800 py-2 rounded-xl mb-2 flex items-center justify-center gap-1">
+                <QrCode className="w-4" /> <span> Connect My Phone</span>
+              </button>
 
-            <p className="text-xs text-yellow-700 text-center">
-              Already connected? Check your phone for updates
-            </p>
-          </div>
-
+              <p className="text-xs text-yellow-700 text-center">
+                Already connected? Check your phone for updates
+              </p>
+            </div>
+          )}
           {/* Live Update Section */}
           <div className="border border-gray-300 rounded-lg px-3 py-4 mb-4">
             <span className="bg-green-200 text-black px-2 py-1 rounded text-xs">
@@ -269,13 +272,12 @@ export default function WaitingRoom() {
 
       {/* Dialogs */}
       <RoomJoinDialog
-        isOpen={showJoinDialog}
+        isJoinDialogOpen={showJoinDialog}
         onClose={() => setShowJoinDialog(false)}
       />
       <RoomJoinDialog
-        isOpen={showVirtualDialog}
+        isVirtualDialogOpen={showVirtualDialog}
         onClose={() => setShowVirtualDialog(false)}
-        isVirtualTryOn={true}
       />
     </>
   );

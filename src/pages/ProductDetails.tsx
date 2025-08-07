@@ -33,6 +33,7 @@ export default function ProductDetails() {
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
   const hasMeasurements = localStorage.getItem("hasMeasurements") === "true";
   const isMobile = useIsMobile();
+  const fromKiosk = localStorage.getItem("fromKiosk") === "true";
   // Chart data for size visualization
   const sizeChartData = [
     { name: "Small", value: 25, fill: "#FFD188" },
@@ -429,7 +430,7 @@ export default function ProductDetails() {
       {/* Bottom Action */}
       <div className="fixed bottom-0 left-0 w-full lg:lg:max-w-sm lg:left-1/2 lg:-translate-x-1/2">
         <div className="shadow-xl">
-          {!isMobile && (
+          {(!isMobile || (isMobile && fromKiosk)) && (
             <div className="bg-purple-200 rounded-tr-2xl rounded-tl-2xl p-4">
               <div className="flex justify-between items-center mb-2">
                 <div className="flex flex-col gap-2">

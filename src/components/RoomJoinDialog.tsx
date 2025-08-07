@@ -4,33 +4,48 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X, Timer, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface RoomJoinDialogProps {
-  isOpen: boolean;
+  isJoinDialogOpen?: boolean;
+  isVirtualDialogOpen?: boolean;
   onClose: () => void;
-  isVirtualTryOn?: boolean;
 }
 
 type DialogState = "form" | "checking" | "confirmed";
 
 export const RoomJoinDialog: React.FC<RoomJoinDialogProps> = ({
-  isOpen,
+  isJoinDialogOpen,
+  isVirtualDialogOpen,
   onClose,
-  isVirtualTryOn = false,
 }) => {
-  const [dialogState, setDialogState] = useState<DialogState>("form");
+  const isMobile = useIsMobile();
+  const [dialogState, setDialogState] = useState<DialogState>();
   const [selectedRoom, setSelectedRoom] = useState("3A");
   const [phoneNumber, setPhoneNumber] = useState("8131378626");
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isOpen) {
-      setDialogState(isVirtualTryOn ? "form" : "form");
+    if (isJoinDialogOpen) {
+      if (isMobile) {
+        setDialogState("checking");
+        setTimeout(() => {
+          setDialogState("confirmed");
+        }, 2000);
+      } else {
+        setDialogState("form");
+      }
     }
-  }, [isOpen, isVirtualTryOn]);
+  }, [isMobile, isJoinDialogOpen]);
+
+  // useEffect(() => {
+  //   if (isOpen) {
+  //     setDialogState(isVirtualTryOn ? "form" : "form");
+  //   }
+  // }, [isOpen, isVirtualTryOn]);
 
   const handleConfirmRoom = () => {
-    if (isVirtualTryOn) {
+    if (isVirtualDialogOpen) {
       // For virtual try-on, skip to confirmed state
       setDialogState("confirmed");
     } else {
@@ -49,18 +64,24 @@ export const RoomJoinDialog: React.FC<RoomJoinDialogProps> = ({
 
   const handleVirtualTryOn = () => {
     onClose();
-    // Navigate to QR code page to start virtual try-on flow
-    window.location.href = "/qr-code";
+    if (isMobile) {
+      navigate("/try-virtually");
+    } else {
+      navigate("/qr-code");
+    }
   };
 
   const rooms = ["1A", "2A", "3A", "1B", "4C", "2B", "3B", "1C", "2C", "3C"];
 
-  if (!isOpen) return null;
+  if (!isJoinDialogOpen && !isVirtualDialogOpen) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog
+      open={isJoinDialogOpen || isVirtualDialogOpen}
+      onOpenChange={onClose}
+    >
       <DialogContent className="lg:max-w-sm mx-auto p-0 gap-0 bg-white rounded-2xl overflow-hidden border-0">
-        {!isVirtualTryOn && (
+        {!isVirtualDialogOpen && (
           <>
             {" "}
             {dialogState === "form" && (
@@ -195,7 +216,7 @@ export const RoomJoinDialog: React.FC<RoomJoinDialogProps> = ({
         )}
 
         {/* Virtual Try-On Popup */}
-        {isVirtualTryOn && dialogState === "form" && (
+        {isVirtualDialogOpen && (
           <div className="p-6 text-center bg-white">
             <h3 className="text-lg font-semibold mb-2">
               No waiting in virtual try-on.
