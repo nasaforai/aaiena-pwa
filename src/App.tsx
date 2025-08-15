@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import React, { Suspense } from "react";
@@ -40,12 +39,9 @@ const OrderSuccess = React.lazy(() => import("./pages/OrderSuccess"));
 const Wishlist = React.lazy(() => import("./pages/Wishlist"));
 const TryVirtually = React.lazy(() => import("./pages/TryVirtually"));
 
-const queryClient = new QueryClient();
-
 const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
+    <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
@@ -93,8 +89,7 @@ const App = () => {
           </Suspense>
           <PWAInstallPrompt />
         </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    </TooltipProvider>
   );
 };
 
