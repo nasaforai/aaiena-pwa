@@ -24,6 +24,7 @@ import {
 import ProductCard from "@/components/ProductCard";
 import { RadialBarChart, RadialBar, ResponsiveContainer, Cell } from "recharts";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useProducts } from "@/hooks/useProducts";
 
 export default function TryVirtually() {
   const navigate = useNavigate();
@@ -33,6 +34,8 @@ export default function TryVirtually() {
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
   const hasMeasurements = localStorage.getItem("hasMeasurements") === "true";
   const isMobile = useIsMobile();
+  
+  const { data: allProducts = [] } = useProducts();
   // Chart data for size visualization
   const sizeChartData = [
     { name: "Small", value: 25, fill: "#FFD188" },
@@ -44,7 +47,9 @@ export default function TryVirtually() {
     navigate("/store");
   };
 
-  const handleProductClick = (productId: string) => {};
+  const handleProductClick = (productId: string) => {
+    navigate(`/product-details?id=${productId}`);
+  };
 
   const handleAddToCart = () => {
     // Add to cart logic
@@ -348,10 +353,10 @@ export default function TryVirtually() {
         <h3 className="font-semibold text-lg mb-3">Find Similar</h3>
         <Carousel className="w-full">
           <CarouselContent className="-ml-2 md:-ml-4">
-            {[1, 2, 3, 4].map((item) => (
-              <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
+            {allProducts.slice(0, 4).map((product) => (
+              <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
                 <ProductCard
-                  item={item}
+                  product={product}
                   handleProductClick={handleProductClick}
                 />
               </CarouselItem>
@@ -383,10 +388,10 @@ export default function TryVirtually() {
         <h3 className="font-semibold text-lg mb-3">You might also like</h3>
         <Carousel className="w-full">
           <CarouselContent className="-ml-2 md:-ml-4">
-            {[1, 2, 3, 4].map((item) => (
-              <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
+            {allProducts.slice(4, 8).map((product) => (
+              <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
                 <ProductCard
-                  item={item}
+                  product={product}
                   handleProductClick={handleProductClick}
                 />
               </CarouselItem>

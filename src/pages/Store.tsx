@@ -25,6 +25,9 @@ import Topbar from "@/components/ui/topbar";
 import ProductCard from "@/components/ProductCard";
 import { Progress } from "@/components/ui/progress";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useProducts, useProductsByCategory } from "@/hooks/useProducts";
+import { useCategories } from "@/hooks/useCategories";
+import { useBanners } from "@/hooks/useBanners";
 
 export default function Store() {
   const navigate = useNavigate();
@@ -32,12 +35,20 @@ export default function Store() {
   const [notifyToggle, setNotifyToggle] = useState(true);
   const isMobile = useIsMobile();
 
+  // Fetch data from Supabase
+  const { data: categories = [] } = useCategories();
+  const { data: designerPicksBanner } = useBanners("designer_picks");
+  const { data: discountBanners } = useBanners("discount");
+  const { data: trendingProducts = [] } = useProductsByCategory("trending");
+  const { data: newProducts = [] } = useProductsByCategory("new");
+  const { data: offerProducts = [] } = useProductsByCategory("offer");
+
   const handleBack = () => {
     navigate("/fashion-lane");
   };
 
-  const handleProductClick = () => {
-    navigate("/product-details");
+  const handleProductClick = (productId: string) => {
+    navigate(`/product-details?id=${productId}`);
   };
 
   const handleTry = () => {
@@ -169,43 +180,36 @@ export default function Store() {
       )}
 
       {/* Designer Picks section */}
-      <div className="mx-4 mb-4 bg-purple-400 rounded-2xl py-10 px-4 text-white text-center">
-        <h3 className="font-bold text-xl mb-2">DESIGNER PICKS</h3>
-        <p className="text-sm opacity-90 mb-3">
-          Exclusive styles handpicked by top designers.Discover
-          unique,limited-edition fashion today!
-        </p>
-        <button className="bg-white text-black px-6 py-2 rounded-xl text-sm font-medium">
-          Explore Now
-        </button>
-      </div>
+      {designerPicksBanner && designerPicksBanner[0] && (
+        <div 
+          className="mx-4 mb-4 rounded-2xl py-10 px-4 text-white text-center"
+          style={{ backgroundColor: designerPicksBanner[0].background_color }}
+        >
+          <h3 className="font-bold text-xl mb-2">{designerPicksBanner[0].title}</h3>
+          <p className="text-sm opacity-90 mb-3">
+            {designerPicksBanner[0].description}
+          </p>
+          <button className="bg-white text-black px-6 py-2 rounded-xl text-sm font-medium">
+            {designerPicksBanner[0].button_text}
+          </button>
+        </div>
+      )}
 
       {/* Categories section */}
       <div className="px-4 mb-4">
         <h3 className="font-bold text-lg mb-3">Shop All</h3>
         <div className="overflow-y-hidden h-20">
           <div className="flex justify-between overflow-scroll flex-nowrap gap-6 pb-5 ">
-            {[
-              "Dress",
-              "Jeans",
-              "Trousers",
-              "Tops",
-              "Bags",
-              "Dress",
-              "Jeans",
-              "Trousers",
-              "Tops",
-              "Bags",
-            ].map((category, index) => (
-              <div key={category} className="flex flex-col items-center">
+            {categories.map((category) => (
+              <div key={category.id} className="flex flex-col items-center">
                 <div className="w-12 h-12 bg-gray-200 rounded-md mb-2 relative overflow-hidden">
                   <img
-                    src="/images/dress.jpg"
-                    alt={category}
-                    className=" absolute left-0 top-0 object-cover"
+                    src={category.image_url || "/images/dress.jpg"}
+                    alt={category.name}
+                    className="absolute left-0 top-0 w-full h-full object-cover"
                   />
                 </div>
-                <span className="text-xs text-gray-600">{category}</span>
+                <span className="text-xs text-gray-600">{category.name}</span>
               </div>
             ))}
           </div>
@@ -220,29 +224,32 @@ export default function Store() {
           <p className="text-sm mb-2">New Users Only</p>
         </div> */}
 
-        <div className=" mb-10">
-          <Carousel className="w-full">
-            <CarouselContent className="-ml-2 md:-ml-4">
-              {[1, 2, 3, 4].map((item) => (
-                <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
-                  <div
-                    className="relative h-52 rounded-xl"
-                    style={{
-                      backgroundImage: "url(images/dress.jpg)",
-                      backgroundSize: "cover",
-                    }}
-                  >
-                    <div className="absolute bottom-2 left-0 w-full flex flex-col text-white items-center">
-                      <p className="font-bold">Discount</p>
-                      <p className="font-bold">New Users Only</p>
+        {discountBanners && discountBanners.length > 0 && (
+          <div className="mb-10">
+            <Carousel className="w-full">
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {discountBanners.map((banner) => (
+                  <CarouselItem key={banner.id} className="pl-2 md:pl-4 basis-1/2">
+                    <div
+                      className="relative h-52 rounded-xl"
+                      style={{
+                        backgroundImage: `url(${banner.image_url})`,
+                        backgroundSize: "cover",
+                        backgroundColor: banner.background_color,
+                      }}
+                    >
+                      <div className="absolute bottom-2 left-0 w-full flex flex-col text-white items-center">
+                        <p className="font-bold">{banner.title}</p>
+                        {banner.subtitle && <p className="font-bold">{banner.subtitle}</p>}
+                      </div>
                     </div>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselDots />
-          </Carousel>
-        </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselDots />
+            </Carousel>
+          </div>
+        )}
 
         {/* Category Carousel */}
         <div className="h-10 overflow-y-hidden mt-10 mb-6">
@@ -277,90 +284,79 @@ export default function Store() {
         {/* Product Carousels */}
         <div className="space-y-6">
           {/* Trending Now Carousel */}
-          <div>
-            <h3 className="font-bold text-lg mb-3">Trending Now</h3>
-            <Carousel className="w-full">
-              <CarouselContent className="-ml-2 md:-ml-4">
-                {[1, 2, 3, 4].map((item) => (
-                  <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
-                    <ProductCard
-                      item={item}
-                      handleProductClick={handleProductClick}
-                    />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              {/* <CarouselPrevious className="left-2" />
-              <CarouselNext className="right-2" /> */}
-              <CarouselDots />
-            </Carousel>
-          </div>
+          {trendingProducts.length > 0 && (
+            <div>
+              <h3 className="font-bold text-lg mb-3">Trending Now</h3>
+              <Carousel className="w-full">
+                <CarouselContent className="-ml-2 md:-ml-4">
+                  {trendingProducts.map((product) => (
+                    <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
+                      <ProductCard
+                        product={product}
+                        handleProductClick={handleProductClick}
+                      />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselDots />
+              </Carousel>
+            </div>
+          )}
 
-          {/* Recently Tried Carousel */}
-          <div>
-            <h3 className="font-bold text-lg mb-3">Recently Tried</h3>
-            <Carousel className="w-full">
-              <CarouselContent className="-ml-2 md:-ml-4">
-                {[1, 2, 3, 4].map((item) => (
-                  <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
-                    <ProductCard
-                      item={item}
-                      handleProductClick={handleProductClick}
-                    />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              {/* <CarouselPrevious className="left-2" />
-              <CarouselNext className="right-2" /> */}
-              <CarouselDots />
-            </Carousel>
-          </div>
+          {/* Recently Tried Carousel - showing new products as fallback */}
+          {newProducts.length > 0 && (
+            <div>
+              <h3 className="font-bold text-lg mb-3">Recently Tried</h3>
+              <Carousel className="w-full">
+                <CarouselContent className="-ml-2 md:-ml-4">
+                  {newProducts.slice(0, 4).map((product) => (
+                    <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
+                      <ProductCard
+                        product={product}
+                        handleProductClick={handleProductClick}
+                      />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselDots />
+              </Carousel>
+            </div>
+          )}
 
           {/* Newest Carousel */}
-          <div>
-            <h3 className="font-bold text-lg mb-3">Newest</h3>
-            <Carousel className="w-full">
-              <CarouselContent className="-ml-2 md:-ml-4">
-                {[1, 2, 3, 4].map((item) => (
-                  <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
-                    <ProductCard
-                      item={item}
-                      handleProductClick={handleProductClick}
-                    />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              {/* <CarouselPrevious className="left-2" />
-              <CarouselNext className="right-2" /> */}
-              <CarouselDots />
-            </Carousel>
-          </div>
+          {newProducts.length > 0 && (
+            <div>
+              <h3 className="font-bold text-lg mb-3">Newest</h3>
+              <Carousel className="w-full">
+                <CarouselContent className="-ml-2 md:-ml-4">
+                  {newProducts.map((product) => (
+                    <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
+                      <ProductCard
+                        product={product}
+                        handleProductClick={handleProductClick}
+                      />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselDots />
+              </Carousel>
+            </div>
+          )}
         </div>
 
         <div className="p-4 mt-6">
           <div className="overflow-y-hidden h-24">
             <div className="flex justify-between overflow-scroll flex-nowrap gap-6 pb-5 ">
-              {[
-                "Dress",
-                "Jeans",
-                "Trousers",
-                "Tops",
-                "Bags",
-                "Dress",
-                "Jeans",
-                "Trousers",
-                "Tops",
-                "Bags",
-              ].map((category, index) => (
-                <div key={category} className="flex flex-col items-center">
+              {categories.map((category) => (
+                <div key={category.id} className="flex flex-col items-center">
                   <div className="w-16 h-16 bg-gray-200 rounded-full mb-2 relative overflow-hidden">
                     <img
-                      src="/images/dress.jpg"
-                      alt={category}
-                      className=" absolute left-0 top-0 object-cover"
+                      src={category.image_url || "/images/dress.jpg"}
+                      alt={category.name}
+                      className="absolute left-0 top-0 w-full h-full object-cover"
                     />
                   </div>
-                  <span className="text-xs text-gray-600">{category}</span>
+                  <span className="text-xs text-gray-600">{category.name}</span>
                 </div>
               ))}
             </div>
@@ -377,25 +373,24 @@ export default function Store() {
         </div>
 
         {/* In Offer Carousel */}
-        <div className="mt-6 mb-20">
-          <h3 className="font-bold text-lg mb-3">In Offer</h3>
-          <Carousel className="w-full">
-            <CarouselContent className="-ml-2 md:-ml-4">
-              {[1, 2, 3, 4].map((item) => (
-                <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
-                  <ProductCard
-                    item={item}
-                    handleProductClick={handleProductClick}
-                  />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselDots />
-
-            {/* <CarouselPrevious className="left-2" />
-            <CarouselNext className="right-2" /> */}
-          </Carousel>
-        </div>
+        {offerProducts.length > 0 && (
+          <div className="mt-6 mb-20">
+            <h3 className="font-bold text-lg mb-3">In Offer</h3>
+            <Carousel className="w-full">
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {offerProducts.map((product) => (
+                  <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
+                    <ProductCard
+                      product={product}
+                      handleProductClick={handleProductClick}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselDots />
+            </Carousel>
+          </div>
+        )}
       </div>
 
       {/* Bottom Navigation */}

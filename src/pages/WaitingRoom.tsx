@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/carousel";
 import ProductCard from "@/components/ProductCard";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useProducts } from "@/hooks/useProducts";
 
 export default function WaitingRoom() {
   const navigate = useNavigate();
@@ -18,6 +19,8 @@ export default function WaitingRoom() {
   const [showJoinDialog, setShowJoinDialog] = useState(false);
   const [showVirtualDialog, setShowVirtualDialog] = useState(false);
   const isMobile = useIsMobile();
+  
+  const { data: allProducts = [] } = useProducts();
 
   const handleBack = () => {
     navigate("/product-details");
@@ -31,7 +34,9 @@ export default function WaitingRoom() {
     setShowVirtualDialog(true);
   };
 
-  const handleProductClick = (productId: string) => {};
+  const handleProductClick = (productId: string) => {
+    navigate(`/product-details?id=${productId}`);
+  };
 
   const rooms = [
     { id: "A1", status: "occupied", estimate: "3mins" },
@@ -235,10 +240,10 @@ export default function WaitingRoom() {
             </h3>
             <Carousel className="w-full">
               <CarouselContent className="-ml-2 md:-ml-4">
-                {[1, 2, 3, 4].map((item) => (
-                  <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
+                {allProducts.slice(0, 4).map((product) => (
+                  <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
                     <ProductCard
-                      item={item}
+                      product={product}
                       handleProductClick={handleProductClick}
                     />
                   </CarouselItem>
@@ -255,10 +260,10 @@ export default function WaitingRoom() {
             </h3>
             <Carousel className="w-full">
               <CarouselContent className="-ml-2 md:-ml-4">
-                {[1, 2, 3, 4].map((item) => (
-                  <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
+                {allProducts.slice(4, 8).map((product) => (
+                  <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
                     <ProductCard
-                      item={item}
+                      product={product}
                       handleProductClick={handleProductClick}
                     />
                   </CarouselItem>

@@ -24,9 +24,14 @@ import {
 import ProductCard from "@/components/ProductCard";
 import { RadialBarChart, RadialBar, ResponsiveContainer, Cell } from "recharts";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useProduct, useProducts } from "@/hooks/useProducts";
+import { useSearchParams } from "react-router-dom";
 
 export default function ProductDetails() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const productId = searchParams.get("id");
+  
   const [selectedSize, setSelectedSize] = useState("M");
   const [selectedColor, setSelectedColor] = useState("white");
   const [quantity, setQuantity] = useState(1);
@@ -34,6 +39,10 @@ export default function ProductDetails() {
   const hasMeasurements = localStorage.getItem("hasMeasurements") === "true";
   const isMobile = useIsMobile();
   const fromKiosk = localStorage.getItem("fromKiosk") === "true";
+
+  // Fetch product data
+  const { data: product, isLoading } = useProduct(productId || "");
+  const { data: allProducts = [] } = useProducts();
   // Chart data for size visualization
   const sizeChartData = [
     { name: "Small", value: 25, fill: "#FFD188" },
@@ -45,20 +54,38 @@ export default function ProductDetails() {
     navigate("/store");
   };
 
-  const handleProductClick = (productId: string) => {};
+  const handleProductClick = (productId: string) => {
+    navigate(`/product-details?id=${productId}`);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen items-center justify-center">
+        <div className="text-center">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen items-center justify-center">
+        <div className="text-center">Product not found</div>
+      </div>
+    );
+  }
 
   const handleAddToCart = () => {
     // Add to cart logic
     const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
     const newItem = {
-      id: 1,
-      name: "Drop-Shoulder Cotton Tee | Relaxed Fit, All-Day Comfort.",
-      price: 700,
-      originalPrice: 1400,
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      originalPrice: product.original_price || product.price,
       size: selectedSize,
       color: selectedColor,
       quantity: quantity,
-      image: "/lovable-uploads/df938429-9c2a-4054-b1fe-5c1aa483a885.png",
+      image: product.image_url,
     };
 
     const existingItemIndex = cartItems.findIndex(
@@ -115,11 +142,11 @@ export default function ProductDetails() {
       localStorage.getItem("wishlistItems") || "[]"
     );
     const newItem = {
-      id: 1,
-      name: "Drop-Shoulder Cotton Tee | Relaxed Fit, All-Day Comfort.",
-      price: 700,
-      originalPrice: 1400,
-      image: "/lovable-uploads/df938429-9c2a-4054-b1fe-5c1aa483a885.png",
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      originalPrice: product.original_price || product.price,
+      image: product.image_url,
     };
 
     const exists = wishlistItems.some((item: any) => item.id === newItem.id);
@@ -129,14 +156,8 @@ export default function ProductDetails() {
     }
   };
 
-  const colors = [
-    { name: "white", bg: "bg-white border-2 border-gray-300" },
-    { name: "green", bg: "bg-green-300" },
-    { name: "yellow", bg: "bg-yellow-300" },
-    { name: "pink", bg: "bg-pink-300" },
-  ];
-
-  const sizes = ["XS", "S", "M", "L", "XL"];
+  const colors = product.colors || [];
+  const sizes = product.sizes || ["XS", "S", "M", "L", "XL"];
 
   return (
     <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
@@ -148,7 +169,7 @@ export default function ProductDetails() {
         <img
           alt="Product"
           className="w-full h-full object-cover rounded-br-lg rounded-bl-lg"
-          src="/images/dress.jpg"
+          src={product.image_url}
         />
         <button
           onClick={handleAddToWishlist}
@@ -162,14 +183,18 @@ export default function ProductDetails() {
             <div className="bg-white/80 flex items-center justify-between p-4 rounded-xl">
               <div>
                 <p className="text-sm max-w-40">
-                  Miss Chase Women's V-Neck Maxi Dress
+                  {product.name}
                 </p>
               </div>
               <div className="flex flex-col justify-center">
                 <div className="text-xs flex flex-nowrap gap-1 items-center">
-                  <span className="text-gray-400 line-through">₹1000</span>
-                  <span className="text-lg"> ₹500</span>
-                  <span className="text-gray-400">50% off</span>
+                  {product.original_price && (
+                    <span className="text-gray-400 line-through">₹{product.original_price}</span>
+                  )}
+                  <span className="text-lg"> ₹{product.price}</span>
+                  {product.discount_percentage && (
+                    <span className="text-gray-400">{product.discount_percentage}% off</span>
+                  )}
                 </div>
                 <button
                   className="bg-[#12002C] hover:bg-black/80 rounded-md text-white text-sm px-5 py-1"
@@ -186,12 +211,16 @@ export default function ProductDetails() {
       {/* Product Info */}
       <div className="px-4">
         <h1 className="text-xl font-semibold text-gray-900 mb-2">
-          Drop-Shoulder Cotton Tee | Relaxed Fit, All-Day Comfort.
+          {product.name}
         </h1>
         <div className="flex items-center space-x-2 mb-4">
-          <span className="text-md text-gray-500 line-through">₹1400</span>
-          <span className="text-3xl font-semibold text-gray-900">₹700</span>
-          <span className="text-sm text-green-600 font-medium">50% OFF</span>
+          {product.original_price && (
+            <span className="text-md text-gray-500 line-through">₹{product.original_price}</span>
+          )}
+          <span className="text-3xl font-semibold text-gray-900">₹{product.price}</span>
+          {product.discount_percentage && (
+            <span className="text-sm text-green-600 font-medium">{product.discount_percentage}% OFF</span>
+          )}
         </div>
       </div>
 
@@ -222,7 +251,7 @@ export default function ProductDetails() {
               <button
                 key={color.name}
                 onClick={() => setSelectedColor(color.name)}
-                className={`w-8 h-8 rounded ${color.bg} ${
+                className={`w-8 h-8 rounded ${color.bgClass} ${
                   selectedColor === color.name ? "ring-2 ring-purple-500" : ""
                 }`}
               />
@@ -375,10 +404,10 @@ export default function ProductDetails() {
         <h3 className="font-semibold text-lg mb-3">Find Similar</h3>
         <Carousel className="w-full">
           <CarouselContent className="-ml-2 md:-ml-4">
-            {[1, 2, 3, 4].map((item) => (
-              <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
+            {allProducts.slice(0, 4).map((similarProduct) => (
+              <CarouselItem key={similarProduct.id} className="pl-2 md:pl-4 basis-1/2">
                 <ProductCard
-                  item={item}
+                  product={similarProduct}
                   handleProductClick={handleProductClick}
                 />
               </CarouselItem>
@@ -414,10 +443,10 @@ export default function ProductDetails() {
         <h3 className="font-semibold text-lg mb-3">You might also like</h3>
         <Carousel className="w-full">
           <CarouselContent className="-ml-2 md:-ml-4">
-            {[1, 2, 3, 4].map((item) => (
-              <CarouselItem key={item} className="pl-2 md:pl-4 basis-1/2">
+            {allProducts.slice(4, 8).map((similarProduct) => (
+              <CarouselItem key={similarProduct.id} className="pl-2 md:pl-4 basis-1/2">
                 <ProductCard
-                  item={item}
+                  product={similarProduct}
                   handleProductClick={handleProductClick}
                 />
               </CarouselItem>
