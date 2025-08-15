@@ -14,7 +14,161 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      banners: {
+        Row: {
+          background_color: string | null
+          banner_type: string | null
+          button_text: string | null
+          created_at: string
+          description: string | null
+          display_order: number | null
+          id: string
+          image_url: string
+          is_active: boolean | null
+          link_url: string | null
+          subtitle: string | null
+          text_color: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          background_color?: string | null
+          banner_type?: string | null
+          button_text?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url: string
+          is_active?: boolean | null
+          link_url?: string | null
+          subtitle?: string | null
+          text_color?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          background_color?: string | null
+          banner_type?: string | null
+          button_text?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string
+          is_active?: boolean | null
+          link_url?: string | null
+          subtitle?: string | null
+          text_color?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          created_at: string
+          icon_url: string | null
+          id: string
+          image_url: string | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          icon_url?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          icon_url?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          additional_images: string[] | null
+          brand: string | null
+          care_instructions: string | null
+          category_id: string | null
+          colors: Json | null
+          created_at: string
+          description: string | null
+          discount_percentage: number | null
+          id: string
+          image_url: string
+          is_new: boolean | null
+          is_on_offer: boolean | null
+          is_trending: boolean | null
+          material: string | null
+          name: string
+          original_price: number | null
+          price: number
+          sizes: string[] | null
+          stock_quantity: number | null
+          updated_at: string
+        }
+        Insert: {
+          additional_images?: string[] | null
+          brand?: string | null
+          care_instructions?: string | null
+          category_id?: string | null
+          colors?: Json | null
+          created_at?: string
+          description?: string | null
+          discount_percentage?: number | null
+          id?: string
+          image_url: string
+          is_new?: boolean | null
+          is_on_offer?: boolean | null
+          is_trending?: boolean | null
+          material?: string | null
+          name: string
+          original_price?: number | null
+          price: number
+          sizes?: string[] | null
+          stock_quantity?: number | null
+          updated_at?: string
+        }
+        Update: {
+          additional_images?: string[] | null
+          brand?: string | null
+          care_instructions?: string | null
+          category_id?: string | null
+          colors?: Json | null
+          created_at?: string
+          description?: string | null
+          discount_percentage?: number | null
+          id?: string
+          image_url?: string
+          is_new?: boolean | null
+          is_on_offer?: boolean | null
+          is_trending?: boolean | null
+          material?: string | null
+          name?: string
+          original_price?: number | null
+          price?: number
+          sizes?: string[] | null
+          stock_quantity?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
