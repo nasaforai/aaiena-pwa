@@ -4,18 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 
 export default function Welcome() {
-  const navigate = useNavigate();
-  const [supportsWebGL, setSupportsWebGL] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check WebGL support
-    const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    if (!gl) {
-      setSupportsWebGL(false);
-    }
-    
     // Simulate loading time for smooth transition
     const timer = setTimeout(() => {
       setIsLoading(false);
