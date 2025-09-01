@@ -38,6 +38,7 @@ const Payment = React.lazy(() => import("./pages/Payment"));
 const OrderSuccess = React.lazy(() => import("./pages/OrderSuccess"));
 const Wishlist = React.lazy(() => import("./pages/Wishlist"));
 const TryVirtually = React.lazy(() => import("./pages/TryVirtually"));
+const Welcome = React.lazy(() => import("./pages/Welcome"));
 
 const App = () => {
   return (
@@ -49,6 +50,7 @@ const App = () => {
             <ScrollToTop />
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/welcome" element={<Welcome />} />
               <Route path="/fashion-lane" element={<FashionLane />} />
               <Route path="/store" element={<Store />} />
               <Route path="/product-details" element={<ProductDetails />} />
