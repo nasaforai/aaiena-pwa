@@ -1,7 +1,6 @@
-import React, { Suspense, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { FashionModel3D } from '@/components/FashionModel3D';
 import { Loader2 } from 'lucide-react';
 
 export default function Welcome() {
@@ -48,28 +47,23 @@ export default function Welcome() {
       {/* 3D Model Container */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="w-full h-full max-w-2xl max-h-screen">
-          {supportsWebGL ? (
-            <Suspense 
-              fallback={
-                <div className="w-full h-full flex items-center justify-center">
-                  <div className="animate-pulse">
-                    <div className="w-48 h-64 bg-white/10 rounded-lg"></div>
-                  </div>
-                </div>
-              }
-            >
-              <FashionModel3D />
-            </Suspense>
-          ) : (
-            // Fallback for devices without WebGL support
-            <div className="w-full h-full flex items-center justify-center">
-              <img 
-                src="/images/shopping.png" 
-                alt="Fashion Model" 
-                className="max-w-md h-auto object-contain opacity-80 animate-pulse"
-              />
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="relative">
+              {/* Animated Fashion Silhouette */}
+              <div className="w-64 h-80 relative animate-pulse">
+                <div className="absolute inset-0 bg-gradient-to-b from-purple-400/30 via-pink-400/20 to-purple-600/30 rounded-full blur-2xl"></div>
+                <img 
+                  src="/images/shopping.png" 
+                  alt="Fashion Model" 
+                  className="relative z-10 w-full h-full object-contain opacity-90 animate-bounce"
+                  style={{ animationDuration: '3s' }}
+                />
+              </div>
+              {/* Floating Elements */}
+              <div className="absolute -top-4 -right-4 w-8 h-8 bg-purple-400/50 rounded-full animate-ping"></div>
+              <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-pink-400/50 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
             </div>
-          )}
+          </div>
         </div>
       </div>
 
@@ -103,7 +97,7 @@ export default function Welcome() {
           {/* Subtle Animation Hint */}
           <div className="pt-4">
             <p className="text-sm text-gray-500 animate-pulse">
-              {supportsWebGL ? 'Drag to explore • Scroll to zoom' : 'Touch to continue'}
+              Touch to continue your fashion journey
             </p>
           </div>
         </div>
