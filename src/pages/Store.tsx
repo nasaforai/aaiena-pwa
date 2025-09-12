@@ -60,7 +60,7 @@ export default function Store() {
   };
 
   return (
-    <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       <Topbar
         handleBack={() => handleBack()}
         showBack={isMobile ? false : true}
@@ -394,7 +394,7 @@ export default function Store() {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 lg:lg:max-w-sm w-full bg-white border-t border-gray-100 px-4 py-3">
+      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 lg:max-w-sm w-full bg-white border-t border-gray-100 px-4 py-3">
         <div className="flex justify-around">
           <button className="flex flex-col items-center space-y-1">
             <Home className="w-5 h-5 text-purple-600" />
