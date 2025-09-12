@@ -14,8 +14,7 @@ export default function Index() {
 
   const handleSplashComplete = () => {
     setShowSplash(false);
-    console.log(isMobile);
-    navigate(isMobile ? "/sign-in" : "/fashion-lane");
+    navigate("/welcome");
   };
 
   if (showSplash) {
