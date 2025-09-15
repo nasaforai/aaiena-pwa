@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { ArrowLeft, ShoppingCart, X, Heart, Home, User, Camera, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import BottomNavigation from "@/components/BottomNavigation";
 
 export default function Wishlist() {
   const navigate = useNavigate();
@@ -139,42 +141,7 @@ export default function Wishlist() {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 lg:max-w-sm w-full bg-white border-t border-gray-100 px-4 py-3">
-        <div className="flex justify-around">
-          <button 
-            className="flex flex-col items-center space-y-1"
-            onClick={() => navigate('/store')}
-          >
-            <Home className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Home</span>
-          </button>
-          <button 
-            className="flex flex-col items-center space-y-1"
-            onClick={() => navigate('/cart')}
-          >
-            <ShoppingBag className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Cart</span>
-          </button>
-          <button 
-            className="flex flex-col items-center space-y-1"
-            onClick={() => navigate('/product-scan')}
-          >
-            <Camera className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Scan</span>
-          </button>
-          <button className="flex flex-col items-center space-y-1">
-            <Heart className="w-5 h-5 text-purple-600" />
-            <span className="text-xs text-purple-600 font-medium">Wishlist</span>
-          </button>
-          <button 
-            className="flex flex-col items-center space-y-1"
-            onClick={() => navigate('/profile')}
-          >
-            <User className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Profile</span>
-          </button>
-        </div>
-      </div>
+      <BottomNavigation />
     </div>
   );
 }

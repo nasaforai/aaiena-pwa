@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import BottomNavigation from "@/components/BottomNavigation";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -436,42 +437,7 @@ export default function Profile() {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 lg:max-w-sm w-full bg-white border-t border-gray-100 px-4 py-3">
-        <div className="flex justify-around">
-          <button 
-            className="flex flex-col items-center space-y-1"
-            onClick={() => navigate('/store')}
-          >
-            <Home className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Home</span>
-          </button>
-          <button 
-            className="flex flex-col items-center space-y-1"
-            onClick={() => navigate('/cart')}
-          >
-            <ShoppingBag className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Cart</span>
-          </button>
-          <button 
-            className="flex flex-col items-center space-y-1"
-            onClick={() => navigate('/product-scan')}
-          >
-            <Camera className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Scan</span>
-          </button>
-          <button 
-            className="flex flex-col items-center space-y-1"
-            onClick={() => navigate('/wishlist')}
-          >
-            <Heart className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Wishlist</span>
-          </button>
-          <button className="flex flex-col items-center space-y-1">
-            <User className="w-5 h-5 text-purple-600" />
-            <span className="text-xs text-purple-600 font-medium">Profile</span>
-          </button>
-        </div>
-      </div>
+      <BottomNavigation />
     </div>
   );
 }

@@ -7,10 +7,16 @@ import React, { Suspense } from "react";
 import ScrollToTop from "./components/ScrollToTop";
 import { useDeviceType, useIsMobile } from "@/hooks/use-mobile";
 
-// Lazy load all page components
+// Import main navigation pages directly (no lazy loading for better performance)
+import Store from "./pages/Store";
+import Cart from "./pages/Cart";
+import Wishlist from "./pages/Wishlist";
+import Profile from "./pages/Profile";
+import Welcome from "./pages/Welcome";
+
+// Lazy load other page components
 const Index = React.lazy(() => import("./pages/Index"));
 const FashionLane = React.lazy(() => import("./pages/FashionLane"));
-const Store = React.lazy(() => import("./pages/Store"));
 const ProductDetails = React.lazy(() => import("./pages/ProductDetails"));
 const WaitingRoom = React.lazy(() => import("./pages/WaitingRoom"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
@@ -31,15 +37,10 @@ const UpdateProfile = React.lazy(() => import("./pages/UpdateProfile"));
 const FitProfile = React.lazy(() => import("./pages/FitProfile"));
 const DeviceConnected = React.lazy(() => import("./pages/DeviceConnected"));
 const DeviceConnectFlow = React.lazy(() => import("./pages/DeviceConnectFlow"));
-
-const Cart = React.lazy(() => import("./pages/Cart"));
 const Checkout = React.lazy(() => import("./pages/Checkout"));
 const Payment = React.lazy(() => import("./pages/Payment"));
 const OrderSuccess = React.lazy(() => import("./pages/OrderSuccess"));
-const Wishlist = React.lazy(() => import("./pages/Wishlist"));
 const TryVirtually = React.lazy(() => import("./pages/TryVirtually"));
-const Welcome = React.lazy(() => import("./pages/Welcome"));
-const Profile = React.lazy(() => import("./pages/Profile"));
 
 const App = () => {
   return (
@@ -47,7 +48,11 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={
+            <div className="flex items-center justify-center min-h-screen bg-gray-50">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+            </div>
+          }>
             <ScrollToTop />
             <Routes>
               <Route path="/" element={<Index />} />
