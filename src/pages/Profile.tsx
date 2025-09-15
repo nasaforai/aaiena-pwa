@@ -166,14 +166,6 @@ export default function Profile() {
     <div className="bg-white flex lg:max-w-sm w-full flex-col mx-auto min-h-screen">
       {/* Header */}
       <div className="flex items-center p-4 border-b">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/store')}
-          className="mr-3"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
         <h1 className="text-lg font-semibold">Profile</h1>
       </div>
 
@@ -294,15 +286,6 @@ export default function Profile() {
           >
             <User className="w-5 h-5 mr-3" />
             Body Measurements
-          </Button>
-          
-          <Button
-            variant="ghost"
-            className="w-full justify-start h-12"
-            onClick={() => navigate('/wishlist')}
-          >
-            <ShoppingBag className="w-5 h-5 mr-3" />
-            My Orders
           </Button>
           
           <Button
