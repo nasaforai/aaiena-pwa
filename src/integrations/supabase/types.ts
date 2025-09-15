@@ -169,6 +169,60 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          chest: number | null
+          created_at: string
+          full_name: string | null
+          gender: string | null
+          height: number | null
+          id: string
+          pants_size: number | null
+          photos: string[] | null
+          shirt_size: string | null
+          style_preferences: string[] | null
+          updated_at: string
+          user_id: string
+          waist: number | null
+          weight: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          chest?: number | null
+          created_at?: string
+          full_name?: string | null
+          gender?: string | null
+          height?: number | null
+          id?: string
+          pants_size?: number | null
+          photos?: string[] | null
+          shirt_size?: string | null
+          style_preferences?: string[] | null
+          updated_at?: string
+          user_id: string
+          waist?: number | null
+          weight?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          chest?: number | null
+          created_at?: string
+          full_name?: string | null
+          gender?: string | null
+          height?: number | null
+          id?: string
+          pants_size?: number | null
+          photos?: string[] | null
+          shirt_size?: string | null
+          style_preferences?: string[] | null
+          updated_at?: string
+          user_id?: string
+          waist?: number | null
+          weight?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
