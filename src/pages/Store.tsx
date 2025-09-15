@@ -412,7 +412,10 @@ export default function Store() {
             <Heart className="w-5 h-5 text-gray-400" />
             <span className="text-xs text-gray-400">Wishlist</span>
           </button>
-          <button className="flex flex-col items-center space-y-1">
+          <button 
+            className="flex flex-col items-center space-y-1"
+            onClick={() => navigate('/profile')}
+          >
             <User className="w-5 h-5 text-gray-400" />
             <span className="text-xs text-gray-400">Profile</span>
           </button>

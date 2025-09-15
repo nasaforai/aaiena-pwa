@@ -39,6 +39,7 @@ const OrderSuccess = React.lazy(() => import("./pages/OrderSuccess"));
 const Wishlist = React.lazy(() => import("./pages/Wishlist"));
 const TryVirtually = React.lazy(() => import("./pages/TryVirtually"));
 const Welcome = React.lazy(() => import("./pages/Welcome"));
+const Profile = React.lazy(() => import("./pages/Profile"));
 
 const App = () => {
   return (
@@ -85,6 +86,7 @@ const App = () => {
               <Route path="/order-success" element={<OrderSuccess />} />
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/try-virtually" element={<TryVirtually />} />
+              <Route path="/profile" element={<Profile />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
