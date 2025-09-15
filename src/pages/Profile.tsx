@@ -53,11 +53,20 @@ export default function Profile() {
   };
 
   const handlePasswordChange = async () => {
+    if (!passwordForm.currentPassword) {
+      toast({
+        title: "Error",
+        description: "Please enter your current password.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       toast({
         title: "Error",
         description: "New passwords do not match.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -66,37 +75,64 @@ export default function Profile() {
       toast({
         title: "Error",
         description: "Password must be at least 6 characters long.",
-        variant: "destructive"
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!user?.email) {
+      toast({
+        title: "Error",
+        description: "No email found for this account.",
+        variant: "destructive",
       });
       return;
     }
 
     setIsChangingPassword(true);
-    
+
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: passwordForm.newPassword
+      // Re-authenticate with current password
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: passwordForm.currentPassword,
       });
 
-      if (error) throw error;
+      if (signInError) {
+        throw new Error("Current password is incorrect.");
+      }
+
+      // Now update to the new password
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: passwordForm.newPassword,
+      });
+
+      if (updateError) {
+        throw updateError;
+      }
 
       toast({
         title: "Success",
-        description: "Password changed successfully."
+        description: "Password changed successfully.",
       });
-      
+
       // Reset form
       setPasswordForm({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
       });
       setIsSettingsExpanded(false);
     } catch (error) {
+      const raw = error instanceof Error ? error.message : "Failed to change password.";
+      const friendly = /same password|New password should be different/i.test(raw)
+        ? "New password must be different from the current password."
+        : raw;
+
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to change password.",
-        variant: "destructive"
+        description: friendly,
+        variant: "destructive",
       });
     } finally {
       setIsChangingPassword(false);
@@ -373,7 +409,12 @@ export default function Profile() {
                 <div className="flex gap-2 pt-2">
                   <Button
                     onClick={handlePasswordChange}
-                    disabled={isChangingPassword || !passwordForm.newPassword || !passwordForm.confirmPassword}
+                    disabled={
+                      isChangingPassword ||
+                      !passwordForm.currentPassword ||
+                      !passwordForm.newPassword ||
+                      !passwordForm.confirmPassword
+                    }
                     className="flex-1"
                   >
                     {isChangingPassword ? "Changing..." : "Change Password"}
