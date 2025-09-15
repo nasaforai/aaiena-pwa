@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { ArrowLeft, QrCode, Scan, Camera, AlertCircle, X } from "lucide-react";
+import { ArrowLeft, QrCode, Scan, Camera, AlertCircle, X, Home, Heart, User, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Html5Qrcode } from "html5-qrcode";
@@ -277,7 +277,7 @@ export default function ProductScan() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-6 py-8">
+      <div className="flex-1 px-6 py-8 mb-16">
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Scan QR Code
@@ -320,7 +320,7 @@ export default function ProductScan() {
         </Button>
 
         {/* Skip & Continue Button */}
-        <div className="mt-4">
+        <div className="mt-4 mb-4">
           <Button
             onClick={() => navigate("/store")}
             variant="outline"
@@ -328,6 +328,44 @@ export default function ProductScan() {
           >
             Skip & Continue
           </Button>
+        </div>
+      </div>
+
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 lg:max-w-sm w-full bg-white border-t border-gray-100 px-4 py-3">
+        <div className="flex justify-around">
+          <button 
+            className="flex flex-col items-center space-y-1"
+            onClick={() => navigate('/store')}
+          >
+            <Home className="w-5 h-5 text-gray-400" />
+            <span className="text-xs text-gray-400">Home</span>
+          </button>
+          <button 
+            className="flex flex-col items-center space-y-1"
+            onClick={() => navigate('/cart')}
+          >
+            <ShoppingBag className="w-5 h-5 text-gray-400" />
+            <span className="text-xs text-gray-400">Cart</span>
+          </button>
+          <button className="flex flex-col items-center space-y-1">
+            <Camera className="w-5 h-5 text-purple-600" />
+            <span className="text-xs text-purple-600 font-medium">Scan</span>
+          </button>
+          <button 
+            className="flex flex-col items-center space-y-1"
+            onClick={() => navigate('/wishlist')}
+          >
+            <Heart className="w-5 h-5 text-gray-400" />
+            <span className="text-xs text-gray-400">Wishlist</span>
+          </button>
+          <button 
+            className="flex flex-col items-center space-y-1"
+            onClick={() => navigate('/profile')}
+          >
+            <User className="w-5 h-5 text-gray-400" />
+            <span className="text-xs text-gray-400">Profile</span>
+          </button>
         </div>
       </div>
     </div>
