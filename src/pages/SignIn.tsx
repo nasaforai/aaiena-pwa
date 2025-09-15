@@ -1,24 +1,96 @@
 import React, { useState } from "react";
-import { ArrowLeft, Phone } from "lucide-react";
+import { ArrowLeft, Phone, Eye, EyeOff } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SignIn() {
   const navigate = useNavigate();
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [queryParams] = useSearchParams();
   const backRoute = queryParams.get("back");
   const isMobile = useIsMobile();
+  const { toast } = useToast();
 
   const handleBack = () => {
     navigate(backRoute ? `/${backRoute}` : "/qr-code");
   };
 
-  const handleLogin = () => {
-    navigate("/measurement-profile");
+  const handleLogin = async () => {
+    if (!email || !password) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter both email and password.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        toast({
+          title: "Sign In Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success!",
+        description: "You have been signed in successfully.",
+      });
+      
+      navigate("/measurement-profile");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/measurement-profile`
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Google Sign In Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSignUp = () => {
@@ -30,7 +102,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       {!isMobile && (
         <div className="flex items-center justify-between p-4">
@@ -54,7 +126,11 @@ export default function SignIn() {
 
         {/* Social Login */}
         <div className="space-y-3 mb-6">
-          <button className="w-full border border-gray-300 rounded-xl py-3 px-4 flex items-center justify-center space-x-3 hover:bg-gray-50 transition-colors">
+          <button 
+            onClick={handleGoogleLogin} 
+            disabled={isLoading}
+            className="w-full border border-gray-300 rounded-xl py-3 px-4 flex items-center justify-center space-x-3 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <img
               src="/icons/google.svg"
               alt="google icon"
@@ -63,7 +139,10 @@ export default function SignIn() {
             />
             <span className="text-gray-700">Continue with Google</span>
           </button>
-          <button className="w-full border border-gray-300 rounded-xl py-3 px-4 flex items-center justify-center space-x-3 hover:bg-gray-50 transition-colors">
+          <button 
+            disabled={isLoading}
+            className="w-full border border-gray-300 rounded-xl py-3 px-4 flex items-center justify-center space-x-3 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <Phone className="text-gray-800 w-5" />
             <span className="text-gray-700">Continue with Phone Number</span>
           </button>
@@ -80,17 +159,6 @@ export default function SignIn() {
         <div className="space-y-4 mb-8">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Name
-            </label>
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full"
-              placeholder="Enter your name"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
               Email
             </label>
             <Input
@@ -99,16 +167,45 @@ export default function SignIn() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full"
               placeholder="Enter your email"
+              disabled={isLoading}
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Password
+            </label>
+            <div className="relative">
+              <Input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pr-10"
+                placeholder="Enter your password"
+                disabled={isLoading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                disabled={isLoading}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Login Button */}
         <Button
           onClick={handleLogin}
-          className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800 mb-6"
+          disabled={isLoading}
+          className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800 mb-6 disabled:opacity-50"
         >
-          Log In
+          {isLoading ? "Signing In..." : "Log In"}
         </Button>
 
         {/* QR Login */}
