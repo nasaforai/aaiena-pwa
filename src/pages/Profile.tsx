@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, User, Settings, ShoppingBag, LogOut, Camera } from 'lucide-react';
+import { ArrowLeft, Edit, User, Settings, ShoppingBag, LogOut, Camera, Home, Heart } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -220,13 +220,51 @@ export default function Profile() {
         {/* Sign Out */}
         <Button
           variant="ghost"
-          className="w-full justify-start h-12 text-red-600 hover:text-red-700 hover:bg-red-50"
+          className="w-full justify-start h-12 text-red-600 hover:text-red-700 hover:bg-red-50 mb-20"
           onClick={handleSignOut}
           disabled={isSigningOut}
         >
           <LogOut className="w-5 h-5 mr-3" />
           {isSigningOut ? 'Signing out...' : 'Sign Out'}
         </Button>
+      </div>
+
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 lg:max-w-sm w-full bg-white border-t border-gray-100 px-4 py-3">
+        <div className="flex justify-around">
+          <button 
+            className="flex flex-col items-center space-y-1"
+            onClick={() => navigate('/store')}
+          >
+            <Home className="w-5 h-5 text-gray-400" />
+            <span className="text-xs text-gray-400">Home</span>
+          </button>
+          <button 
+            className="flex flex-col items-center space-y-1"
+            onClick={() => navigate('/cart')}
+          >
+            <ShoppingBag className="w-5 h-5 text-gray-400" />
+            <span className="text-xs text-gray-400">Cart</span>
+          </button>
+          <button 
+            className="flex flex-col items-center space-y-1"
+            onClick={() => navigate('/product-scan')}
+          >
+            <Camera className="w-5 h-5 text-gray-400" />
+            <span className="text-xs text-gray-400">Scan</span>
+          </button>
+          <button 
+            className="flex flex-col items-center space-y-1"
+            onClick={() => navigate('/wishlist')}
+          >
+            <Heart className="w-5 h-5 text-gray-400" />
+            <span className="text-xs text-gray-400">Wishlist</span>
+          </button>
+          <button className="flex flex-col items-center space-y-1">
+            <User className="w-5 h-5 text-purple-600" />
+            <span className="text-xs text-purple-600 font-medium">Profile</span>
+          </button>
+        </div>
       </div>
     </div>
   );
