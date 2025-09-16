@@ -26,6 +26,7 @@ import { RadialBarChart, RadialBar, ResponsiveContainer, Cell } from "recharts";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useProduct, useProducts } from "@/hooks/useProducts";
 import { useSearchParams } from "react-router-dom";
+import BottomNavigation from "@/components/BottomNavigation";
 
 export default function ProductDetails() {
   const navigate = useNavigate();
@@ -511,6 +512,9 @@ export default function ProductDetails() {
           </div>
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }
