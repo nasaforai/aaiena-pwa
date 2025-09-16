@@ -8,6 +8,8 @@ interface AuthContextType {
   loading: boolean;
   signOut: () => Promise<{ error: any }>;
   isAuthenticated: boolean;
+  hasProfile: boolean | null;
+  checkProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,14 +18,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasProfile, setHasProfile] = useState<boolean | null>(null);
+
+  const checkProfile = async () => {
+    if (!user) {
+      setHasProfile(null);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error checking profile:', error);
+        setHasProfile(false);
+        return;
+      }
+
+      setHasProfile(!!data);
+    } catch (error) {
+      console.error('Error checking profile:', error);
+      setHasProfile(false);
+    }
+  };
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // Check profile when user changes
+        if (session?.user) {
+          setTimeout(() => {
+            checkProfile();
+          }, 0);
+        } else {
+          setHasProfile(null);
+        }
       }
     );
 
@@ -32,6 +70,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      // Check profile for existing session
+      if (session?.user) {
+        setTimeout(() => {
+          checkProfile();
+        }, 0);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -43,6 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Clean up any legacy localStorage flags
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('hasMeasurements');
+      setHasProfile(null);
     }
     return { error };
   };
@@ -54,7 +100,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         session,
         loading,
         signOut,
-        isAuthenticated: !!user
+        isAuthenticated: !!user,
+        hasProfile,
+        checkProfile
       }}
     >
       {children}

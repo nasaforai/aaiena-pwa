@@ -1,18 +1,52 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function MeasurementProfile() {
   const navigate = useNavigate();
+  const { user, checkProfile } = useAuth();
 
-  const handleContinue = () => {
-    localStorage.setItem("hasMeasurements", "true");
+  const handleContinue = async () => {
+    // Create a basic profile record to mark that user has been through onboarding
+    if (user) {
+      try {
+        await supabase
+          .from('profiles')
+          .upsert({
+            user_id: user.id,
+            full_name: user.user_metadata?.full_name || user.email,
+          });
+        
+        // Refresh profile status
+        await checkProfile();
+      } catch (error) {
+        console.error('Error creating profile:', error);
+      }
+    }
+    
     navigate("/photo-source");
   };
 
-  const handleNoThanks = () => {
-    localStorage.setItem("hasMeasurements", "false");
-    localStorage.setItem("isLoggedIn", "true");
+  const handleNoThanks = async () => {
+    // Create a basic profile record to mark that user has been through onboarding
+    if (user) {
+      try {
+        await supabase
+          .from('profiles')
+          .upsert({
+            user_id: user.id,
+            full_name: user.user_metadata?.full_name || user.email,
+          });
+        
+        // Refresh profile status
+        await checkProfile();
+      } catch (error) {
+        console.error('Error creating profile:', error);
+      }
+    }
+    
     navigate("/store");
   };
 

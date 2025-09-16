@@ -57,7 +57,7 @@ export default function SignIn() {
 
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -76,7 +76,18 @@ export default function SignIn() {
         description: "You have been signed in successfully.",
       });
       
-      navigate("/measurement-profile");
+      // Check if user has a profile to determine navigation
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', data.user.id)
+        .maybeSingle();
+      
+      if (profile) {
+        navigate("/store");
+      } else {
+        navigate("/measurement-profile");
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -94,7 +105,7 @@ export default function SignIn() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/measurement-profile`
+          redirectTo: `${window.location.origin}/store`
         }
       });
 

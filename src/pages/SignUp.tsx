@@ -87,7 +87,7 @@ export default function SignUp() {
     setIsLoading(true);
     
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/measurement-profile`;
       
       const { error } = await supabase.auth.signUp({
         email: email.trim(),
@@ -122,8 +122,7 @@ export default function SignUp() {
         description: "Please check your email to verify your account.",
       });
 
-      // Redirect to measurement profile after successful signup
-      navigate("/measurement-profile");
+      // New users will be redirected to measurement-profile after email verification
 
     } catch (error) {
       console.error("Signup error:", error);
@@ -141,7 +140,7 @@ export default function SignUp() {
     setIsLoading(true);
     
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/measurement-profile`;
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
