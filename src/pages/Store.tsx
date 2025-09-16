@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   ArrowLeft,
   Search,
@@ -11,6 +11,7 @@ import {
   ArrowDown,
   ArrowUp,
   Camera,
+  X,
 } from "lucide-react";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import {
@@ -34,15 +35,36 @@ export default function Store() {
   const navigate = useNavigate();
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
   const [notifyToggle, setNotifyToggle] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const isMobile = useIsMobile();
 
   // Fetch data from Supabase
   const { data: categories = [] } = useCategories();
   const { data: designerPicksBanner } = useBanners("designer_picks");
   const { data: discountBanners } = useBanners("discount");
+  const { data: allProducts = [] } = useProducts();
   const { data: trendingProducts = [] } = useProductsByCategory("trending");
   const { data: newProducts = [] } = useProductsByCategory("new");
   const { data: offerProducts = [] } = useProductsByCategory("offer");
+
+  // Filter products based on search term
+  const filteredProducts = useMemo(() => {
+    if (!searchTerm.trim()) return [];
+    
+    return allProducts.filter(product =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.brand?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [allProducts, searchTerm]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const clearSearch = () => {
+    setSearchTerm("");
+  };
 
   const handleBack = () => {
     navigate("/fashion-lane");
@@ -80,9 +102,19 @@ export default function Store() {
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input
             type="text"
-            placeholder="Search"
-            className="w-full pl-12 pr-4 py-3 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent "
+            placeholder="Search products, brands..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="w-full pl-12 pr-12 py-3 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           />
+          {searchTerm && (
+            <button
+              onClick={clearSearch}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -219,178 +251,212 @@ export default function Store() {
 
       {/* Main Content Area */}
       <div className="flex-1 p-4">
-        {/* Discount Section */}
-        {/* <div className="bg-gradient-to-r from-orange-400 to-yellow-500 rounded-2xl p-6 mb-4 text-white">
-          <h3 className="text-xl font-bold mb-2">Discount</h3>
-          <p className="text-sm mb-2">New Users Only</p>
-        </div> */}
-
-        {discountBanners && discountBanners.length > 0 && (
-          <div className="mb-10">
-            <Carousel className="w-full">
-              <CarouselContent className="-ml-2 md:-ml-4">
-                {discountBanners.map((banner) => (
-                  <CarouselItem key={banner.id} className="pl-2 md:pl-4 basis-1/2">
-                    <div
-                      className="relative h-52 rounded-xl"
-                      style={{
-                        backgroundImage: `url(${banner.image_url})`,
-                        backgroundSize: "cover",
-                        backgroundColor: banner.background_color,
-                      }}
-                    >
-                      <div className="absolute bottom-2 left-0 w-full flex flex-col text-white items-center">
-                        <p className="font-bold">{banner.title}</p>
-                        {banner.subtitle && <p className="font-bold">{banner.subtitle}</p>}
-                      </div>
-                    </div>
-                  </CarouselItem>
+        {/* Search Results */}
+        {searchTerm.trim() && (
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-lg">
+                Search Results ({filteredProducts.length})
+              </h3>
+              <button
+                onClick={clearSearch}
+                className="text-sm text-purple-600 hover:text-purple-800"
+              >
+                Clear search
+              </button>
+            </div>
+            {filteredProducts.length > 0 ? (
+              <div className="grid grid-cols-2 gap-4">
+                {filteredProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    handleProductClick={handleProductClick}
+                  />
                 ))}
-              </CarouselContent>
-              <CarouselDots />
-            </Carousel>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <Search className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                <p>No products found for "{searchTerm}"</p>
+                <p className="text-sm mt-1">Try different keywords or browse categories</p>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Category Carousel */}
-        <div className="h-10 overflow-y-hidden mt-10 mb-6">
-          <div className="flex space-x-4 flex-nowrap pb-5 overflow-x-scroll">
-            <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
-              All
-            </div>
-            <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
-              Women
-            </div>
-            <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
-              Men
-            </div>
-            <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
-              Kids
-            </div>
-            <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
-              All
-            </div>
-            <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
-              Man
-            </div>
-            <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
-              Women
-            </div>
-            <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
-              Kids
-            </div>
-          </div>
-        </div>
+        {/* Show regular content only when not searching */}
+        {!searchTerm.trim() && (
+          <>
+            {/* Discount Section */}
+            {discountBanners && discountBanners.length > 0 && (
+              <div className="mb-10">
+                <Carousel className="w-full">
+                  <CarouselContent className="-ml-2 md:-ml-4">
+                    {discountBanners.map((banner) => (
+                      <CarouselItem key={banner.id} className="pl-2 md:pl-4 basis-1/2">
+                        <div
+                          className="relative h-52 rounded-xl"
+                          style={{
+                            backgroundImage: `url(${banner.image_url})`,
+                            backgroundSize: "cover",
+                            backgroundColor: banner.background_color,
+                          }}
+                        >
+                          <div className="absolute bottom-2 left-0 w-full flex flex-col text-white items-center">
+                            <p className="font-bold">{banner.title}</p>
+                            {banner.subtitle && <p className="font-bold">{banner.subtitle}</p>}
+                          </div>
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselDots />
+                </Carousel>
+              </div>
+            )}
 
-        {/* Product Carousels */}
-        <div className="space-y-6">
-          {/* Trending Now Carousel */}
-          {trendingProducts.length > 0 && (
-            <div>
-              <h3 className="font-bold text-lg mb-3">Trending Now</h3>
-              <Carousel className="w-full">
-                <CarouselContent className="-ml-2 md:-ml-4">
-                  {trendingProducts.map((product) => (
-                    <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
-                      <ProductCard
-                        product={product}
-                        handleProductClick={handleProductClick}
-                      />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselDots />
-              </Carousel>
-            </div>
-          )}
-
-          {/* Recently Tried Carousel - showing new products as fallback */}
-          {newProducts.length > 0 && (
-            <div>
-              <h3 className="font-bold text-lg mb-3">Recently Tried</h3>
-              <Carousel className="w-full">
-                <CarouselContent className="-ml-2 md:-ml-4">
-                  {newProducts.slice(0, 4).map((product) => (
-                    <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
-                      <ProductCard
-                        product={product}
-                        handleProductClick={handleProductClick}
-                      />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselDots />
-              </Carousel>
-            </div>
-          )}
-
-          {/* Newest Carousel */}
-          {newProducts.length > 0 && (
-            <div>
-              <h3 className="font-bold text-lg mb-3">Newest</h3>
-              <Carousel className="w-full">
-                <CarouselContent className="-ml-2 md:-ml-4">
-                  {newProducts.map((product) => (
-                    <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
-                      <ProductCard
-                        product={product}
-                        handleProductClick={handleProductClick}
-                      />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselDots />
-              </Carousel>
-            </div>
-          )}
-        </div>
-
-        <div className="p-4 mt-6">
-          <div className="overflow-y-hidden h-24">
-            <div className="flex justify-between overflow-scroll flex-nowrap gap-6 pb-5 ">
-              {categories.map((category) => (
-                <div key={category.id} className="flex flex-col items-center">
-                  <div className="w-16 h-16 bg-gray-200 rounded-full mb-2 relative overflow-hidden">
-                    <img
-                      src={category.image_url || "/images/dress.jpg"}
-                      alt={category.name}
-                      className="absolute left-0 top-0 w-full h-full object-cover"
-                    />
-                  </div>
-                  <span className="text-xs text-gray-600">{category.name}</span>
+            {/* Category Carousel */}
+            <div className="h-10 overflow-y-hidden mt-10 mb-6">
+              <div className="flex space-x-4 flex-nowrap pb-5 overflow-x-scroll">
+                <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
+                  All
                 </div>
-              ))}
+                <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
+                  Women
+                </div>
+                <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
+                  Men
+                </div>
+                <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
+                  Kids
+                </div>
+                <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
+                  All
+                </div>
+                <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
+                  Man
+                </div>
+                <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
+                  Women
+                </div>
+                <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
+                  Kids
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* What's New Section */}
-        <div className="mt-6 bg-gradient-to-r from-pink-400 to-red-500 rounded-2xl px-6 py-10 text-white text-center">
-          <p className="my-4 text-md">SEE ALL LATEST</p>
-          <h3 className="font-medium text-3xl mb-4">WHAT'S NEW!</h3>
-          <button className="bg-white text-black px-10 py-2 rounded-xl text-sm font-medium">
-            See All
-          </button>
-        </div>
+            {/* Product Carousels */}
+            <div className="space-y-6">
+              {/* Trending Now Carousel */}
+              {trendingProducts.length > 0 && (
+                <div>
+                  <h3 className="font-bold text-lg mb-3">Trending Now</h3>
+                  <Carousel className="w-full">
+                    <CarouselContent className="-ml-2 md:-ml-4">
+                      {trendingProducts.map((product) => (
+                        <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
+                          <ProductCard
+                            product={product}
+                            handleProductClick={handleProductClick}
+                          />
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselDots />
+                  </Carousel>
+                </div>
+              )}
 
-        {/* In Offer Carousel */}
-        {offerProducts.length > 0 && (
-          <div className="mt-6 mb-20">
-            <h3 className="font-bold text-lg mb-3">In Offer</h3>
-            <Carousel className="w-full">
-              <CarouselContent className="-ml-2 md:-ml-4">
-                {offerProducts.map((product) => (
-                  <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
-                    <ProductCard
-                      product={product}
-                      handleProductClick={handleProductClick}
-                    />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselDots />
-            </Carousel>
-          </div>
+              {/* Recently Tried Carousel - showing new products as fallback */}
+              {newProducts.length > 0 && (
+                <div>
+                  <h3 className="font-bold text-lg mb-3">Recently Tried</h3>
+                  <Carousel className="w-full">
+                    <CarouselContent className="-ml-2 md:-ml-4">
+                      {newProducts.slice(0, 4).map((product) => (
+                        <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
+                          <ProductCard
+                            product={product}
+                            handleProductClick={handleProductClick}
+                          />
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselDots />
+                  </Carousel>
+                </div>
+              )}
+
+              {/* Newest Carousel */}
+              {newProducts.length > 0 && (
+                <div>
+                  <h3 className="font-bold text-lg mb-3">Newest</h3>
+                  <Carousel className="w-full">
+                    <CarouselContent className="-ml-2 md:-ml-4">
+                      {newProducts.map((product) => (
+                        <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
+                          <ProductCard
+                            product={product}
+                            handleProductClick={handleProductClick}
+                          />
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselDots />
+                  </Carousel>
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 mt-6">
+              <div className="overflow-y-hidden h-24">
+                <div className="flex justify-between overflow-scroll flex-nowrap gap-6 pb-5 ">
+                  {categories.map((category) => (
+                    <div key={category.id} className="flex flex-col items-center">
+                      <div className="w-16 h-16 bg-gray-200 rounded-full mb-2 relative overflow-hidden">
+                        <img
+                          src={category.image_url || "/images/dress.jpg"}
+                          alt={category.name}
+                          className="absolute left-0 top-0 w-full h-full object-cover"
+                        />
+                      </div>
+                      <span className="text-xs text-gray-600">{category.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* What's New Section */}
+            <div className="mt-6 bg-gradient-to-r from-pink-400 to-red-500 rounded-2xl px-6 py-10 text-white text-center">
+              <p className="my-4 text-md">SEE ALL LATEST</p>
+              <h3 className="font-medium text-3xl mb-4">WHAT'S NEW!</h3>
+              <button className="bg-white text-black px-10 py-2 rounded-xl text-sm font-medium">
+                See All
+              </button>
+            </div>
+
+            {/* In Offer Carousel */}
+            {offerProducts.length > 0 && (
+              <div className="mt-6 mb-20">
+                <h3 className="font-bold text-lg mb-3">In Offer</h3>
+                <Carousel className="w-full">
+                  <CarouselContent className="-ml-2 md:-ml-4">
+                    {offerProducts.map((product) => (
+                      <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
+                        <ProductCard
+                          product={product}
+                          handleProductClick={handleProductClick}
+                        />
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselDots />
+                </Carousel>
+              </div>
+            )}
+          </>
         )}
       </div>
 
