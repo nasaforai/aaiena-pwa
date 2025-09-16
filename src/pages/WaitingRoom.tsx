@@ -12,6 +12,7 @@ import {
 import ProductCard from "@/components/ProductCard";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useProducts } from "@/hooks/useProducts";
+import BottomNavigation from "@/components/BottomNavigation";
 
 export default function WaitingRoom() {
   const navigate = useNavigate();
@@ -284,6 +285,9 @@ export default function WaitingRoom() {
         isVirtualDialogOpen={showVirtualDialog}
         onClose={() => setShowVirtualDialog(false)}
       />
+      
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </>
   );
 }
