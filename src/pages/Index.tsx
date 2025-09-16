@@ -9,7 +9,8 @@ export default function Index() {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    localStorage.removeItem("isLoggedIn");
+    // Remove the localStorage clearing to preserve authentication
+    // Users should remain logged in between sessions
   }, []);
 
   const handleSplashComplete = () => {

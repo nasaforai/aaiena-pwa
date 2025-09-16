@@ -29,11 +29,12 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useProducts, useProductsByCategory } from "@/hooks/useProducts";
 import { useCategories } from "@/hooks/useCategories";
 import { useBanners } from "@/hooks/useBanners";
+import { useAuth } from "@/contexts/AuthContext";
 import BottomNavigation from "@/components/BottomNavigation";
 
 export default function Store() {
   const navigate = useNavigate();
-  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  const { isAuthenticated } = useAuth();
   const [notifyToggle, setNotifyToggle] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const isMobile = useIsMobile();
@@ -75,7 +76,7 @@ export default function Store() {
   };
 
   const handleTry = () => {
-    if (isLoggedIn) {
+    if (isAuthenticated) {
       navigate("/try-virtually");
     } else {
       navigate("/qr-code?back=sign-in");
@@ -89,7 +90,7 @@ export default function Store() {
         showBack={isMobile ? false : true}
       />
 
-      {isLoggedIn && (
+      {isAuthenticated && (
         <h1 className="p-4 text-2xl font-medium">
           Hello, <br />
           Welcome Back John!
@@ -129,7 +130,7 @@ export default function Store() {
             <p className="text-2xl font-bold">Moderate</p>
           </div>
 
-          {isLoggedIn && (
+          {isAuthenticated && (
             <>
               <div className="rounded-xl m-4 bg-[#FFF3D3] border border-[#FFD25C] p-4 text-[#342601]">
                 <div className="flex justify-between">
@@ -198,7 +199,7 @@ export default function Store() {
             >
               Try Virtually
             </button>
-            {!isLoggedIn && (
+            {!isAuthenticated && (
               <button
                 className="w-full mt-2 bg-purple-100 text-black py-3 rounded-xl text-md font-medium"
                 onClick={() => {
