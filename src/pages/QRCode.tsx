@@ -15,7 +15,7 @@ export default function QRCode() {
   };
 
   const handleContinue = () => {
-    navigate(toRoute ? `/${toRoute}` : "/sign-in");
+    navigate(toRoute ? `/${toRoute}` : "/signup-options");
   };
 
   const handleBackToPhysical = () => {

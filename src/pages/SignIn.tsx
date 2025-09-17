@@ -128,7 +128,7 @@ export default function SignIn() {
   };
 
   const handleSignUp = () => {
-    navigate("/sign-up");
+    navigate("/signup-options");
   };
 
   const handleQRLogin = () => {

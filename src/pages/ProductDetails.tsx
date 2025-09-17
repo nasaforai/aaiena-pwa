@@ -111,7 +111,7 @@ export default function ProductDetails() {
       handleAddToCart();
     } else {
       if (isMobile) {
-        navigate(`/sign-in?${createSearchParams({ back: "product-details" })}`);
+        navigate(`/signup-options?${createSearchParams({ back: "product-details" })}`);
       } else {
         navigate("/qr-code?back=product-details");
       }
@@ -127,7 +127,7 @@ export default function ProductDetails() {
       }
     } else {
       if (isMobile) {
-        navigate(`/sign-in?${createSearchParams({ back: "product-details" })}`);
+        navigate(`/signup-options?${createSearchParams({ back: "product-details" })}`);
       } else {
         navigate("/qr-code?back=sign-in");
       }

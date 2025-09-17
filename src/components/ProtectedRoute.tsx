@@ -23,8 +23,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!isAuthenticated) {
-    // Redirect to sign-in with return path
-    return <Navigate to="/sign-in" state={{ from: location }} replace />;
+    // Redirect to signup-options with return path
+    return <Navigate to="/signup-options" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;

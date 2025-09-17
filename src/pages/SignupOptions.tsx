@@ -43,10 +43,10 @@ export default function SignupOptions() {
 
         <div className="text-center mb-12">
           <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-            Choose Your Signup Method
+            Choose Your Method
           </h2>
           <p className="text-gray-600">
-            Select how you'd like to create your account
+            Select how you'd like to proceed
           </p>
         </div>
 
@@ -92,6 +92,16 @@ export default function SignupOptions() {
               Sign Up with Mobile
               <ArrowRight className="w-4 h-4" />
             </Button>
+          </div>
+          {/* Sign In Section for existing users */}
+          <div className="text-center mt-8">
+            <p className="text-gray-600 mb-4">Already have an account?</p>
+            <button
+              onClick={() => navigate("/sign-in")}
+              className="text-blue-600 font-medium hover:text-blue-700 transition-colors"
+            >
+              Sign In Here
+            </button>
           </div>
         </div>
 

@@ -38,7 +38,7 @@ export default function SignUp() {
   }
 
   const handleBack = () => {
-    navigate("/sign-in");
+    navigate("/signup-options");
   };
 
   const validateForm = () => {
@@ -169,7 +169,7 @@ export default function SignUp() {
   };
 
   const handleLogin = () => {
-    navigate("/sign-in");
+    navigate("/signup-options");
   };
 
   return (

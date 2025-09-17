@@ -141,7 +141,7 @@ export default function Profile() {
   };
 
   if (!user && !loading) {
-    navigate('/sign-in');
+    navigate('/signup-options');
     return null;
   }
 

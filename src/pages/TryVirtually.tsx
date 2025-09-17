@@ -86,7 +86,7 @@ export default function TryVirtually() {
     if (isLoggedIn) {
       handleAddToCart();
     } else {
-      navigate("/sign-in");
+      navigate("/signup-options");
     }
   };
 
