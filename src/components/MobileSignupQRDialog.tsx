@@ -17,7 +17,7 @@ interface MobileSignupQRDialogProps {
 export default function MobileSignupQRDialog({ open, onClose }: MobileSignupQRDialogProps) {
   const { toast } = useToast();
   
-  const signupUrl = `${window.location.origin}/sign-up`;
+  const signupUrl = "https://aaiena-pwa.lovable.app/sign-up";
 
   const handleCopyUrl = async () => {
     try {
