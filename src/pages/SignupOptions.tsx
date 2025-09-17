@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowLeft, Monitor, Smartphone } from "lucide-react";
+import { ArrowLeft, Monitor, Smartphone, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import BottomNavigation from "@/components/BottomNavigation";
@@ -67,9 +67,10 @@ export default function SignupOptions() {
             </div>
             <Button
               onClick={handleKioskSignup}
-              className="w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700"
+              className="w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 flex items-center justify-center gap-2"
             >
               Connect to Kiosk
+              <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
 
@@ -87,19 +88,14 @@ export default function SignupOptions() {
             </div>
             <Button
               onClick={handleMobileSignup}
-              className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700"
+              className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 flex items-center justify-center gap-2"
             >
               Sign Up with Mobile
+              <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
         </div>
 
-        {/* Additional Info */}
-        <div className="mt-8 text-center">
-          <p className="text-xs text-gray-500">
-            Both methods provide full access to all features including virtual try-on, personalized recommendations, and exclusive offers.
-          </p>
-        </div>
       </div>
 
       <BottomNavigation />
