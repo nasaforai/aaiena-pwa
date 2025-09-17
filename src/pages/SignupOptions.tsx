@@ -2,7 +2,6 @@ import React from "react";
 import { ArrowLeft, Monitor, Smartphone, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import BottomNavigation from "@/components/BottomNavigation";
 
 export default function SignupOptions() {
   const navigate = useNavigate();
@@ -97,8 +96,6 @@ export default function SignupOptions() {
         </div>
 
       </div>
-
-      <BottomNavigation />
     </div>
   );
 }
