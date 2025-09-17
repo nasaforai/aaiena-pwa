@@ -68,9 +68,6 @@ export default function SignupOptions() {
                 </p>
               </div>
             </div>
-            <p className="text-gray-700 mb-6 text-sm">
-              Connect to our in-store kiosk for a seamless signup experience with instant measurements and personalized recommendations.
-            </p>
             <Button
               onClick={handleKioskSignup}
               className="w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700"
@@ -94,9 +91,6 @@ export default function SignupOptions() {
                 </p>
               </div>
             </div>
-            <p className="text-gray-700 mb-6 text-sm">
-              Create your account using your mobile device with email, phone number, or social media accounts.
-            </p>
             <Button
               onClick={handleMobileSignup}
               className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700"
