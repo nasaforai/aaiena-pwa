@@ -63,9 +63,6 @@ export default function SignupOptions() {
                 <h3 className="text-lg font-semibold text-gray-900">
                   Signup using Kiosk
                 </h3>
-                <p className="text-sm text-gray-600">
-                  Quick setup with in-store device
-                </p>
               </div>
             </div>
             <Button
@@ -84,11 +81,8 @@ export default function SignupOptions() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Signup using Mobile Phone
+                  Signup using Mobile Device
                 </h3>
-                <p className="text-sm text-gray-600">
-                  Traditional mobile registration
-                </p>
               </div>
             </div>
             <Button
