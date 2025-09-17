@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { ArrowLeft, Monitor, Smartphone, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import MobileSignupQRDialog from "@/components/MobileSignupQRDialog";
 
 export default function SignupOptions() {
   const navigate = useNavigate();
+  const [showMobileQR, setShowMobileQR] = useState(false);
 
   const handleBack = () => {
     navigate(-1);
@@ -16,8 +18,8 @@ export default function SignupOptions() {
   };
 
   const handleMobileSignup = () => {
-    // Navigate to mobile signup
-    navigate("/sign-up");
+    // Show QR code popup for mobile signup
+    setShowMobileQR(true);
   };
 
   return (
@@ -106,6 +108,12 @@ export default function SignupOptions() {
         </div>
 
       </div>
+
+      {/* Mobile Signup QR Dialog */}
+      <MobileSignupQRDialog 
+        open={showMobileQR} 
+        onClose={() => setShowMobileQR(false)} 
+      />
     </div>
   );
 }
