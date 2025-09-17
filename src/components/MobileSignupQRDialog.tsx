@@ -89,7 +89,7 @@ export default function MobileSignupQRDialog({ open, onClose }: MobileSignupQRDi
 
           {/* Close Button */}
           <Button
-            variant="secondary"
+            variant="outline"
             onClick={onClose}
             className="w-full"
           >
