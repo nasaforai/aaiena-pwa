@@ -21,6 +21,7 @@ const Index = React.lazy(() => import("./pages/Index"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 const SignIn = React.lazy(() => import("./pages/SignIn"));
 const SignUp = React.lazy(() => import("./pages/SignUp"));
+const SignupOptions = React.lazy(() => import("./pages/SignupOptions"));
 const MeasurementProfile = React.lazy(() => import("./pages/MeasurementProfile"));
 const DeviceConnected = React.lazy(() => import("./pages/DeviceConnected"));
 const FitProfile = React.lazy(() => import("./pages/FitProfile"));
@@ -72,6 +73,7 @@ const App = () => {
                 <Route path="/welcome" element={<Welcome />} />
                 <Route path="/sign-in" element={<SignIn />} />
                 <Route path="/sign-up" element={<SignUp />} />
+                <Route path="/signup-options" element={<SignupOptions />} />
                 
                 {/* Public routes */}
                 <Route path="/store" element={<Store />} />
