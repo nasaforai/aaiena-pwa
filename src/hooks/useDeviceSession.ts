@@ -43,28 +43,52 @@ export const useDeviceSession = () => {
     userId: string
   ): Promise<boolean> => {
     setIsLoading(true);
-    try {
-      const { error } = await supabase
-        .from('device_sessions')
-        .update({
-          user_id: userId,
-          status: 'authenticated'
-        })
-        .eq('kiosk_session_id', sessionId);
+    let retries = 3;
+    
+    while (retries > 0) {
+      try {
+        console.log(`Updating device session (${retries} retries left):`, sessionId, userId);
+        
+        const { error } = await supabase
+          .from('device_sessions')
+          .update({
+            user_id: userId,
+            status: 'authenticated'
+          })
+          .eq('kiosk_session_id', sessionId);
 
-      if (error) {
+        if (error) {
+          console.error('Error updating device session:', error);
+          retries--;
+          if (retries > 0) {
+            console.log('Retrying device session update...');
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+            continue;
+          }
+          return false;
+        }
+        
+        console.log('Device session updated successfully for kiosk login');
+        setIsLoading(false);
+        return true;
+      } catch (error) {
         console.error('Error updating device session:', error);
-        return false;
+        retries--;
+        if (retries > 0) {
+          console.log('Retrying device session update...');
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
       }
-      console.log('Device session updated successfully for kiosk login');
-      return true;
-    } catch (error) {
-      console.error('Error updating device session:', error);
-      return false;
-    } finally {
-      setIsLoading(false);
     }
-  }, []);
+    
+    toast({
+      title: "Connection Error",
+      description: "Failed to sync with kiosk after multiple attempts",
+      variant: "destructive",
+    });
+    setIsLoading(false);
+    return false;
+  }, [toast]);
 
   const cleanupDeviceSession = useCallback(async (sessionId: string): Promise<void> => {
     try {
@@ -85,8 +109,10 @@ export const useDeviceSession = () => {
     sessionId: string,
     onAuthenticated: (userId: string) => void
   ) => {
+    console.log('Setting up device session subscription for:', sessionId);
+    
     const channel = supabase
-      .channel('device-auth-changes')
+      .channel(`device-auth-${sessionId}`)
       .on(
         'postgres_changes',
         {
@@ -98,16 +124,37 @@ export const useDeviceSession = () => {
         async (payload) => {
           console.log('Device session updated:', payload);
           if (payload.new.status === 'authenticated' && payload.new.user_id) {
+            console.log('User authenticated via mobile device:', payload.new.user_id);
             onAuthenticated(payload.new.user_id);
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('Successfully subscribed to device session changes');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('Failed to subscribe to device session changes');
+          // Retry subscription after a delay
+          setTimeout(() => {
+            console.log('Retrying subscription...');
+            subscribeToDeviceSession(sessionId, onAuthenticated);
+          }, 2000);
+        }
+      });
+
+    // Set up session timeout
+    const timeoutId = setTimeout(() => {
+      console.log('Device session timeout, cleaning up...');
+      cleanupDeviceSession(sessionId);
+      supabase.removeChannel(channel);
+    }, 10 * 60 * 1000); // 10 minutes timeout
 
     return () => {
+      clearTimeout(timeoutId);
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [cleanupDeviceSession]);
 
   // Clean up expired sessions
   const cleanupExpiredSessions = useCallback(async (): Promise<void> => {
