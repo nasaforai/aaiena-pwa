@@ -28,7 +28,7 @@ export default function MobileSignupQRDialog({ open, onClose }: MobileSignupQRDi
     if (open && !sessionId) {
       const newSessionId = crypto.randomUUID();
       setSessionId(newSessionId);
-      setSignupUrl(`https://aaiena-pwa.lovable.app/sign-up?session_id=${newSessionId}`);
+      setSignupUrl(`${window.location.origin}/sign-up?session_id=${newSessionId}`);
       
       // Create device session in database
       createDeviceSession(newSessionId);

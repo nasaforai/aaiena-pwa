@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useDeviceSession } from "@/hooks/useDeviceSession";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function SignUp() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { updateDeviceSession } = useDeviceSession();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,11 +24,20 @@ export default function SignUp() {
   // Get session ID from URL parameters
   useEffect(() => {
     const sessionParam = searchParams.get('session_id');
+    const isVerified = searchParams.get('verified');
+    const isOAuth = searchParams.get('oauth');
+    
     if (sessionParam) {
       setSessionId(sessionParam);
       console.log('Device session ID detected:', sessionParam);
+      
+      // If user comes back verified or via OAuth and is authenticated, 
+      // the redirect useEffect will handle the device session update
+      if ((isVerified || isOAuth) && isAuthenticated) {
+        console.log('User returned from verification/OAuth with session_id');
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, isAuthenticated]);
 
   // Redirect authenticated users
   useEffect(() => {
@@ -39,7 +50,7 @@ export default function SignUp() {
       const from = location.state?.from?.pathname || "/store";
       navigate(from, { replace: true });
     }
-  }, [isAuthenticated, loading, navigate, location, sessionId, user]);
+  }, [isAuthenticated, loading, navigate, location, sessionId, user, updateDeviceSession]);
 
   // Show loading while checking auth state
   if (loading) {
@@ -53,25 +64,6 @@ export default function SignUp() {
     );
   }
 
-  const updateDeviceSession = async (sessionId: string, userId: string) => {
-    try {
-      const { error } = await supabase
-        .from('device_sessions')
-        .update({
-          user_id: userId,
-          status: 'authenticated'
-        })
-        .eq('kiosk_session_id', sessionId);
-
-      if (error) {
-        console.error('Error updating device session:', error);
-      } else {
-        console.log('Device session updated successfully for kiosk login');
-      }
-    } catch (error) {
-      console.error('Error updating device session:', error);
-    }
-  };
 
   const handleBack = () => {
     navigate("/signup-options");
@@ -123,7 +115,10 @@ export default function SignUp() {
     setIsLoading(true);
     
     try {
-      const redirectUrl = `${window.location.origin}/measurement-profile`;
+      // Preserve session_id in redirect URL for mobile flow
+      const redirectUrl = sessionId ? 
+        `${window.location.origin}/sign-up?session_id=${sessionId}&verified=true` :
+        `${window.location.origin}/measurement-profile`;
       
       const { error } = await supabase.auth.signUp({
         email: email.trim(),
@@ -160,15 +155,8 @@ export default function SignUp() {
           "Please check your email to verify your account.",
       });
 
-      // If this is a cross-device signup, we'll handle the redirect differently
-      if (sessionId) {
-        // Wait a moment for the auth state to update, then the useEffect will handle the device session update
-        setTimeout(() => {
-          if (user) {
-            updateDeviceSession(sessionId, user.id);
-          }
-        }, 1000);
-      }
+      // For mobile flow, the email verification will bring them back with session_id
+      // The useEffect will handle the device session update when they return authenticated
 
     } catch (error) {
       console.error("Signup error:", error);
@@ -186,8 +174,9 @@ export default function SignUp() {
     setIsLoading(true);
     
     try {
+      // For Google OAuth, preserve session_id in redirect URL for mobile flow
       const redirectUrl = sessionId ? 
-        `${window.location.origin}/sign-up?session_id=${sessionId}` :
+        `${window.location.origin}/sign-up?session_id=${sessionId}&oauth=google` :
         `${window.location.origin}/measurement-profile`;
       
       const { error } = await supabase.auth.signInWithOAuth({
