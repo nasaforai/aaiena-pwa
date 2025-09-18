@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, Phone, Loader2 } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,21 +9,37 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function SignUp() {
   const navigate = useNavigate();
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  // Get session ID from URL parameters
+  useEffect(() => {
+    const sessionParam = searchParams.get('session_id');
+    if (sessionParam) {
+      setSessionId(sessionParam);
+      console.log('Device session ID detected:', sessionParam);
+    }
+  }, [searchParams]);
 
   // Redirect authenticated users
   useEffect(() => {
-    if (!loading && isAuthenticated) {
+    if (!loading && isAuthenticated && user) {
+      // If this is a cross-device signup, update the device session
+      if (sessionId) {
+        updateDeviceSession(sessionId, user.id);
+      }
+      
       const from = location.state?.from?.pathname || "/store";
       navigate(from, { replace: true });
     }
-  }, [isAuthenticated, loading, navigate, location]);
+  }, [isAuthenticated, loading, navigate, location, sessionId, user]);
 
   // Show loading while checking auth state
   if (loading) {
@@ -36,6 +52,26 @@ export default function SignUp() {
       </div>
     );
   }
+
+  const updateDeviceSession = async (sessionId: string, userId: string) => {
+    try {
+      const { error } = await supabase
+        .from('device_sessions')
+        .update({
+          user_id: userId,
+          status: 'authenticated'
+        })
+        .eq('kiosk_session_id', sessionId);
+
+      if (error) {
+        console.error('Error updating device session:', error);
+      } else {
+        console.log('Device session updated successfully for kiosk login');
+      }
+    } catch (error) {
+      console.error('Error updating device session:', error);
+    }
+  };
 
   const handleBack = () => {
     navigate("/signup-options");
@@ -119,10 +155,20 @@ export default function SignUp() {
 
       toast({
         title: "Success!",
-        description: "Please check your email to verify your account.",
+        description: sessionId ? 
+          "Account created! Redirecting to kiosk..." : 
+          "Please check your email to verify your account.",
       });
 
-      // New users will be redirected to measurement-profile after email verification
+      // If this is a cross-device signup, we'll handle the redirect differently
+      if (sessionId) {
+        // Wait a moment for the auth state to update, then the useEffect will handle the device session update
+        setTimeout(() => {
+          if (user) {
+            updateDeviceSession(sessionId, user.id);
+          }
+        }, 1000);
+      }
 
     } catch (error) {
       console.error("Signup error:", error);
@@ -140,7 +186,9 @@ export default function SignUp() {
     setIsLoading(true);
     
     try {
-      const redirectUrl = `${window.location.origin}/measurement-profile`;
+      const redirectUrl = sessionId ? 
+        `${window.location.origin}/sign-up?session_id=${sessionId}` :
+        `${window.location.origin}/measurement-profile`;
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',

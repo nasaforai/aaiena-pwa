@@ -92,6 +92,33 @@ export type Database = {
         }
         Relationships: []
       }
+      device_sessions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          kiosk_session_id: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          kiosk_session_id: string
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          kiosk_session_id?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           additional_images: string[] | null

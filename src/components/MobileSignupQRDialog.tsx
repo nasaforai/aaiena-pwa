@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Copy, X } from "lucide-react";
 import {
   Dialog,
@@ -8,6 +8,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { useDeviceSession } from "@/hooks/useDeviceSession";
 
 interface MobileSignupQRDialogProps {
   open: boolean;
@@ -16,8 +18,61 @@ interface MobileSignupQRDialogProps {
 
 export default function MobileSignupQRDialog({ open, onClose }: MobileSignupQRDialogProps) {
   const { toast } = useToast();
-  
-  const signupUrl = "https://aaiena-pwa.lovable.app/sign-up";
+  const { user } = useAuth();
+  const { createDeviceSession, cleanupDeviceSession, subscribeToDeviceSession } = useDeviceSession();
+  const [sessionId, setSessionId] = useState<string>("");
+  const [signupUrl, setSignupUrl] = useState<string>("");
+
+  // Generate unique session ID when dialog opens
+  useEffect(() => {
+    if (open && !sessionId) {
+      const newSessionId = crypto.randomUUID();
+      setSessionId(newSessionId);
+      setSignupUrl(`https://aaiena-pwa.lovable.app/sign-up?session_id=${newSessionId}`);
+      
+      // Create device session in database
+      createDeviceSession(newSessionId);
+    }
+  }, [open, sessionId, createDeviceSession]);
+
+  // Listen for authentication completion
+  useEffect(() => {
+    if (!sessionId || user) return;
+
+    const unsubscribe = subscribeToDeviceSession(sessionId, async (userId: string) => {
+      await handleKioskLogin(userId);
+    });
+
+    return unsubscribe;
+  }, [sessionId, user, subscribeToDeviceSession]);
+
+  // Cleanup session when dialog closes
+  useEffect(() => {
+    return () => {
+      if (sessionId && !open) {
+        cleanupDeviceSession(sessionId);
+      }
+    };
+  }, [sessionId, open, cleanupDeviceSession]);
+
+  const handleKioskLogin = async (userId: string) => {
+    try {
+      toast({
+        title: "Authentication Successful",
+        description: "Mobile device authenticated successfully. Redirecting...",
+      });
+      
+      // Clean up the session
+      await cleanupDeviceSession(sessionId);
+      
+      onClose();
+      
+      // Navigate to store - the parent component should handle this
+      window.location.href = '/store';
+    } catch (error) {
+      console.error('Error handling kiosk login:', error);
+    }
+  };
 
   const handleCopyUrl = async () => {
     try {
@@ -35,6 +90,12 @@ export default function MobileSignupQRDialog({ open, onClose }: MobileSignupQRDi
     }
   };
 
+  // Generate QR code URL with session ID
+  const generateQRCodeUrl = (url: string) => {
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+    return qrApiUrl;
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-md mx-auto">
@@ -47,11 +108,15 @@ export default function MobileSignupQRDialog({ open, onClose }: MobileSignupQRDi
         <div className="flex flex-col items-center space-y-6 py-4">
           {/* QR Code */}
           <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <img 
-              src="/images/qr-code.png" 
-              alt="QR Code for Mobile Signup" 
-              className="w-48 h-48"
-            />
+            {signupUrl ? (
+              <img 
+                src={generateQRCodeUrl(signupUrl)}
+                alt="QR Code for Mobile Signup" 
+                className="w-48 h-48"
+              />
+            ) : (
+              <div className="w-48 h-48 bg-gray-200 animate-pulse rounded" />
+            )}
           </div>
 
           {/* Instructions */}
@@ -81,6 +146,7 @@ export default function MobileSignupQRDialog({ open, onClose }: MobileSignupQRDi
                 size="sm"
                 onClick={handleCopyUrl}
                 className="shrink-0"
+                disabled={!signupUrl}
               >
                 <Copy className="w-4 h-4" />
               </Button>
