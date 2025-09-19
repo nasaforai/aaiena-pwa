@@ -39,18 +39,44 @@ export default function SignUp() {
     }
   }, [searchParams, isAuthenticated]);
 
-  // Redirect authenticated users
+  // Handle authenticated users with device session
+  const [deviceSessionUpdated, setDeviceSessionUpdated] = useState(false);
+  const [updatingSession, setUpdatingSession] = useState(false);
+
   useEffect(() => {
-    if (!loading && isAuthenticated && user) {
-      // If this is a cross-device signup, update the device session
-      if (sessionId) {
-        updateDeviceSession(sessionId, user.id);
-      }
+    if (!loading && isAuthenticated && user && sessionId && !deviceSessionUpdated) {
+      console.log('Authenticated user with session ID, updating device session...');
+      setUpdatingSession(true);
       
+      updateDeviceSession(sessionId, user.id).then((success) => {
+        setUpdatingSession(false);
+        setDeviceSessionUpdated(true);
+        
+        if (success) {
+          console.log('Device session updated successfully');
+          toast({
+            title: "Success!",
+            description: "Successfully connected to kiosk. You can now close this page.",
+            variant: "default",
+          });
+          // Redirect after a short delay to let the kiosk sync
+          setTimeout(() => {
+            navigate("/store", { replace: true });
+          }, 2000);
+        } else {
+          toast({
+            title: "Connection Failed",
+            description: "Failed to connect to kiosk. Please try again.",
+            variant: "destructive",
+          });
+        }
+      });
+    } else if (!loading && isAuthenticated && user && !sessionId) {
+      // Regular authenticated user without session ID
       const from = location.state?.from?.pathname || "/store";
       navigate(from, { replace: true });
     }
-  }, [isAuthenticated, loading, navigate, location, sessionId, user, updateDeviceSession]);
+  }, [isAuthenticated, loading, navigate, location, sessionId, user, updateDeviceSession, deviceSessionUpdated, toast]);
 
   // Show loading while checking auth state
   if (loading) {
@@ -59,6 +85,43 @@ export default function SignUp() {
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
           <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show device session sync for authenticated users with session ID
+  if (isAuthenticated && sessionId && (updatingSession || deviceSessionUpdated)) {
+    return (
+      <div className="bg-white flex lg:max-w-sm w-full flex-col mx-auto min-h-screen items-center justify-center">
+        <div className="flex flex-col items-center space-y-6 p-6 text-center">
+          <div className="flex justify-center mb-4">
+            <img src="/images/hm.png" alt="h&m logo" width={82} height={54} />
+          </div>
+          
+          {updatingSession ? (
+            <>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+              <h2 className="text-xl font-semibold text-gray-900">Connecting to Kiosk...</h2>
+              <p className="text-gray-600">Please wait while we sync your account</p>
+            </>
+          ) : (
+            <>
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900">Successfully Connected!</h2>
+              <p className="text-gray-600">Your account has been synced with the kiosk. You can now close this page or continue shopping.</p>
+              <Button 
+                onClick={() => navigate("/store")} 
+                className="bg-gray-900 text-white px-6 py-2 rounded-xl hover:bg-gray-800"
+              >
+                Continue Shopping
+              </Button>
+            </>
+          )}
         </div>
       </div>
     );
@@ -151,7 +214,7 @@ export default function SignUp() {
       toast({
         title: "Success!",
         description: sessionId ? 
-          "Account created! Redirecting to kiosk..." : 
+          "Account created! Please check your email to verify and connect to kiosk." : 
           "Please check your email to verify your account.",
       });
 
