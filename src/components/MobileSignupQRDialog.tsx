@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDeviceSession } from "@/hooks/useDeviceSession";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MobileSignupQRDialogProps {
   open: boolean;
@@ -57,20 +58,50 @@ export default function MobileSignupQRDialog({ open, onClose }: MobileSignupQRDi
 
   const handleKioskLogin = async (userId: string) => {
     try {
+      console.log('Handling kiosk login for user:', userId);
+      
       toast({
         title: "Authentication Successful",
-        description: "Mobile device authenticated successfully. Redirecting...",
+        description: "Mobile device authenticated successfully. Authenticating kiosk...",
       });
       
-      // Clean up the session
-      await cleanupDeviceSession(sessionId);
+      // Call the kiosk auth edge function to get a session token
+      const { data, error } = await supabase.functions.invoke('kiosk-auth', {
+        body: { sessionId }
+      });
+
+      if (error) {
+        console.error('Kiosk auth error:', error);
+        toast({
+          title: "Authentication Error",
+          description: "Failed to authenticate kiosk. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data.authUrl) {
+        console.log('Redirecting to auth URL for kiosk session');
+        // Use the generated auth URL to authenticate the kiosk
+        window.location.href = data.authUrl;
+      } else {
+        console.error('No auth URL received from kiosk-auth function');
+        toast({
+          title: "Authentication Error",
+          description: "Invalid authentication response. Please try again.",
+          variant: "destructive",
+        });
+      }
       
       onClose();
       
-      // Navigate to store - the parent component should handle this
-      window.location.href = '/store';
     } catch (error) {
       console.error('Error handling kiosk login:', error);
+      toast({
+        title: "Authentication Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 

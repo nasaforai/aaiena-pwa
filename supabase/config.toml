@@ -1,1 +1,4 @@
 project_id = "mpvcadyicshblhleoyob"
+
+[functions.kiosk-auth]
+verify_jwt = false
