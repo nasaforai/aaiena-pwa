@@ -69,26 +69,6 @@ serve(async (req) => {
 
     console.log('Found authenticated device session for user:', deviceSession.user_id)
 
-    // Create a session for the user using admin privileges
-    const { data: sessionData, error: authError } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'magiclink',
-      email: '', // We'll get the email from the user record
-      options: {
-        redirectTo: `${req.headers.get('origin') || 'http://localhost:3000'}/store`
-      }
-    })
-
-    if (authError) {
-      console.error('Error generating auth link:', authError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to generate auth session' }), 
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
-    }
-
     // Get user email to generate proper magic link
     const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(deviceSession.user_id)
 
