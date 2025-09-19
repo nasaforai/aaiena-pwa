@@ -45,17 +45,56 @@ export const useDeviceSession = () => {
     setIsLoading(true);
     let retries = 3;
     
+    console.log('Starting device session update process:', { sessionId, userId });
+    
+    // First, check if the session exists and is still pending
+    try {
+      const { data: existingSession, error: checkError } = await supabase
+        .from('device_sessions')
+        .select('*')
+        .eq('kiosk_session_id', sessionId)
+        .single();
+
+      if (checkError || !existingSession) {
+        console.error('Session not found or error checking session:', checkError);
+        setIsLoading(false);
+        return false;
+      }
+
+      console.log('Found existing session:', existingSession);
+
+      if (existingSession.status === 'authenticated') {
+        console.log('Session already authenticated');
+        setIsLoading(false);
+        return true;
+      }
+
+      // Check if session is expired
+      const now = new Date();
+      const expiresAt = new Date(existingSession.expires_at);
+      if (now > expiresAt) {
+        console.log('Session has expired');
+        setIsLoading(false);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error checking existing session:', error);
+      setIsLoading(false);
+      return false;
+    }
+    
     while (retries > 0) {
       try {
         console.log(`Updating device session (${retries} retries left):`, sessionId, userId);
         
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('device_sessions')
           .update({
             user_id: userId,
             status: 'authenticated'
           })
-          .eq('kiosk_session_id', sessionId);
+          .eq('kiosk_session_id', sessionId)
+          .select();
 
         if (error) {
           console.error('Error updating device session:', error);
@@ -68,7 +107,8 @@ export const useDeviceSession = () => {
           return false;
         }
         
-        console.log('Device session updated successfully for kiosk login');
+        console.log('Device session updated successfully:', data);
+        console.log('Kiosk should now detect the authentication via real-time subscription');
         setIsLoading(false);
         return true;
       } catch (error) {
@@ -81,6 +121,7 @@ export const useDeviceSession = () => {
       }
     }
     
+    console.error('All retries exhausted for device session update');
     toast({
       title: "Connection Error",
       description: "Failed to sync with kiosk after multiple attempts",

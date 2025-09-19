@@ -27,6 +27,8 @@ export default function SignUp() {
     const isVerified = searchParams.get('verified');
     const isOAuth = searchParams.get('oauth');
     
+    console.log('SignUp URL params check:', { sessionParam, isVerified, isOAuth, isAuthenticated, loading });
+    
     if (sessionParam) {
       setSessionId(sessionParam);
       console.log('Device session ID detected:', sessionParam);
@@ -34,49 +36,126 @@ export default function SignUp() {
       // If user comes back verified or via OAuth and is authenticated, 
       // the redirect useEffect will handle the device session update
       if ((isVerified || isOAuth) && isAuthenticated) {
-        console.log('User returned from verification/OAuth with session_id');
+        console.log('User returned from verification/OAuth with session_id - will trigger device session update');
       }
     }
-  }, [searchParams, isAuthenticated]);
+  }, [searchParams, isAuthenticated, loading]);
 
   // Handle authenticated users with device session
   const [deviceSessionUpdated, setDeviceSessionUpdated] = useState(false);
   const [updatingSession, setUpdatingSession] = useState(false);
+  const [sessionValidated, setSessionValidated] = useState(false);
+
+  // Validate session ID before attempting to update
+  const validateSession = async (sessionId: string): Promise<boolean> => {
+    try {
+      console.log('Validating session ID:', sessionId);
+      const { data, error } = await supabase
+        .from('device_sessions')
+        .select('*')
+        .eq('kiosk_session_id', sessionId)
+        .single();
+
+      if (error) {
+        console.error('Session validation error:', error);
+        return false;
+      }
+
+      if (!data) {
+        console.log('Session not found');
+        return false;
+      }
+
+      const now = new Date();
+      const expiresAt = new Date(data.expires_at);
+      
+      if (now > expiresAt) {
+        console.log('Session expired');
+        return false;
+      }
+
+      console.log('Session is valid:', data);
+      return true;
+    } catch (error) {
+      console.error('Session validation failed:', error);
+      return false;
+    }
+  };
 
   useEffect(() => {
-    if (!loading && isAuthenticated && user && sessionId && !deviceSessionUpdated) {
-      console.log('Authenticated user with session ID, updating device session...');
+    console.log('Auth effect triggered:', { 
+      loading, 
+      isAuthenticated, 
+      hasUser: !!user, 
+      sessionId, 
+      deviceSessionUpdated, 
+      updatingSession,
+      sessionValidated 
+    });
+
+    if (!loading && isAuthenticated && user && sessionId && !deviceSessionUpdated && !updatingSession) {
+      console.log('Starting device session update process...');
       setUpdatingSession(true);
       
-      updateDeviceSession(sessionId, user.id).then((success) => {
-        setUpdatingSession(false);
-        setDeviceSessionUpdated(true);
-        
-        if (success) {
-          console.log('Device session updated successfully');
+      // First validate the session
+      validateSession(sessionId).then((isValid) => {
+        if (!isValid) {
+          console.log('Session is invalid or expired');
+          setUpdatingSession(false);
           toast({
-            title: "Success!",
-            description: "Successfully connected to kiosk. You can now close this page.",
-            variant: "default",
-          });
-          // Redirect after a short delay to let the kiosk sync
-          setTimeout(() => {
-            navigate("/store", { replace: true });
-          }, 2000);
-        } else {
-          toast({
-            title: "Connection Failed",
-            description: "Failed to connect to kiosk. Please try again.",
+            title: "Session Expired",
+            description: "The kiosk session has expired. Please scan the QR code again.",
             variant: "destructive",
           });
+          return;
         }
+
+        setSessionValidated(true);
+        console.log('Session validated, updating device session...');
+        
+        // Add a small delay to ensure all states are properly set
+        setTimeout(() => {
+          updateDeviceSession(sessionId, user.id).then((success) => {
+            setUpdatingSession(false);
+            setDeviceSessionUpdated(true);
+            
+            if (success) {
+              console.log('Device session updated successfully - kiosk should now detect login');
+              toast({
+                title: "Success!",
+                description: "Successfully connected to kiosk. You can now close this page.",
+                variant: "default",
+              });
+              // Redirect after a short delay to let the kiosk sync
+              setTimeout(() => {
+                navigate("/store", { replace: true });
+              }, 2000);
+            } else {
+              console.log('Device session update failed');
+              toast({
+                title: "Connection Failed",
+                description: "Failed to connect to kiosk. Please try the QR code again.",
+                variant: "destructive",
+              });
+            }
+          }).catch((error) => {
+            console.error('Device session update error:', error);
+            setUpdatingSession(false);
+            toast({
+              title: "Connection Error",
+              description: "There was an error connecting to the kiosk. Please try again.",
+              variant: "destructive",
+            });
+          });
+        }, 500);
       });
     } else if (!loading && isAuthenticated && user && !sessionId) {
       // Regular authenticated user without session ID
+      console.log('Regular authenticated user, redirecting to store');
       const from = location.state?.from?.pathname || "/store";
       navigate(from, { replace: true });
     }
-  }, [isAuthenticated, loading, navigate, location, sessionId, user, updateDeviceSession, deviceSessionUpdated, toast]);
+  }, [isAuthenticated, loading, navigate, location, sessionId, user, updateDeviceSession, deviceSessionUpdated, updatingSession, toast]);
 
   // Show loading while checking auth state
   if (loading) {
