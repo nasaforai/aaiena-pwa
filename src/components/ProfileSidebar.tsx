@@ -11,11 +11,11 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from '@/components/ui/drawer';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -75,11 +75,11 @@ export function ProfileSidebar() {
   const userInitials = user?.email?.substring(0, 2).toUpperCase() || 'U';
 
   return (
-    <Drawer open={isOpen} onOpenChange={closeSidebar}>
-      <DrawerContent className="h-[85vh] max-w-md mx-auto">
-        <DrawerHeader>
-          <DrawerTitle>Profile</DrawerTitle>
-        </DrawerHeader>
+    <Sheet open={isOpen} onOpenChange={closeSidebar}>
+      <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+        <SheetHeader>
+          <SheetTitle>Profile</SheetTitle>
+        </SheetHeader>
         
         <div className="p-6 space-y-6 overflow-y-auto">
           {/* Profile Header */}
@@ -249,7 +249,7 @@ export function ProfileSidebar() {
             Sign Out
           </Button>
         </div>
-      </DrawerContent>
-    </Drawer>
+      </SheetContent>
+    </Sheet>
   );
 }
