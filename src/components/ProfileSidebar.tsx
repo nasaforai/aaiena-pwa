@@ -34,9 +34,25 @@ export function ProfileSidebar() {
   });
 
   const handleSignOut = async () => {
-    await signOut();
-    closeSidebar();
-    navigate('/store');
+    try {
+      const { error } = await signOut();
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to sign out. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+      closeSidebar();
+      navigate('/welcome');
+    } catch (error) {
+      toast({
+        title: "Error", 
+        description: "Failed to sign out. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handlePasswordChange = async () => {
