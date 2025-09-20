@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { ArrowLeft, Monitor, Smartphone, ArrowRight } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,13 +11,6 @@ export default function SignupOptions() {
   const sessionId = searchParams.get("session_id");
   const isMobile = useIsMobile();
   const [showMobileQR, setShowMobileQR] = useState(false);
-
-  // Auto-open QR dialog on kiosk (non-mobile)
-  useEffect(() => {
-    if (!isMobile && !showMobileQR) {
-      setShowMobileQR(true);
-    }
-  }, [isMobile, showMobileQR]);
 
   const handleBack = () => {
     navigate(-1);

@@ -24,76 +24,37 @@ export default function MobileSignupQRDialog({ open, onClose }: MobileSignupQRDi
   const [sessionId, setSessionId] = useState<string>("");
   const [signupUrl, setSignupUrl] = useState<string>("");
 
-  // Generate unique session ID when dialog opens and persist in URL
+  // Generate unique session ID when dialog opens
   useEffect(() => {
     if (open && !sessionId) {
       const newSessionId = crypto.randomUUID();
       setSessionId(newSessionId);
-      const url = new URL(window.location.href);
-      url.searchParams.set('session_id', newSessionId);
-      window.history.replaceState({}, '', url.toString());
-      const newSignupUrl = `${window.location.origin}/signup-options?session_id=${newSessionId}`;
-      setSignupUrl(newSignupUrl);
+      setSignupUrl(`${window.location.origin}/signup-options?session_id=${newSessionId}`);
+      
       // Create device session in database
-      createDeviceSession(newSessionId).then((ok) => {
-        if (!ok) {
-          console.error('Failed to create device session');
-          toast({
-            title: 'Session Error',
-            description: 'Could not start kiosk pairing session. Please retry.',
-            variant: 'destructive',
-          });
-        } else {
-          console.log('Device session created:', newSessionId);
-        }
-      });
+      createDeviceSession(newSessionId);
     }
-  }, [open, sessionId, createDeviceSession, toast]);
+  }, [open, sessionId, createDeviceSession]);
 
-  // Listen for authentication completion via realtime and add polling fallback
+  // Listen for authentication completion
   useEffect(() => {
     if (!sessionId || user) return;
-    console.log('Subscribing to device session updates for:', sessionId);
+
     const unsubscribe = subscribeToDeviceSession(sessionId, async (userId: string) => {
-      console.log('Realtime detected authenticated user:', userId);
       await handleKioskLogin(userId);
     });
+
     return unsubscribe;
   }, [sessionId, user, subscribeToDeviceSession]);
 
+  // Cleanup session when dialog closes
   useEffect(() => {
-    if (!sessionId || user) return;
-    console.log('Starting polling fallback for session:', sessionId);
-    const interval = setInterval(async () => {
-      try {
-        const { data, error } = await supabase
-          .from('device_sessions')
-          .select('status,user_id')
-          .eq('kiosk_session_id', sessionId)
-          .maybeSingle();
-        if (error) {
-          console.error('Polling error:', error);
-          return;
-        }
-        if (data?.status === 'authenticated' && data.user_id) {
-          console.log('Polling detected authentication for user:', data.user_id);
-          clearInterval(interval);
-          await handleKioskLogin(data.user_id);
-        }
-      } catch (err) {
-        console.error('Polling exception:', err);
+    return () => {
+      if (sessionId && !open) {
+        cleanupDeviceSession(sessionId);
       }
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [sessionId, user]);
-
-  // Do NOT auto-delete the session on dialog close; keep it active so kiosk can still log in
-  useEffect(() => {
-    if (!sessionId) return;
-    if (!open) {
-      console.log('Dialog closed; keeping device session active for background pairing.');
-    }
-  }, [sessionId, open]);
+    };
+  }, [sessionId, open, cleanupDeviceSession]);
 
   const handleKioskLogin = async (userId: string) => {
     try {
@@ -223,33 +184,14 @@ export default function MobileSignupQRDialog({ open, onClose }: MobileSignupQRDi
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="w-full grid grid-cols-2 gap-2">
-            <Button
-              variant="outline"
-              onClick={onClose}
-            >
-              Hide
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={async () => {
-                if (sessionId) {
-                  await cleanupDeviceSession(sessionId);
-                  const url = new URL(window.location.href);
-                  url.searchParams.delete('session_id');
-                  window.history.replaceState({}, '', url.toString());
-                }
-                toast({
-                  title: 'Session Ended',
-                  description: 'Kiosk pairing session has been cancelled.',
-                });
-                onClose();
-              }}
-            >
-              Cancel & End Session
-            </Button>
-          </div>
+          {/* Close Button */}
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="w-full"
+          >
+            Close
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
