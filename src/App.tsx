@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ProfileSidebarProvider } from "@/contexts/ProfileSidebarContext";
+import { ProfileSidebar } from "@/components/ProfileSidebar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
@@ -62,13 +64,14 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Suspense fallback={<LoadingFallback />}>
-              <ScrollToTop />
-              <Routes>
+        <ProfileSidebarProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Suspense fallback={<LoadingFallback />}>
+                <ScrollToTop />
+                <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/welcome" element={<Welcome />} />
                 <Route path="/sign-in" element={<SignIn />} />
@@ -107,10 +110,12 @@ const App = () => {
               </Routes>
             </Suspense>
             <PWAInstallPrompt />
+            <ProfileSidebar />
           </BrowserRouter>
         </TooltipProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+      </ProfileSidebarProvider>
+    </AuthProvider>
+  </QueryClientProvider>
   );
 };
 

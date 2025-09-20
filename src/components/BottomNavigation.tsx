@@ -1,6 +1,7 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Home, ShoppingBag, Camera, Heart, User } from "lucide-react";
+import { useProfileSidebar } from "@/contexts/ProfileSidebarContext";
 
 interface BottomNavigationProps {
   className?: string;
@@ -9,6 +10,7 @@ interface BottomNavigationProps {
 export default function BottomNavigation({ className = "" }: BottomNavigationProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { openSidebar, isOpen } = useProfileSidebar();
 
   const navItems = [
     { 
@@ -39,7 +41,7 @@ export default function BottomNavigation({ className = "" }: BottomNavigationPro
       icon: User, 
       label: "Profile", 
       path: "/profile",
-      onClick: () => navigate('/profile')
+      onClick: () => openSidebar()
     }
   ];
 
@@ -48,7 +50,7 @@ export default function BottomNavigation({ className = "" }: BottomNavigationPro
       <div className="flex justify-around">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.path;
+          const isActive = item.path === "/profile" ? isOpen : location.pathname === item.path;
           
           return (
             <button 
