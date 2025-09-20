@@ -11,17 +11,17 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from '@/components/ui/drawer';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
 export function ProfileSidebar() {
   const { user, signOut } = useAuth();
-  const { profile, loading, error, refetch } = useProfile();
+  const { profile } = useProfile();
   const { isOpen, closeSidebar } = useProfileSidebar();
   const navigate = useNavigate();
 
@@ -34,25 +34,9 @@ export function ProfileSidebar() {
   });
 
   const handleSignOut = async () => {
-    try {
-      const { error } = await signOut();
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to sign out. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-      closeSidebar();
-      navigate('/welcome');
-    } catch (error) {
-      toast({
-        title: "Error", 
-        description: "Failed to sign out. Please try again.",
-        variant: "destructive",
-      });
-    }
+    await signOut();
+    closeSidebar();
+    navigate('/store');
   };
 
   const handlePasswordChange = async () => {
@@ -91,40 +75,13 @@ export function ProfileSidebar() {
   const userInitials = user?.email?.substring(0, 2).toUpperCase() || 'U';
 
   return (
-    <Sheet open={isOpen} onOpenChange={closeSidebar}>
-      <SheetContent side="right">
-        <SheetHeader>
-          <SheetTitle>Profile</SheetTitle>
-        </SheetHeader>
+    <Drawer open={isOpen} onOpenChange={closeSidebar}>
+      <DrawerContent className="h-[85vh] max-w-md mx-auto">
+        <DrawerHeader>
+          <DrawerTitle>Profile</DrawerTitle>
+        </DrawerHeader>
         
         <div className="p-6 space-y-6 overflow-y-auto">
-          {/* Loading State */}
-          {loading && (
-            <div className="flex items-center justify-center py-8">
-              <div className="text-center space-y-2">
-                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-                <p className="text-muted-foreground">Loading profile...</p>
-              </div>
-            </div>
-          )}
-
-          {/* Error State */}
-          {error && !loading && (
-            <Card className="border-destructive/50 bg-destructive/5">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-medium text-destructive">Profile Error</h3>
-                    <p className="text-sm text-muted-foreground">{error}</p>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={refetch}>
-                    Retry
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
           {/* Profile Header */}
           <div className="flex items-center space-x-4">
             <Avatar className="w-16 h-16">
@@ -134,14 +91,7 @@ export function ProfileSidebar() {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl font-semibold">{profile?.full_name || 'User'}</h2>
-                <Button variant="ghost" size="sm" onClick={refetch} className="h-6 w-6 p-0">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                </Button>
-              </div>
+              <h2 className="text-xl font-semibold">{profile?.full_name || 'User'}</h2>
               <p className="text-muted-foreground">{user?.email}</p>
             </div>
           </div>
@@ -299,7 +249,7 @@ export function ProfileSidebar() {
             Sign Out
           </Button>
         </div>
-      </SheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   );
 }

@@ -28,13 +28,9 @@ export function useProfile() {
 
   const fetchProfile = async () => {
     if (!user) {
-      console.log('useProfile: No user found, skipping fetch');
       setLoading(false);
       return;
     }
-
-    console.log('useProfile: Fetching profile for user:', user.id);
-    setLoading(true);
 
     try {
       const { data, error } = await supabase
@@ -45,35 +41,11 @@ export function useProfile() {
 
       if (error) throw error;
       
-      if (data) {
-        console.log('useProfile: Profile found:', data);
-        setProfile(data);
-        setError(null);
-      } else {
-        console.log('useProfile: No profile found, creating new profile');
-        // Auto-create profile if none exists
-        const { data: newProfile, error: createError } = await supabase
-          .from('profiles')
-          .insert({
-            user_id: user.id,
-            full_name: user.email || 'User',
-          })
-          .select()
-          .single();
-
-        if (createError) {
-          console.error('useProfile: Error creating profile:', createError);
-          throw createError;
-        }
-        
-        console.log('useProfile: Profile created:', newProfile);
-        setProfile(newProfile);
-        setError(null);
-      }
+      setProfile(data);
+      setError(null);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch profile';
-      console.error('useProfile: Error:', err);
-      setError(errorMessage);
+      setError(err instanceof Error ? err.message : 'Failed to fetch profile');
+      console.error('Error fetching profile:', err);
     } finally {
       setLoading(false);
     }
@@ -127,16 +99,13 @@ export function useProfile() {
   };
 
   useEffect(() => {
-    console.log('useProfile: useEffect triggered, user:', user?.id, 'isAuthenticated:', isAuthenticated);
-    if (user && isAuthenticated) {
+    if (isAuthenticated) {
       fetchProfile();
     } else {
-      console.log('useProfile: Clearing profile state');
       setProfile(null);
       setLoading(false);
-      setError(null);
     }
-  }, [user?.id, isAuthenticated]);
+  }, [user, isAuthenticated]);
 
   return {
     profile,
