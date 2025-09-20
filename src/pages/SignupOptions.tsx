@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import { ArrowLeft, Monitor, Smartphone, ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 import MobileSignupQRDialog from "@/components/MobileSignupQRDialog";
 
 export default function SignupOptions() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get("session_id");
+  const isMobile = useIsMobile();
   const [showMobileQR, setShowMobileQR] = useState(false);
 
   const handleBack = () => {
@@ -18,8 +22,13 @@ export default function SignupOptions() {
   };
 
   const handleMobileSignup = () => {
-    // Show QR code popup for mobile signup
-    setShowMobileQR(true);
+    // If on mobile and has session_id, navigate to signup directly
+    if (isMobile && sessionId) {
+      navigate(`/sign-up?session_id=${sessionId}`);
+    } else {
+      // Show QR code popup for kiosk signup
+      setShowMobileQR(true);
+    }
   };
 
   return (
@@ -54,26 +63,28 @@ export default function SignupOptions() {
 
         {/* Signup Options */}
         <div className="space-y-6">
-          {/* Kiosk Signup Section */}
-          <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
-                <Monitor className="w-6 h-6 text-purple-600" />
+          {/* Kiosk Signup Section - Hide on mobile */}
+          {!isMobile && (
+            <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                  <Monitor className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Signup using Kiosk
+                  </h3>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Signup using Kiosk
-                </h3>
-              </div>
+              <Button
+                onClick={handleKioskSignup}
+                className="w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 flex items-center justify-center gap-2"
+              >
+                Connect to Kiosk
+                <ArrowRight className="w-4 h-4" />
+              </Button>
             </div>
-            <Button
-              onClick={handleKioskSignup}
-              className="w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 flex items-center justify-center gap-2"
-            >
-              Connect to Kiosk
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          </div>
+          )}
 
           {/* Mobile Phone Signup Section */}
           <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
@@ -91,7 +102,7 @@ export default function SignupOptions() {
               onClick={handleMobileSignup}
               className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 flex items-center justify-center gap-2"
             >
-              Sign Up with Mobile
+              {isMobile ? "Sign Up" : "Sign Up with Mobile"}
               <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
@@ -99,7 +110,7 @@ export default function SignupOptions() {
           <div className="text-center mt-8">
             <p className="text-gray-600 mb-4">Already have an account?</p>
             <button
-              onClick={() => navigate("/sign-in")}
+              onClick={() => navigate(sessionId ? `/sign-in?session_id=${sessionId}` : "/sign-in")}
               className="text-blue-600 font-medium hover:text-blue-700 transition-colors"
             >
               Sign In Here

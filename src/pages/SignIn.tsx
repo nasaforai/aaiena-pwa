@@ -7,10 +7,11 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useDeviceSession } from "@/hooks/useDeviceSession";
 
 export default function SignIn() {
   const navigate = useNavigate();
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
   const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,16 +19,45 @@ export default function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
   const [queryParams] = useSearchParams();
   const backRoute = queryParams.get("back");
+  const sessionId = queryParams.get("session_id");
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const { updateDeviceSession } = useDeviceSession();
 
-  // Redirect authenticated users
+  // Handle authenticated users with session_id
   useEffect(() => {
-    if (!loading && isAuthenticated) {
+    if (!loading && isAuthenticated && user && sessionId) {
+      console.log('User already authenticated, updating device session:', sessionId, user.id);
+      
+      const handleDeviceUpdate = async () => {
+        try {
+          const success = await updateDeviceSession(sessionId, user.id);
+          if (success) {
+            toast({
+              title: "Device Connected",
+              description: "Successfully connected to kiosk!",
+            });
+            // Brief delay to show toast, then redirect
+            setTimeout(() => {
+              navigate("/store", { replace: true });
+            }, 1500);
+          } else {
+            console.log('Device session update failed, proceeding normally');
+            navigate("/store", { replace: true });
+          }
+        } catch (error) {
+          console.error('Error updating device session:', error);
+          navigate("/store", { replace: true });
+        }
+      };
+      
+      handleDeviceUpdate();
+    } else if (!loading && isAuthenticated && !sessionId) {
+      // Normal authenticated user redirect
       const from = location.state?.from?.pathname || "/store";
       navigate(from, { replace: true });
     }
-  }, [isAuthenticated, loading, navigate, location]);
+  }, [isAuthenticated, loading, navigate, location, sessionId, user, updateDeviceSession, toast]);
 
   // Show loading while checking auth state
   if (loading) {
@@ -71,6 +101,29 @@ export default function SignIn() {
         return;
       }
 
+      // Handle device session update if session_id exists
+      if (sessionId) {
+        console.log('Updating device session after login:', sessionId, data.user.id);
+        try {
+          const success = await updateDeviceSession(sessionId, data.user.id);
+          if (success) {
+            toast({
+              title: "Success!",
+              description: "Successfully signed in and connected to kiosk!",
+            });
+            // Brief delay to show toast, then redirect
+            setTimeout(() => {
+              navigate("/store");
+            }, 1500);
+            return;
+          } else {
+            console.log('Device session update failed, proceeding with normal flow');
+          }
+        } catch (error) {
+          console.error('Error updating device session:', error);
+        }
+      }
+
       toast({
         title: "Success!",
         description: "You have been signed in successfully.",
@@ -102,10 +155,14 @@ export default function SignIn() {
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
+      const redirectTo = sessionId 
+        ? `${window.location.origin}/sign-in?session_id=${sessionId}&oauth=google`
+        : `${window.location.origin}/store`;
+        
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/store`
+          redirectTo
         }
       });
 
@@ -128,7 +185,7 @@ export default function SignIn() {
   };
 
   const handleSignUp = () => {
-    navigate("/signup-options");
+    navigate(sessionId ? `/signup-options?session_id=${sessionId}` : "/signup-options");
   };
 
   const handleQRLogin = () => {
