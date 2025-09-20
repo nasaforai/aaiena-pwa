@@ -17,8 +17,10 @@ export default function SignupOptions() {
   };
 
   const handleKioskSignup = () => {
-    // Navigate to kiosk-specific signup flow
-    navigate("/device-connect-flow");
+    // Set flag for kiosk signup
+    localStorage.setItem('fromKiosk', 'true');
+    // Navigate directly to signup page
+    navigate(sessionId ? `/sign-up?session_id=${sessionId}` : "/sign-up");
   };
 
   const handleMobileSignup = () => {
