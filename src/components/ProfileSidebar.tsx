@@ -12,17 +12,11 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from '@/components/ui/drawer';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -87,8 +81,7 @@ export function ProfileSidebar() {
     switch (deviceType) {
       case 'kiosk':
         return {
-          containerClass: 'max-w-2xl w-full mx-auto',
-          heightClass: 'h-[90vh]',
+          width: 'w-96', // ~384px for kiosk accessibility
           textSize: 'text-xl',
           avatarSize: 'w-20 h-20',
           buttonSize: 'default' as const,
@@ -96,8 +89,7 @@ export function ProfileSidebar() {
         };
       case 'desktop':
         return {
-          containerClass: 'max-w-lg w-full mx-auto',
-          heightClass: 'h-[88vh]',
+          width: 'w-72', // ~288px for desktop
           textSize: 'text-lg',
           avatarSize: 'w-16 h-16',
           buttonSize: 'default' as const,
@@ -105,8 +97,7 @@ export function ProfileSidebar() {
         };
       default: // mobile
         return {
-          containerClass: 'max-w-md mx-auto',
-          heightClass: 'h-[85vh]',
+          width: 'w-80', // ~320px for mobile
           textSize: 'text-base',
           avatarSize: 'w-16 h-16',
           buttonSize: 'default' as const,
@@ -290,31 +281,15 @@ export function ProfileSidebar() {
     </div>
   );
 
-  // Conditional rendering based on device type
-  if (deviceType === 'mobile') {
-    return (
-      <Drawer open={isOpen} onOpenChange={closeSidebar}>
-        <DrawerContent className={`${config.heightClass} ${config.containerClass}`}>
-          <DrawerHeader>
-            <DrawerTitle>Profile</DrawerTitle>
-          </DrawerHeader>
-          <ProfileContent />
-        </DrawerContent>
-      </Drawer>
-    );
-  }
-
-  // Kiosk and Desktop use Dialog
+  // Single Sheet component for all device types with left sliding
   return (
-    <Dialog open={isOpen} onOpenChange={closeSidebar}>
-      <DialogContent className={`${config.containerClass} ${config.heightClass} flex flex-col`}>
-        <DialogHeader>
-          <DialogTitle className={config.textSize}>Profile</DialogTitle>
-        </DialogHeader>
-        <div className="flex-1 overflow-hidden">
-          <ProfileContent />
-        </div>
-      </DialogContent>
-    </Dialog>
+    <Sheet open={isOpen} onOpenChange={closeSidebar}>
+      <SheetContent side="left" className={`${config.width} p-0 overflow-y-auto`}>
+        <SheetHeader className="px-6 pt-6 pb-4">
+          <SheetTitle className={config.textSize}>Profile</SheetTitle>
+        </SheetHeader>
+        <ProfileContent />
+      </SheetContent>
+    </Sheet>
   );
 }
