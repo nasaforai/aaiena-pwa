@@ -108,7 +108,7 @@ export function ProfileSidebar() {
 
   const config = getDeviceConfig();
 
-  // Profile content component (shared between Dialog and Drawer)
+  // Profile content component for the Sheet sidebar
   const ProfileContent = () => (
     <div className={`${config.spacing} overflow-y-auto`}>
       {/* Profile Header */}
