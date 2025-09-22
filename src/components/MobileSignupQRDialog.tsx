@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDeviceSession } from "@/hooks/useDeviceSession";
 import { supabase } from "@/integrations/supabase/client";
+import { SignupQRCode } from "@/components/QRCodeGenerator";
 
 interface MobileSignupQRDialogProps {
   open: boolean;
@@ -121,11 +122,6 @@ export default function MobileSignupQRDialog({ open, onClose }: MobileSignupQRDi
     }
   };
 
-  // Generate QR code URL with session ID
-  const generateQRCodeUrl = (url: string) => {
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
-    return qrApiUrl;
-  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -140,9 +136,9 @@ export default function MobileSignupQRDialog({ open, onClose }: MobileSignupQRDi
           {/* QR Code */}
           <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
             {signupUrl ? (
-              <img 
-                src={generateQRCodeUrl(signupUrl)}
-                alt="QR Code for Mobile Signup" 
+              <SignupQRCode
+                signupUrl={signupUrl}
+                size={192}
                 className="w-48 h-48"
               />
             ) : (

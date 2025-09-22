@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { SessionCleanup } from '@/utils/sessionCleanup';
 
 interface DeviceSession {
   id: string;
@@ -133,14 +134,7 @@ export const useDeviceSession = () => {
 
   const cleanupDeviceSession = useCallback(async (sessionId: string): Promise<void> => {
     try {
-      const { error } = await supabase
-        .from('device_sessions')
-        .delete()
-        .eq('kiosk_session_id', sessionId);
-
-      if (error) {
-        console.error('Error cleaning up device session:', error);
-      }
+      await SessionCleanup.cleanupSession(sessionId);
     } catch (error) {
       console.error('Error cleaning up device session:', error);
     }
@@ -184,10 +178,10 @@ export const useDeviceSession = () => {
         }
       });
 
-    // Set up session timeout
+    // Set up session timeout with enhanced cleanup
     const timeoutId = setTimeout(() => {
       console.log('Device session timeout, cleaning up...');
-      cleanupDeviceSession(sessionId);
+      SessionCleanup.cleanupSession(sessionId);
       supabase.removeChannel(channel);
     }, 10 * 60 * 1000); // 10 minutes timeout
 
