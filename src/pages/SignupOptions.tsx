@@ -17,8 +17,13 @@ export default function SignupOptions() {
   };
 
   const handleKioskSignup = () => {
-    // Navigate to kiosk-specific signup flow
-    navigate("/device-connect-flow");
+    // Set kiosk context
+    localStorage.setItem("fromKiosk", "true");
+    localStorage.setItem("deviceType", "kiosk");
+    
+    // Navigate directly to sign-in with session if available
+    const signInUrl = sessionId ? `/sign-in?session_id=${sessionId}` : "/sign-in";
+    navigate(signInUrl);
   };
 
   const handleMobileSignup = () => {
