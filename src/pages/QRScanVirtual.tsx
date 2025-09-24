@@ -11,8 +11,8 @@ export default function QRScanVirtual() {
   };
 
   const handleContinue = () => {
-    // Mobile flow - go to signup options
-    navigate('/signup-options');
+    // Mobile flow - go to sign up directly
+    navigate('/sign-up');
   };
 
   const handleBackToPhysical = () => {
