@@ -412,7 +412,13 @@ export default function SignUp() {
   };
 
   const handleLogin = () => {
-    navigate("/signup-options");
+    // For mobile users with session_id, go directly to sign-in
+    if (deviceType === 'mobile' && sessionId) {
+      navigate(`/sign-in?session_id=${sessionId}`);
+    } else {
+      // For kiosk users or mobile users without session_id, go to signup-options
+      navigate("/signup-options");
+    }
   };
 
   return (
