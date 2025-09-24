@@ -86,7 +86,8 @@ export default function TryVirtually() {
     if (isLoggedIn) {
       handleAddToCart();
     } else {
-      navigate("/signup-options");
+      // Device-aware navigation - mobile users go to sign-up, kiosk users go to signup-options
+      navigate(isMobile ? "/sign-up" : "/signup-options");
     }
   };
 

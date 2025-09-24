@@ -15,7 +15,14 @@ export default function QRCode() {
   };
 
   const handleContinue = () => {
-    navigate(toRoute ? `/${toRoute}` : "/signup-options");
+    // Device-aware navigation - mobile users go to sign-up, kiosk users go to signup-options
+    if (toRoute) {
+      navigate(`/${toRoute}`);
+    } else {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(userAgent);
+      navigate(isMobile ? "/sign-up" : "/signup-options");
+    }
   };
 
   const handleBackToPhysical = () => {

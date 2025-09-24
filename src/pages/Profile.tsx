@@ -141,7 +141,10 @@ export default function Profile() {
   };
 
   if (!user && !loading) {
-    navigate('/signup-options');
+    // Device-aware navigation - mobile users go to sign-in, kiosk users go to signup-options
+    const { deviceType } = useAuth();
+    const redirectPath = deviceType === 'mobile' ? '/signin' : '/signup-options';
+    navigate(redirectPath);
     return null;
   }
 

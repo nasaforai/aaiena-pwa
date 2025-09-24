@@ -210,7 +210,12 @@ export default function SignUp() {
 
 
   const handleBack = () => {
-    navigate("/signup-options");
+    // Device-aware back navigation
+    if (deviceType === 'mobile') {
+      navigate('/welcome');
+    } else {
+      navigate("/signup-options");
+    }
   };
 
   const validateForm = () => {
@@ -415,8 +420,11 @@ export default function SignUp() {
     // For mobile users with session_id, go directly to sign-in
     if (deviceType === 'mobile' && sessionId) {
       navigate(`/sign-in?session_id=${sessionId}`);
+    } else if (deviceType === 'mobile') {
+      // Mobile users without session go to sign-in
+      navigate('/sign-in');
     } else {
-      // For kiosk users or mobile users without session_id, go to signup-options
+      // For kiosk users, go to signup-options
       navigate("/signup-options");
     }
   };

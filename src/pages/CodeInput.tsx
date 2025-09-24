@@ -20,7 +20,10 @@ export default function CodeInput() {
       if (isProductScan) {
         navigate("/product-details");
       } else {
-        navigate("/signup-options");
+        // Device-aware navigation - mobile users go to sign-up, kiosk users go to signup-options
+        const userAgent = navigator.userAgent.toLowerCase();
+        const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(userAgent);
+        navigate(isMobile ? "/sign-up" : "/signup-options");
       }
     }
   };

@@ -23,8 +23,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!isAuthenticated) {
-    // Redirect to signup-options with return path
-    return <Navigate to="/signup-options" state={{ from: location }} replace />;
+    // Device-aware redirect - mobile users go to sign-in, kiosk users go to signup-options
+    const { deviceType } = useAuth();
+    const redirectPath = deviceType === 'mobile' ? '/signin' : '/signup-options';
+    return <Navigate to={redirectPath} state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
