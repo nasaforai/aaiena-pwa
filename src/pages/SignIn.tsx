@@ -249,7 +249,14 @@ export default function SignIn() {
   };
 
   const handleSignUp = () => {
-    navigate(sessionId ? `/signup-options?session_id=${sessionId}` : "/signup-options");
+    // For mobile users, go directly to sign-up
+    if (deviceType === 'mobile') {
+      const signUpPath = sessionId ? `/sign-up?session_id=${sessionId}` : '/sign-up';
+      navigate(signUpPath);
+    } else {
+      // For kiosk users, go to signup-options
+      navigate(sessionId ? `/signup-options?session_id=${sessionId}` : "/signup-options");
+    }
   };
 
 
