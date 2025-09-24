@@ -252,9 +252,6 @@ export default function SignIn() {
     navigate(sessionId ? `/signup-options?session_id=${sessionId}` : "/signup-options");
   };
 
-  const handleQRLogin = () => {
-    navigate("/measurement-profile");
-  };
 
   return (
     <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
@@ -376,13 +373,6 @@ export default function SignIn() {
           {isLoading ? "Signing In..." : "Log In"}
         </Button>
 
-        {/* QR Login */}
-        <button
-          onClick={handleQRLogin}
-          className="w-full text-gray-700 py-2 mb-8"
-        >
-          Login Via QR Code
-        </button>
 
         {/* Sign Up */}
         <p className="text-center text-gray-600">
