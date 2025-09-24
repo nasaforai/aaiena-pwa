@@ -7,10 +7,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDeviceSession } from "@/hooks/useDeviceSession";
+import { parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
 
 export default function SignUp() {
   const navigate = useNavigate();
-  const { isAuthenticated, loading, user } = useAuth();
+  const { isAuthenticated, loading, user, deviceType } = useAuth();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -18,6 +19,7 @@ export default function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
 
@@ -347,6 +349,68 @@ export default function SignUp() {
     }
   };
 
+  const handlePhoneSignUp = async () => {
+    if (!phone.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your phone number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate phone number
+    try {
+      if (!isValidPhoneNumber(phone)) {
+        toast({
+          title: "Invalid Phone Number",
+          description: "Please enter a valid phone number with country code",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const phoneNumber = parsePhoneNumber(phone);
+      const formattedPhone = phoneNumber.format('E.164');
+      
+      setIsLoading(true);
+      
+      const { error } = await supabase.auth.signInWithOtp({
+        phone: formattedPhone,
+      });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "OTP Sent",
+        description: "A verification code has been sent to your phone number.",
+      });
+
+      // Navigate to OTP verification
+      const otpUrl = sessionId 
+        ? `/otp-verification?phone=${encodeURIComponent(formattedPhone)}&session_id=${sessionId}`
+        : `/otp-verification?phone=${encodeURIComponent(formattedPhone)}`;
+      
+      navigate(otpUrl);
+    } catch (error) {
+      console.error("Phone signup error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send verification code. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleLogin = () => {
     navigate("/signup-options");
   };
@@ -372,95 +436,143 @@ export default function SignUp() {
 
         <div className="text-center mb-8">
           <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-            Get Full Access
+            {deviceType === 'kiosk' ? 'Quick Kiosk Access' : 'Get Full Access'}
           </h1>
-        </div>
-
-        {/* Form */}
-        <div className="space-y-4 mb-8">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Name
-            </label>
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full"
-              placeholder="Enter your name"
-              disabled={isLoading}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email
-            </label>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full"
-              placeholder="Enter your email"
-              disabled={isLoading}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full"
-              placeholder="Enter your password"
-              disabled={isLoading}
-            />
-          </div>
-        </div>
-
-        {/* Sign Up Button */}
-        <Button
-          onClick={handleSignUp}
-          disabled={isLoading}
-          className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800 mb-6 disabled:opacity-50"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Creating Account...
-            </>
-          ) : (
-            "Sign Up"
+          {deviceType === 'kiosk' && (
+            <p className="text-gray-600">Sign up with your phone number</p>
           )}
-        </Button>
-
-        {/* Divider */}
-        <div className="flex items-center mb-6">
-          <div className="flex-1 border-t border-gray-300"></div>
-          <span className="px-4 text-gray-500 text-sm">Or</span>
-          <div className="flex-1 border-t border-gray-300"></div>
         </div>
 
-        {/* Social Login */}
-        <div className="space-y-3 mb-8">
-          <button 
-            onClick={handleGoogleSignUp}
-            disabled={isLoading}
-            className="w-full border border-gray-300 rounded-xl py-3 px-4 flex items-center justify-center space-x-3 hover:bg-gray-50 transition-colors disabled:opacity-50"
-          >
-            <img
-              src="/icons/google.svg"
-              alt="google icon"
-              width={20}
-              height={20}
-            />
-            <span className="text-gray-700">Continue with Google</span>
-          </button>
-          <button className="w-full border border-gray-300 rounded-xl py-3 px-4 flex items-center justify-center space-x-3 hover:bg-gray-50 transition-colors">
-            <Phone className="text-gray-800 w-5" />
-            <span className="text-gray-700">Continue with Phone Number</span>
-          </button>
-        </div>
+        {/* Render different forms based on device type */}
+        {deviceType === 'kiosk' ? (
+          // Kiosk-only phone signup
+          <div className="space-y-6">
+            <div>
+              <label className="block text-lg font-medium text-gray-700 mb-3">
+                Phone Number
+              </label>
+              <Input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full h-14 text-lg"
+                placeholder="+1 (555) 123-4567"
+                disabled={isLoading}
+              />
+              <p className="text-sm text-gray-500 mt-2">
+                Include country code (e.g., +1 for US)
+              </p>
+            </div>
+
+            <Button
+              onClick={handlePhoneSignUp}
+              disabled={isLoading}
+              className="w-full bg-gray-900 text-white py-4 text-lg rounded-xl font-medium hover:bg-gray-800 disabled:opacity-50"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Sending Code...
+                </>
+              ) : (
+                "Continue with Phone"
+              )}
+            </Button>
+          </div>
+        ) : (
+          // Mobile/Desktop - All signup options
+          <>
+            {/* Form */}
+            <div className="space-y-4 mb-8">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Name
+                </label>
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full"
+                  placeholder="Enter your name"
+                  disabled={isLoading}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email
+                </label>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full"
+                  placeholder="Enter your email"
+                  disabled={isLoading}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Password
+                </label>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full"
+                  placeholder="Enter your password"
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+
+            {/* Sign Up Button */}
+            <Button
+              onClick={handleSignUp}
+              disabled={isLoading}
+              className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800 mb-6 disabled:opacity-50"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Creating Account...
+                </>
+              ) : (
+                "Sign Up"
+              )}
+            </Button>
+
+            {/* Divider */}
+            <div className="flex items-center mb-6">
+              <div className="flex-1 border-t border-gray-300"></div>
+              <span className="px-4 text-gray-500 text-sm">Or</span>
+              <div className="flex-1 border-t border-gray-300"></div>
+            </div>
+
+            {/* Social Login */}
+            <div className="space-y-3 mb-8">
+              <button 
+                onClick={handleGoogleSignUp}
+                disabled={isLoading}
+                className="w-full border border-gray-300 rounded-xl py-3 px-4 flex items-center justify-center space-x-3 hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                <img
+                  src="/icons/google.svg"
+                  alt="google icon"
+                  width={20}
+                  height={20}
+                />
+                <span className="text-gray-700">Continue with Google</span>
+              </button>
+              <button 
+                onClick={handlePhoneSignUp}
+                disabled={isLoading}
+                className="w-full border border-gray-300 rounded-xl py-3 px-4 flex items-center justify-center space-x-3 hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                <Phone className="text-gray-800 w-5" />
+                <span className="text-gray-700">Continue with Phone Number</span>
+              </button>
+            </div>
+          </>
+        )}
 
         {/* Terms */}
         <p className="text-xs text-gray-500 text-center mb-8">
