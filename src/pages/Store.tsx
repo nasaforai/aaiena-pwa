@@ -31,12 +31,14 @@ import { useProducts, useProductsByCategory } from "@/hooks/useProducts";
 import { useCategories } from "@/hooks/useCategories";
 import { useBanners } from "@/hooks/useBanners";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
 import BottomNavigation from "@/components/BottomNavigation";
 
 export default function Store() {
   const navigate = useNavigate();
   const { navigateBack } = useNavigation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const { profile, loading: profileLoading } = useProfile();
   const [notifyToggle, setNotifyToggle] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const isMobile = useIsMobile();
@@ -60,6 +62,14 @@ export default function Store() {
       product.brand?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [allProducts, searchTerm]);
+
+  // Get display name with fallbacks
+  const getDisplayName = () => {
+    if (profileLoading) return "User";
+    if (profile?.full_name) return profile.full_name;
+    if (user?.email) return user.email.split('@')[0];
+    return "User";
+  };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -95,7 +105,7 @@ export default function Store() {
       {isAuthenticated && (
         <h1 className="p-4 text-2xl font-medium">
           Hello, <br />
-          Welcome Back John!
+          Welcome Back {getDisplayName()}!
         </h1>
       )}
 
