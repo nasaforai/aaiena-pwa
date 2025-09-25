@@ -1,10 +1,8 @@
-import { ArrowLeft, ShoppingCart, User } from "lucide-react";
+import { ArrowLeft, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useProfileSidebar } from "@/contexts/ProfileSidebarContext";
 
 const Topbar = ({ handleBack, showBack = true }) => {
   const navigate = useNavigate();
-  const { openSidebar } = useProfileSidebar();
   return (
     <>
       {/* Header */}
@@ -19,12 +17,6 @@ const Topbar = ({ handleBack, showBack = true }) => {
         )}
         <img src="/images/hm.png" alt="h&m logo" width={40} height={40} />
         <div className="flex items-center space-x-4">
-          <button
-            onClick={() => openSidebar()}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <User className="w-6 h-6 text-gray-700" />
-          </button>
           <div
             className="relative"
             onClick={() => {
