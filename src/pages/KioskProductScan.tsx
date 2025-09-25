@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, Scan, CheckCircle, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 
 export default function KioskProductScan() {
   const navigate = useNavigate();
+  const { navigateBack } = useNavigation();
   const [scannerStatus, setScannerStatus] = useState<
     "ready" | "scanning" | "success" | "error"
   >("ready");
@@ -12,7 +14,7 @@ export default function KioskProductScan() {
   const [countdown, setCountdown] = useState<number | null>(null);
 
   const handleBack = () => {
-    navigate("/fashion-lane");
+    navigateBack("/fashion-lane");
   };
 
   const initializeScanner = () => {

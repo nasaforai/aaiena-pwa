@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +11,7 @@ import { useDeviceSession } from "@/hooks/useDeviceSession";
 
 export default function OTPVerification() {
   const navigate = useNavigate();
+  const { navigateBack } = useNavigation();
   const { isAuthenticated, loading, user } = useAuth();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -87,11 +89,11 @@ export default function OTPVerification() {
 
   const handleBack = () => {
     if (fromSignIn) {
-      const url = sessionId ? `/sign-in?session_id=${sessionId}` : "/sign-in";
-      navigate(url);
+      const fallback = sessionId ? `/sign-in?session_id=${sessionId}` : "/sign-in";
+      navigateBack(fallback);
     } else {
-      const url = sessionId ? `/sign-up?session_id=${sessionId}` : "/sign-up";
-      navigate(url);
+      const fallback = sessionId ? `/sign-up?session_id=${sessionId}` : "/sign-up";
+      navigateBack(fallback);
     }
   };
 

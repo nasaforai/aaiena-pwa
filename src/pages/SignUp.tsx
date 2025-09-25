@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, Phone, Loader2 } from "lucide-react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +12,7 @@ import { parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const { navigateBack } = useNavigation();
   const { isAuthenticated, loading, user, deviceType } = useAuth();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -210,12 +212,9 @@ export default function SignUp() {
 
 
   const handleBack = () => {
-    // Device-aware back navigation
-    if (deviceType === 'mobile') {
-      navigate('/welcome');
-    } else {
-      navigate("/signup-options");
-    }
+    // Device-aware back navigation with intelligent fallback
+    const fallback = deviceType === 'mobile' ? '/welcome' : "/signup-options";
+    navigateBack(fallback);
   };
 
   const validateForm = () => {

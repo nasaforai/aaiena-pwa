@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, Phone, Eye, EyeOff } from "lucide-react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
+import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -12,6 +13,7 @@ import { parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
 
 export default function SignIn() {
   const navigate = useNavigate();
+  const { navigateBack } = useNavigation();
   const { isAuthenticated, loading, user, deviceType } = useAuth();
   const location = useLocation();
   const [email, setEmail] = useState("");
@@ -74,7 +76,7 @@ export default function SignIn() {
   }
 
   const handleBack = () => {
-    navigate(backRoute ? `/${backRoute}` : "/qr-code");
+    navigateBack(backRoute ? `/${backRoute}` : "/qr-code");
   };
 
   const handleLogin = async () => {

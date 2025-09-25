@@ -13,6 +13,7 @@ import {
   UserPen,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import Topbar from "@/components/ui/topbar";
 import {
@@ -28,6 +29,7 @@ import { useProducts } from "@/hooks/useProducts";
 
 export default function TryVirtually() {
   const navigate = useNavigate();
+  const { navigateBack } = useNavigation();
   const [selectedSize, setSelectedSize] = useState("M");
   const [selectedColor, setSelectedColor] = useState("white");
   const [quantity, setQuantity] = useState(1);
@@ -44,7 +46,7 @@ export default function TryVirtually() {
   ];
 
   const handleBack = () => {
-    navigate("/store");
+    navigateBack("/store");
   };
 
   const handleProductClick = (productId: string) => {

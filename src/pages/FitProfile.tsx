@@ -11,14 +11,16 @@ import {
   UserPen,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 
 export default function FitProfile() {
   const profileImage = "/images/profile.png";
   const navigate = useNavigate();
+  const { navigateBack } = useNavigation();
 
   const handleBack = () => {
-    navigate("/update-profile");
+    navigateBack("/update-profile");
   };
 
   const handleContinue = () => {

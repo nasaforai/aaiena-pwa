@@ -15,6 +15,7 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,6 +23,7 @@ import BottomNavigation from "@/components/BottomNavigation";
 
 export default function Cart() {
   const navigate = useNavigate();
+  const { navigateBack } = useNavigation();
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [queryParams] = useSearchParams();
   const backRoute = queryParams.get("back");
@@ -71,7 +73,7 @@ export default function Cart() {
   };
 
   const handleBack = () => {
-    navigate(backRoute ? `/${backRoute}` : "/store");
+    navigateBack(backRoute ? `/${backRoute}` : "/store");
   };
 
   return (

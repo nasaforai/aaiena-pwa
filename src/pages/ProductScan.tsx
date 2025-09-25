@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { ArrowLeft, QrCode, Scan, Camera, AlertCircle, X, Home, Heart, User, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import { Html5Qrcode } from "html5-qrcode";
 import BottomNavigation from "@/components/BottomNavigation";
 
 export default function ProductScan() {
   const navigate = useNavigate();
+  const { navigateBack } = useNavigation();
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -18,7 +20,7 @@ export default function ProductScan() {
     if (isScanning) {
       stopScanner();
     }
-    navigate("/fashion-lane");
+    navigateBack("/fashion-lane");
   };
 
   const stopScanner = useCallback(() => {

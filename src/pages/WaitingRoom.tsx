@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ArrowLeft, QrCode, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useNavigation } from "@/hooks/useNavigation";
 import { RoomJoinDialog } from "@/components/RoomJoinDialog";
 import Topbar from "@/components/ui/topbar";
 import {
@@ -16,6 +17,7 @@ import BottomNavigation from "@/components/BottomNavigation";
 
 export default function WaitingRoom() {
   const navigate = useNavigate();
+  const { navigateBack } = useNavigation();
   const [notifyToggle, setNotifyToggle] = useState(true);
   const [showJoinDialog, setShowJoinDialog] = useState(false);
   const [showVirtualDialog, setShowVirtualDialog] = useState(false);
@@ -24,7 +26,7 @@ export default function WaitingRoom() {
   const { data: allProducts = [] } = useProducts();
 
   const handleBack = () => {
-    navigate("/product-details");
+    navigateBack("/product-details");
   };
 
   const handleJoinRoom = () => {

@@ -1,13 +1,15 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useNavigation } from "@/hooks/useNavigation";
 import QRScanScreen from '@/components/QRScanScreen';
 
 export default function QRScanVirtual() {
   const navigate = useNavigate();
+  const { navigateBack } = useNavigation();
 
   const handleBack = () => {
-    navigate('/fashion-lane');
+    navigateBack('/fashion-lane');
   };
 
   const handleContinue = () => {

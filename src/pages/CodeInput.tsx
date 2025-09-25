@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export default function CodeInput() {
   const navigate = useNavigate();
+  const { navigateBack } = useNavigation();
   const location = useLocation();
   const [code, setCode] = useState("");
 
   const isProductScan = location.state?.isProductScan;
 
   const handleBack = () => {
-    navigate("/fashion-lane");
+    navigateBack("/fashion-lane");
   };
 
   const handleContinue = () => {

@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { createSearchParams, useNavigate } from "react-router-dom";
+import { useNavigation } from "@/hooks/useNavigation";
 import {
   Carousel,
   CarouselContent,
@@ -34,6 +35,7 @@ import BottomNavigation from "@/components/BottomNavigation";
 
 export default function Store() {
   const navigate = useNavigate();
+  const { navigateBack } = useNavigation();
   const { isAuthenticated } = useAuth();
   const [notifyToggle, setNotifyToggle] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -68,7 +70,7 @@ export default function Store() {
   };
 
   const handleBack = () => {
-    navigate("/fashion-lane");
+    navigateBack("/fashion-lane");
   };
 
   const handleProductClick = (productId: string) => {

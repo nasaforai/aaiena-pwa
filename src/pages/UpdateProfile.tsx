@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { ArrowLeft, Camera, Edit, Pen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 
 export default function UpdateProfile() {
   const navigate = useNavigate();
+  const { navigateBack } = useNavigation();
   const [selectedGender, setSelectedGender] = useState("Male");
   const [selectedShirtSize, setSelectedShirtSize] = useState("XL");
   const [height, setHeight] = useState("177");
@@ -22,7 +24,7 @@ export default function UpdateProfile() {
   ]);
 
   const handleBack = () => {
-    navigate("/image-guide");
+    navigateBack("/image-guide");
   };
 
   const handleSave = () => {

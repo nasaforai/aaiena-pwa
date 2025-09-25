@@ -1,19 +1,21 @@
 import React, { useState } from "react";
 import { ArrowLeft, Monitor, Smartphone, ArrowRight } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileSignupQRDialog from "@/components/MobileSignupQRDialog";
 
 export default function SignupOptions() {
   const navigate = useNavigate();
+  const { navigateBack } = useNavigation();
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const isMobile = useIsMobile();
   const [showMobileQR, setShowMobileQR] = useState(false);
 
   const handleBack = () => {
-    navigate(-1);
+    navigateBack();
   };
 
   const handleKioskSignup = () => {

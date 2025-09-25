@@ -1,12 +1,14 @@
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 
 export default function PhotoSource() {
   const navigate = useNavigate();
+  const { navigateBack } = useNavigation();
 
   const handleBack = () => {
-    navigate("/measurement-profile");
+    navigateBack("/measurement-profile");
   };
 
   const handleTakePhoto = () => {

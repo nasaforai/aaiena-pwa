@@ -13,6 +13,7 @@ import {
   UserPen,
 } from "lucide-react";
 import { createSearchParams, useNavigate } from "react-router-dom";
+import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import Topbar from "@/components/ui/topbar";
 import {
@@ -30,6 +31,7 @@ import BottomNavigation from "@/components/BottomNavigation";
 
 export default function ProductDetails() {
   const navigate = useNavigate();
+  const { navigateBack } = useNavigation();
   const [searchParams] = useSearchParams();
   const productId = searchParams.get("id");
   
@@ -52,7 +54,7 @@ export default function ProductDetails() {
   ];
 
   const handleBack = () => {
-    navigate("/store");
+    navigateBack("/store");
   };
 
   const handleProductClick = (productId: string) => {

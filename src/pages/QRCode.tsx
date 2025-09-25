@@ -1,17 +1,19 @@
 import React from "react";
 import { ArrowLeft, Copy } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export default function QRCode() {
   const navigate = useNavigate();
+  const { navigateBack } = useNavigation();
   const [queryParams] = useSearchParams();
   const backRoute = queryParams.get("back");
   const toRoute = queryParams.get("to");
 
   const handleBack = () => {
-    navigate(backRoute ? `/${backRoute}` : "/waiting-room");
+    navigateBack(backRoute ? `/${backRoute}` : "/waiting-room");
   };
 
   const handleContinue = () => {
