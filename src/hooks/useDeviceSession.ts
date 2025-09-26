@@ -207,6 +207,35 @@ export const useDeviceSession = () => {
     }
   }, []);
 
+  // Create authenticated session transfer for switching devices
+  const createAuthenticatedSessionTransfer = useCallback(async (
+    sessionId: string, 
+    userId: string
+  ): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('device_sessions')
+        .insert({
+          kiosk_session_id: sessionId,
+          user_id: userId,
+          status: 'authenticated',
+          expires_at: new Date(Date.now() + 5 * 60 * 1000).toISOString() // 5 minutes expiry
+        });
+
+      if (error) {
+        console.error('Error creating authenticated session transfer:', error);
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error('Error creating authenticated session transfer:', error);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   return {
     isLoading,
     createDeviceSession,
@@ -214,5 +243,6 @@ export const useDeviceSession = () => {
     cleanupDeviceSession,
     subscribeToDeviceSession,
     cleanupExpiredSessions,
+    createAuthenticatedSessionTransfer,
   };
 };

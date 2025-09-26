@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, User, Settings, ShoppingBag, LogOut, Camera, Home, Heart, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Edit, User, Settings, ShoppingBag, LogOut, Camera, Home, Heart, ChevronDown, ChevronUp, Eye, EyeOff, Smartphone } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -13,18 +13,22 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import BottomNavigation from "@/components/BottomNavigation";
+import MobileSwitchQRDialog from "@/components/MobileSwitchQRDialog";
+import { useAuthState } from "@/hooks/useAuthState";
 
 export default function Profile() {
   const navigate = useNavigate();
   const { user, signOut, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading } = useProfile();
   const { toast } = useToast();
+  const { isKiosk, isDesktop } = useAuthState();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showMobileSwitchDialog, setShowMobileSwitchDialog] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
@@ -292,6 +296,18 @@ export default function Profile() {
             Body Measurements
           </Button>
           
+          {/* Switch to Mobile - Only show on kiosk/desktop */}
+          {(isKiosk || isDesktop) && (
+            <Button
+              variant="ghost"
+              className="w-full justify-start h-12"
+              onClick={() => setShowMobileSwitchDialog(true)}
+            >
+              <Smartphone className="w-5 h-5 mr-3" />
+              Switch to Mobile
+            </Button>
+          )}
+          
           <Button
             variant="ghost"
             className="w-full justify-between h-12"
@@ -441,6 +457,12 @@ export default function Profile() {
 
       {/* Bottom Navigation */}
       <BottomNavigation />
+      
+      {/* Mobile Switch QR Dialog */}
+      <MobileSwitchQRDialog
+        open={showMobileSwitchDialog}
+        onClose={() => setShowMobileSwitchDialog(false)}
+      />
     </div>
   );
 }

@@ -24,44 +24,64 @@ export default function SignIn() {
   const [queryParams] = useSearchParams();
   const backRoute = queryParams.get("back");
   const sessionId = queryParams.get("session_id");
+  const switchSessionId = queryParams.get("switch_session_id");
+  const urlUserId = queryParams.get("user_id");
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const { updateDeviceSession } = useDeviceSession();
 
-  // Handle authenticated users with session_id
+  // Handle authenticated users with session_id or switch_session_id
   useEffect(() => {
-    if (!loading && isAuthenticated && user && sessionId) {
-      console.log('User already authenticated, updating device session:', sessionId, user.id);
-      
-      const handleDeviceUpdate = async () => {
-        try {
-          const success = await updateDeviceSession(sessionId, user.id);
-          if (success) {
-            toast({
-              title: "Device Connected",
-              description: "Successfully connected to kiosk!",
-            });
-            // Brief delay to show toast, then redirect
-            setTimeout(() => {
+    if (!loading && isAuthenticated && user) {
+      // Handle device session connection (from QR code signup flow)
+      if (sessionId) {
+        console.log('User already authenticated, updating device session:', sessionId, user.id);
+        
+        const handleDeviceUpdate = async () => {
+          try {
+            const success = await updateDeviceSession(sessionId, user.id);
+            if (success) {
+              toast({
+                title: "Device Connected",
+                description: "Successfully connected to kiosk!",
+              });
+              // Brief delay to show toast, then redirect
+              setTimeout(() => {
+                navigate("/store", { replace: true });
+              }, 1500);
+            } else {
+              console.log('Device session update failed, proceeding normally');
               navigate("/store", { replace: true });
-            }, 1500);
-          } else {
-            console.log('Device session update failed, proceeding normally');
+            }
+          } catch (error) {
+            console.error('Error updating device session:', error);
             navigate("/store", { replace: true });
           }
-        } catch (error) {
-          console.error('Error updating device session:', error);
+        };
+        
+        handleDeviceUpdate();
+      }
+      // Handle session transfer (from "Switch to Mobile" flow)
+      else if (switchSessionId && urlUserId && user.id === urlUserId) {
+        console.log('Authenticated session transfer detected:', switchSessionId, user.id);
+        
+        toast({
+          title: "Session Transferred",
+          description: "You're now signed in on this mobile device!",
+        });
+        
+        // Clean up the session transfer record and redirect
+        setTimeout(() => {
           navigate("/store", { replace: true });
-        }
-      };
-      
-      handleDeviceUpdate();
-    } else if (!loading && isAuthenticated && !sessionId) {
+        }, 1500);
+      }
       // Normal authenticated user redirect
-      const from = location.state?.from?.pathname || "/store";
-      navigate(from, { replace: true });
+      else if (!sessionId && !switchSessionId) {
+        const from = location.state?.from?.pathname || "/store";
+        navigate(from, { replace: true });
+      }
     }
-  }, [isAuthenticated, loading, navigate, location, sessionId, user, updateDeviceSession, toast]);
+  }, [isAuthenticated, loading, navigate, location, sessionId, switchSessionId, urlUserId, user, updateDeviceSession, toast]);
 
   // Show loading while checking auth state
   if (loading) {
