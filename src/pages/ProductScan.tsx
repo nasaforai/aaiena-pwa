@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import BottomNavigation from "@/components/BottomNavigation";
 import ProductFoundDialog from "@/components/ProductFoundDialog";
+import Topbar from "@/components/ui/topbar";
 
 export default function ProductScan() {
   const navigate = useNavigate();
@@ -267,14 +268,7 @@ export default function ProductScan() {
 
   return (
     <div className="bg-background flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
-      {/* Header */}
-      <header className="flex items-center justify-between p-4 border-b">
-        <Button variant="ghost" size="sm" onClick={handleBack}>
-          <ArrowLeft className="w-4 h-4" />
-        </Button>
-        <h1 className="text-lg font-semibold">Barcode Scanner</h1>
-        <div className="w-8" />
-      </header>
+      <Topbar handleBack={handleBack} showBack={true} />
 
       {/* Content */}
       <div className="flex-1 p-4 pb-20">

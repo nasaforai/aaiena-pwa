@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import BottomNavigation from "@/components/BottomNavigation";
+import Topbar from "@/components/ui/topbar";
 
 export default function Wishlist() {
   const navigate = useNavigate();
@@ -38,37 +39,7 @@ export default function Wishlist() {
 
   return (
     <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-white border-b border-gray-100">
-        <div className="flex items-center">
-          <button
-            onClick={() => navigate("/store")}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors mr-3"
-          >
-            <ArrowLeft className="w-6 h-6 text-gray-700" />
-          </button>
-          <div>
-            <h1 className="text-lg font-semibold text-gray-900">WISHLIST</h1>
-            <p className="text-sm text-gray-600">
-              {wishlistItems.length} Products
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={() => navigate("/cart")}
-          className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          <ShoppingCart className="w-6 h-6 text-gray-700" />
-          {JSON.parse(localStorage.getItem("cartItems") || "[]").length > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              {JSON.parse(localStorage.getItem("cartItems") || "[]").reduce(
-                (total: number, item: any) => total + item.quantity,
-                0
-              )}
-            </span>
-          )}
-        </button>
-      </div>
+      <Topbar handleBack={() => navigate("/store")} showBack={true} />
 
       {/* Wishlist Items */}
       <div className="flex-1 p-4 mb-20">

@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import BottomNavigation from "@/components/BottomNavigation";
 import MobileSwitchQRDialog from "@/components/MobileSwitchQRDialog";
 import { useAuthState } from "@/hooks/useAuthState";
+import Topbar from "@/components/ui/topbar";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -172,10 +173,7 @@ export default function Profile() {
 
   return (
     <div className="bg-white flex lg:max-w-sm w-full flex-col mx-auto min-h-screen">
-      {/* Header */}
-      <div className="flex items-center p-4 border-b">
-        <h1 className="text-lg font-semibold">Profile</h1>
-      </div>
+      <Topbar handleBack={() => navigate("/store")} showBack={true} />
 
       <div className="flex-1 p-4">
         {/* Profile Header */}

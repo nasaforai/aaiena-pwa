@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import BottomNavigation from "@/components/BottomNavigation";
+import Topbar from "@/components/ui/topbar";
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -78,16 +79,7 @@ export default function Cart() {
 
   return (
     <div className="bg-gray-100 flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
-      {/* Header */}
-      <div className="flex items-center p-4 bg-white border-b border-gray-100">
-        <button
-          onClick={handleBack}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors mr-3"
-        >
-          <ArrowLeft className="w-6 h-6 text-gray-700" />
-        </button>
-        <h1 className="text-lg font-semibold text-gray-900">CART</h1>
-      </div>
+      <Topbar handleBack={handleBack} showBack={true} />
 
       {/* Cart Items */}
       <div className="lg:flex-1">
