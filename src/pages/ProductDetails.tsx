@@ -28,6 +28,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useProduct, useProducts } from "@/hooks/useProducts";
 import { useSearchParams } from "react-router-dom";
 import BottomNavigation from "@/components/BottomNavigation";
+import { toast } from "sonner";
 
 export default function ProductDetails() {
   const navigate = useNavigate();
@@ -78,7 +79,39 @@ export default function ProductDetails() {
   }
 
   const handleAddToCart = () => {
-    // Add to cart logic
+    // Add to cart logic without navigation
+    const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
+    const newItem = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      originalPrice: product.original_price || product.price,
+      size: selectedSize,
+      color: selectedColor,
+      quantity: quantity,
+      image: product.image_url,
+    };
+
+    const existingItemIndex = cartItems.findIndex(
+      (item: any) =>
+        item.id === newItem.id &&
+        item.size === selectedSize &&
+        item.color === selectedColor
+    );
+
+    if (existingItemIndex > -1) {
+      cartItems[existingItemIndex].quantity += quantity;
+      toast.success("Item quantity updated in cart!");
+    } else {
+      cartItems.push(newItem);
+      toast.success("Item added to cart!");
+    }
+
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+  };
+
+  const handleBuyNowAndAddToCart = () => {
+    // Add to cart and navigate to cart
     const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
     const newItem = {
       id: product.id,
@@ -110,7 +143,7 @@ export default function ProductDetails() {
 
   const handleBuyNow = () => {
     if (isLoggedIn) {
-      handleAddToCart();
+      handleBuyNowAndAddToCart();
     } else {
       if (isMobile) {
         navigate(`/sign-up?${createSearchParams({ back: "product-details" })}`);
@@ -201,7 +234,7 @@ export default function ProductDetails() {
                 </div>
                 <button
                   className="bg-[#12002C] hover:bg-black/80 rounded-md text-white text-sm px-5 py-1"
-                  onClick={handleBuyNow}
+                  onClick={handleBuyNowAndAddToCart}
                 >
                   Buy Now
                 </button>
@@ -497,17 +530,23 @@ export default function ProductDetails() {
             </div>
           )}
 
-          <div className="px-4 py-2 bg-white shadow-md flex gap-4">
+          <div className="px-4 py-2 bg-white shadow-md flex gap-2">
+            <Button
+              onClick={handleAddToCart}
+              variant="outline"
+              className="flex-1 border-gray-300 text-gray-900 py-3 rounded-lg font-medium hover:bg-gray-50"
+            >
+              Add to Cart
+            </Button>
             <Button
               onClick={handleBuyNow}
-              className="px-6 flex-1  bg-gray-900 text-white py-3 rounded-lg font-medium"
+              className="flex-1 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800"
             >
               Buy Now
             </Button>
-
             <Button
               onClick={handleTryVirtually}
-              className="flex-1 px-6 bg-gray-900 text-white py-3 rounded-lg font-medium"
+              className="flex-1 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800"
             >
               Try Virtually
             </Button>
