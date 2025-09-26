@@ -23,6 +23,7 @@ export interface Product {
   brand: string | null;
   material: string | null;
   care_instructions: string | null;
+  barcode: string | null;
 }
 
 export const useProducts = () => {

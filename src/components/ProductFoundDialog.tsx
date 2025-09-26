@@ -8,16 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  original_price?: number;
-  image_url: string;
-  brand?: string;
-  discount_percentage?: number;
-}
+import { Product } from "@/hooks/useProducts";
 
 interface ProductFoundDialogProps {
   open: boolean;

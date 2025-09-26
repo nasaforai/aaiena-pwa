@@ -1,16 +1,6 @@
 import { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  original_price?: number;
-  image_url: string;
-  brand?: string;
-  discount_percentage?: number;
-  barcode?: string;
-}
+import { Product } from "./useProducts";
 
 export const useProductByBarcode = () => {
   const [loading, setLoading] = useState(false);
@@ -23,16 +13,7 @@ export const useProductByBarcode = () => {
     try {
       const { data, error } = await supabase
         .from('products')
-        .select(`
-          id,
-          name,
-          price,
-          original_price,
-          image_url,
-          brand,
-          discount_percentage,
-          barcode
-        `)
+        .select('*')
         .eq('barcode', barcode)
         .maybeSingle();
 
@@ -47,7 +28,10 @@ export const useProductByBarcode = () => {
         return null;
       }
 
-      return data;
+      return {
+        ...data,
+        colors: Array.isArray(data.colors) ? data.colors as { name: string; value: string; bgClass: string }[] : []
+      } as Product;
     } catch (err) {
       console.error('Unexpected error:', err);
       setError('An unexpected error occurred');
