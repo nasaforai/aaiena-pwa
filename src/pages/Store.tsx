@@ -144,25 +144,6 @@ export default function Store() {
 
           {isAuthenticated && (
             <>
-              <div className="rounded-xl m-4 bg-[#FFF3D3] border border-[#FFD25C] p-4 text-[#342601]">
-                <div className="flex justify-between">
-                  <p>Your turn coming up</p>
-                  <p>4:00 min left</p>
-                </div>
-                <Progress
-                  className="bg-[#FFDD82] [&>div]:bg-[#FFB900] [&>div]:rounded-full mt-4 mb-2"
-                  value={20}
-                />
-                <p className="text-sm">
-                  You have 5 minutes per session—switch to your phone to
-                  continue smoothly.
-                </p>
-
-                <button className="py-4 w-full rounded-xl border border-[#FFB900] mt-8">
-                  Switch to Mobile
-                </button>
-              </div>
-
               {/* Notification Toggle */}
               <div className="flex items-center justify-between mb-1 px-10 py-4 rounded-lg">
                 <span className="font-medium text-gray-900 text-md">
