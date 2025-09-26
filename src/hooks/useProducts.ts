@@ -26,14 +26,19 @@ export interface Product {
   barcode: string | null;
 }
 
-export const useProducts = () => {
+export const useProducts = (brandId?: string) => {
   return useQuery({
-    queryKey: ["products"],
+    queryKey: ["products", brandId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("products")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .select("*");
+
+      if (brandId) {
+        query = query.eq("brand_id", brandId);
+      }
+
+      const { data, error } = await query.order("created_at", { ascending: false });
 
       if (error) throw error;
       return data.map(item => ({
@@ -44,11 +49,15 @@ export const useProducts = () => {
   });
 };
 
-export const useProductsByCategory = (category: "trending" | "new" | "offer") => {
+export const useProductsByCategory = (category: "trending" | "new" | "offer", brandId?: string) => {
   return useQuery({
-    queryKey: ["products", category],
+    queryKey: ["products", category, brandId],
     queryFn: async () => {
       let query = supabase.from("products").select("*");
+
+      if (brandId) {
+        query = query.eq("brand_id", brandId);
+      }
 
       switch (category) {
         case "trending":

@@ -6,6 +6,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProfileSidebarProvider } from "@/contexts/ProfileSidebarContext";
+import { BrandProvider } from "@/contexts/BrandContext";
+import { BrandThemeProvider } from "@/components/BrandThemeProvider";
 import { ProfileSidebar } from "@/components/ProfileSidebar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
@@ -21,6 +23,7 @@ import Welcome from "./pages/Welcome";
 // Lazy load other pages
 const Index = React.lazy(() => import("./pages/Index"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
+const BrandAdmin = React.lazy(() => import("./pages/BrandAdmin"));
 const SignIn = React.lazy(() => import("./pages/SignIn"));
 const SignUp = React.lazy(() => import("./pages/SignUp"));
 const SignupOptions = React.lazy(() => import("./pages/SignupOptions"));
@@ -64,15 +67,17 @@ const LoadingFallback = () => (
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ProfileSidebarProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Suspense fallback={<LoadingFallback />}>
-                <ScrollToTop />
-                <Routes>
+      <BrandProvider>
+        <BrandThemeProvider>
+          <AuthProvider>
+            <ProfileSidebarProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Suspense fallback={<LoadingFallback />}>
+                    <ScrollToTop />
+                    <Routes>
                  <Route path="/" element={<Index />} />
                  <Route path="/welcome" element={<Welcome />} />
                  <Route path="/sign-in" element={<SignIn />} />
@@ -80,9 +85,11 @@ const App = () => {
                  <Route path="/signup-options" element={<SignupOptions />} />
                  <Route path="/otp-verification" element={<OTPVerification />} />
                 
-                {/* Public routes */}
-                <Route path="/store" element={<Store />} />
-                <Route path="/qr-code" element={<QRCode />} />
+                 {/* Public routes */}
+                 <Route path="/store" element={<Store />} />
+                 <Route path="/brand/:brandSlug" element={<Store />} />
+                 <Route path="/brand-admin" element={<ProtectedRoute><BrandAdmin /></ProtectedRoute>} />
+                 <Route path="/qr-code" element={<QRCode />} />
                 <Route path="/fashion-lane" element={<FashionLane />} />
                 <Route path="/product-details" element={<ProductDetails />} />
                 <Route path="/qr-scan-virtual" element={<QRScanVirtual />} />
@@ -109,15 +116,17 @@ const App = () => {
                 <Route path="/try-virtually" element={<ProtectedRoute><TryVirtually /></ProtectedRoute>} />
                 
                 <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-            <PWAInstallPrompt />
-            <ProfileSidebar />
-          </BrowserRouter>
-        </TooltipProvider>
-      </ProfileSidebarProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+                    </Routes>
+                  </Suspense>
+                  <PWAInstallPrompt />
+                  <ProfileSidebar />
+                </BrowserRouter>
+              </TooltipProvider>
+            </ProfileSidebarProvider>
+          </AuthProvider>
+        </BrandThemeProvider>
+      </BrandProvider>
+    </QueryClientProvider>
   );
 };
 

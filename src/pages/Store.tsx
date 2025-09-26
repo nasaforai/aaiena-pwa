@@ -30,6 +30,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useProducts, useProductsByCategory } from "@/hooks/useProducts";
 import { useCategories } from "@/hooks/useCategories";
 import { useBanners } from "@/hooks/useBanners";
+import { useBrand } from "@/contexts/BrandContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import BottomNavigation from "@/components/BottomNavigation";
@@ -38,19 +39,21 @@ export default function Store() {
   const navigate = useNavigate();
   const { navigateBack } = useNavigation();
   const { isAuthenticated, user } = useAuth();
+  const { currentBrand } = useBrand();
   const { profile, loading: profileLoading } = useProfile();
   const [notifyToggle, setNotifyToggle] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const isMobile = useIsMobile();
 
-  // Fetch data from Supabase
-  const { data: categories = [] } = useCategories();
-  const { data: designerPicksBanner } = useBanners("designer_picks");
-  const { data: discountBanners } = useBanners("discount");
-  const { data: allProducts = [] } = useProducts();
-  const { data: trendingProducts = [] } = useProductsByCategory("trending");
-  const { data: newProducts = [] } = useProductsByCategory("new");
-  const { data: offerProducts = [] } = useProductsByCategory("offer");
+  // Fetch brand-aware data from Supabase
+  const brandId = currentBrand?.id;
+  const { data: categories = [] } = useCategories(brandId);
+  const { data: designerPicksBanner } = useBanners("designer_picks", brandId);
+  const { data: discountBanners } = useBanners("discount", brandId);
+  const { data: allProducts = [] } = useProducts(brandId);
+  const { data: trendingProducts = [] } = useProductsByCategory("trending", brandId);
+  const { data: newProducts = [] } = useProductsByCategory("new", brandId);
+  const { data: offerProducts = [] } = useProductsByCategory("offer", brandId);
 
   // Filter products based on search term
   const filteredProducts = useMemo(() => {

@@ -8,14 +8,19 @@ export interface Category {
   icon_url: string;
 }
 
-export const useCategories = () => {
+export const useCategories = (brandId?: string) => {
   return useQuery({
-    queryKey: ["categories"],
+    queryKey: ["categories", brandId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("categories")
-        .select("*")
-        .order("name");
+        .select("*");
+
+      if (brandId) {
+        query = query.eq("brand_id", brandId);
+      }
+
+      const { data, error } = await query.order("name");
 
       if (error) throw error;
       return data as Category[];

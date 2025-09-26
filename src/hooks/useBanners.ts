@@ -16,14 +16,18 @@ export interface Banner {
   banner_type: string;
 }
 
-export const useBanners = (type?: string) => {
+export const useBanners = (type?: string, brandId?: string) => {
   return useQuery({
-    queryKey: ["banners", type],
+    queryKey: ["banners", type, brandId],
     queryFn: async () => {
       let query = supabase
         .from("banners")
         .select("*")
         .eq("is_active", true);
+
+      if (brandId) {
+        query = query.eq("brand_id", brandId);
+      }
 
       if (type) {
         query = query.eq("banner_type", type);

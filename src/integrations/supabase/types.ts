@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           background_color: string | null
           banner_type: string | null
+          brand_id: string | null
           button_text: string | null
           created_at: string
           description: string | null
@@ -34,6 +35,7 @@ export type Database = {
         Insert: {
           background_color?: string | null
           banner_type?: string | null
+          brand_id?: string | null
           button_text?: string | null
           created_at?: string
           description?: string | null
@@ -50,6 +52,7 @@ export type Database = {
         Update: {
           background_color?: string | null
           banner_type?: string | null
+          brand_id?: string | null
           button_text?: string | null
           created_at?: string
           description?: string | null
@@ -63,10 +66,64 @@ export type Database = {
           title?: string
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "banners_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brands: {
+        Row: {
+          created_at: string
+          description: string | null
+          domain: string | null
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          name: string
+          primary_color: string | null
+          secondary_color: string | null
+          slug: string
+          theme_config: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          domain?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          slug: string
+          theme_config?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          domain?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name?: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          slug?: string
+          theme_config?: Json | null
+          updated_at?: string
+        }
         Relationships: []
       }
       categories: {
         Row: {
+          brand_id: string | null
           created_at: string
           icon_url: string | null
           id: string
@@ -75,6 +132,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          brand_id?: string | null
           created_at?: string
           icon_url?: string | null
           id?: string
@@ -83,6 +141,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          brand_id?: string | null
           created_at?: string
           icon_url?: string | null
           id?: string
@@ -90,7 +149,15 @@ export type Database = {
           name?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "categories_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       device_sessions: {
         Row: {
@@ -124,6 +191,7 @@ export type Database = {
           additional_images: string[] | null
           barcode: string | null
           brand: string | null
+          brand_id: string | null
           care_instructions: string | null
           category_id: string | null
           colors: Json | null
@@ -147,6 +215,7 @@ export type Database = {
           additional_images?: string[] | null
           barcode?: string | null
           brand?: string | null
+          brand_id?: string | null
           care_instructions?: string | null
           category_id?: string | null
           colors?: Json | null
@@ -170,6 +239,7 @@ export type Database = {
           additional_images?: string[] | null
           barcode?: string | null
           brand?: string | null
+          brand_id?: string | null
           care_instructions?: string | null
           category_id?: string | null
           colors?: Json | null
@@ -190,6 +260,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "products_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "products_category_id_fkey"
             columns: ["category_id"]
