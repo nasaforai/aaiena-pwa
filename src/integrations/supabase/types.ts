@@ -122,6 +122,7 @@ export type Database = {
       products: {
         Row: {
           additional_images: string[] | null
+          barcode: string | null
           brand: string | null
           care_instructions: string | null
           category_id: string | null
@@ -144,6 +145,7 @@ export type Database = {
         }
         Insert: {
           additional_images?: string[] | null
+          barcode?: string | null
           brand?: string | null
           care_instructions?: string | null
           category_id?: string | null
@@ -166,6 +168,7 @@ export type Database = {
         }
         Update: {
           additional_images?: string[] | null
+          barcode?: string | null
           brand?: string | null
           care_instructions?: string | null
           category_id?: string | null

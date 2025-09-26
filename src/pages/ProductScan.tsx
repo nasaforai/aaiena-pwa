@@ -1,159 +1,170 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { ArrowLeft, QrCode, Scan, Camera, AlertCircle, X, Home, Heart, User, ShoppingBag } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
+import { ArrowLeft, Camera, X } from 'lucide-react';
 import { useNavigation } from "@/hooks/useNavigation";
+import { useProductByBarcode } from "@/hooks/useProductByBarcode";
 import { Button } from "@/components/ui/button";
-import { Html5Qrcode } from "html5-qrcode";
+import { toast } from "sonner";
 import BottomNavigation from "@/components/BottomNavigation";
+import ProductFoundDialog from "@/components/ProductFoundDialog";
 
 export default function ProductScan() {
   const navigate = useNavigate();
   const { navigateBack } = useNavigation();
-  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const { fetchProductByBarcode, loading: productLoading, error: productError } = useProductByBarcode();
+  
   const [isScanning, setIsScanning] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [scanResult, setScanResult] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [scanResult, setScanResult] = useState<string>('');
+  const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [foundProduct, setFoundProduct] = useState<any>(null);
+  const [showProductDialog, setShowProductDialog] = useState(false);
 
   const handleBack = () => {
     if (isScanning) {
       stopScanner();
     }
-    navigateBack("/fashion-lane");
+    navigateBack('/fashion-lane');
   };
 
   const stopScanner = useCallback(() => {
-    console.log("Stopping QR scanner...");
-    if (scannerRef.current) {
-      scannerRef.current
-        .stop()
-        .then(() => {
-          console.log("QR scanner stopped successfully");
-          scannerRef.current = null;
-
-          // Clean up the qr-reader element
-          const qrReaderElement = document.getElementById("qr-reader");
-          if (qrReaderElement) {
-            qrReaderElement.remove();
-          }
-        })
-        .catch((err) => {
-          console.error("Error stopping scanner:", err);
-        });
-    }
+    console.log('Stopping barcode scanner...');
+    const html5QrCode = Html5Qrcode.getCameras().then(() => {
+      const scannerElement = document.getElementById('qr-reader');
+      if (scannerElement) {
+        try {
+          const scanner = new Html5Qrcode("qr-reader");
+          scanner.stop().then(() => {
+            console.log('Scanner stopped successfully');
+            scannerElement.remove();
+          }).catch(err => console.error('Error stopping scanner:', err));
+        } catch (err) {
+          console.error('Scanner cleanup error:', err);
+        }
+      }
+    });
+    
     setIsScanning(false);
     setIsLoading(false);
+    setError('');
   }, []);
 
-  const startScanner = async () => {
+  const startScanner = useCallback(async () => {
+    setIsLoading(true);
+    setError('');
+    setScanResult('');
+
     try {
-      console.log("Starting QR scanner...");
-      setIsLoading(true);
-      setError(null);
+      // Request camera permission
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      stream.getTracks().forEach(track => track.stop());
+      setHasPermission(true);
 
-      // Check if mediaDevices is available
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error("Camera not supported on this device/browser");
-      }
-
-      // Set scanning state first to ensure DOM element exists
-      setIsScanning(true);
-
-      // Wait a bit for the DOM to update
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      // Check if the element exists, create it if it doesn't
-      let qrReaderElement = document.getElementById("qr-reader");
-      if (!qrReaderElement) {
-        console.log("Creating qr-reader element...");
-        qrReaderElement = document.createElement("div");
-        qrReaderElement.id = "qr-reader";
-        qrReaderElement.className = "w-full h-full rounded-lg overflow-hidden";
-
-        // Find the scanner container and append the element
-        const scannerContainer = document.querySelector(
-          ".bg-gray-100.rounded-2xl.p-4.mb-8.h-96"
-        );
-        if (scannerContainer) {
-          scannerContainer.appendChild(qrReaderElement);
-        } else {
-          throw new Error("Scanner container not found");
+      // Create scanner element if it doesn't exist
+      let scannerElement = document.getElementById('qr-reader');
+      if (!scannerElement) {
+        scannerElement = document.createElement('div');
+        scannerElement.id = 'qr-reader';
+        scannerElement.style.width = '100%';
+        scannerElement.style.maxWidth = '400px';
+        scannerElement.style.margin = '0 auto';
+        
+        const container = document.querySelector('.scanner-container');
+        if (container) {
+          container.appendChild(scannerElement);
         }
       }
 
-      console.log("QR reader element found/created:", qrReaderElement);
+      // Clear any existing content
+      scannerElement.innerHTML = '';
 
-      // Create scanner instance
-      const scanner = new Html5Qrcode("qr-reader");
-      scannerRef.current = scanner;
-
+      // Initialize scanner with barcode format support
+      const html5QrCode = new Html5Qrcode("qr-reader");
+      
       // Get available cameras
       const cameras = await Html5Qrcode.getCameras();
-      if (cameras && cameras.length > 0) {
-        console.log("Available cameras:", cameras);
+      if (cameras.length === 0) {
+        throw new Error('No cameras found');
+      }
 
-        // Use the first available camera (usually the back camera on mobile)
-        const cameraId = cameras[0].id;
+      // Prefer back camera if available
+      const backCamera = cameras.find(camera => 
+        camera.label.toLowerCase().includes('back') || 
+        camera.label.toLowerCase().includes('rear')
+      );
+      const cameraId = backCamera ? backCamera.id : cameras[0].id;
 
-        // Start scanning
-        await scanner.start(
-          cameraId,
-          {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
-            aspectRatio: 1.0,
-          },
-          (decodedText, decodedResult) => {
-            console.log("QR Code detected:", decodedText);
-            setScanResult(decodedText);
+      const config = {
+        fps: 10,
+        qrbox: { width: 280, height: 160 }, // Adjusted for barcode scanning
+        aspectRatio: 1.0,
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.UPC_E,
+          Html5QrcodeSupportedFormats.QR_CODE // Keep QR support as fallback
+        ]
+      };
 
-            // Stop scanning after successful detection
-            setTimeout(() => {
-              stopScanner();
-              // Navigate to product details with the scanned data
-              navigate("/product-details", {
-                state: {
-                  scannedData: decodedText,
-                  scanType: "qr",
-                },
-              });
-            }, 1000);
-          },
-          (errorMessage) => {
-            // Ignore errors during scanning - they're normal
-            console.log("Scan error (normal):", errorMessage);
+      await html5QrCode.start(
+        cameraId,
+        config,
+        async (decodedText, decodedResult) => {
+          console.log("Barcode scan successful:", decodedText);
+          setScanResult(decodedText);
+          
+          // Stop scanner first
+          await html5QrCode.stop();
+          setIsScanning(false);
+          
+          // Look up product by barcode
+          const product = await fetchProductByBarcode(decodedText);
+          
+          if (product) {
+            setFoundProduct(product);
+            setShowProductDialog(true);
+            toast.success("Product found!");
+          } else {
+            toast.error(productError || "Product not found for this barcode");
           }
-        );
-
-        setHasPermission(true);
-        setIsLoading(false);
-      } else {
-        throw new Error("No cameras found on this device");
-      }
-    } catch (error) {
-      console.error("Error starting QR scanner:", error);
-      setHasPermission(false);
-      setIsScanning(false);
-      setIsLoading(false);
-
-      if (error instanceof Error) {
-        if (error.name === "NotAllowedError") {
-          setError(
-            "Camera access denied. Please allow camera permission and try again."
-          );
-        } else if (error.name === "NotFoundError") {
-          setError("No camera found on this device.");
-        } else if (error.name === "NotSupportedError") {
-          setError("Camera not supported on this browser.");
-        } else {
-          setError(error.message);
+        },
+        (errorMessage) => {
+          // Handle scan failures silently
+          console.log("Scan failed:", errorMessage);
         }
-      } else {
-        setError("Unknown camera error occurred");
+      );
+
+      setIsScanning(true);
+      
+    } catch (err: any) {
+      console.error('Scanner error:', err);
+      let errorMessage = 'Failed to start camera';
+      
+      if (err.name === 'NotAllowedError' || err.message.includes('Permission denied')) {
+        errorMessage = 'Camera permission denied. Please allow camera access and try again.';
+        setHasPermission(false);
+      } else if (err.name === 'NotFoundError' || err.message.includes('No cameras found')) {
+        errorMessage = 'No camera found on this device.';
+      } else if (err.name === 'NotSupportedError') {
+        errorMessage = 'Camera not supported on this device.';
+      } else if (err.name === 'NotReadableError') {
+        errorMessage = 'Camera is being used by another application.';
+      } else if (err.name === 'OverconstrainedError') {
+        errorMessage = 'Camera constraints not satisfied.';
+      } else if (err.name === 'SecurityError') {
+        errorMessage = 'Camera access blocked by security policy.';
       }
+      
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [fetchProductByBarcode, productError]);
 
   const handleScan = () => {
     if (!isScanning && !isLoading) {
@@ -176,32 +187,23 @@ export default function ProductScan() {
   const renderScannerView = () => {
     if (isLoading) {
       return (
-        <div className="text-center">
-          <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mb-4 mx-auto animate-pulse">
-            <Camera className="w-12 h-12 text-blue-600" />
-          </div>
-          <p className="text-blue-600 mb-4">Starting QR scanner...</p>
+        <div className="flex flex-col items-center justify-center h-full">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+          <p className="text-muted-foreground">Starting camera...</p>
         </div>
       );
     }
 
     if (error || hasPermission === false) {
       return (
-        <div className="text-center">
-          <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mb-4 mx-auto">
-            <AlertCircle className="w-12 h-12 text-red-500" />
+        <div className="flex flex-col items-center justify-center h-full text-center">
+          <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+            <X className="w-8 h-8 text-destructive" />
           </div>
-          <p className="text-red-600 mb-4">{error || "Camera access denied"}</p>
-          <button
-            onClick={() => {
-              setError(null);
-              setHasPermission(null);
-              startScanner();
-            }}
-            className="text-purple-600 text-sm underline"
-          >
-            Try again
-          </button>
+          <p className="text-destructive mb-4">{error || 'Camera access denied'}</p>
+          <Button variant="outline" onClick={startScanner}>
+            Try Again
+          </Button>
         </div>
       );
     }
@@ -209,125 +211,121 @@ export default function ProductScan() {
     if (isScanning) {
       return (
         <div className="relative w-full h-full">
-          {/* QR Scanner Container - Always render when scanning */}
-          <div
-            id="qr-reader"
-            className="w-full h-full rounded-lg overflow-hidden"
-          />
-
-          {/* Scanning overlay */}
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-64 h-64 border-2 border-purple-500 rounded-lg bg-transparent">
-                <div className="w-full h-full border-2 border-dashed border-purple-300 rounded-lg animate-pulse"></div>
+          {/* Scanner container */}
+          <div className="scanner-container w-full h-full" />
+          
+          {/* Scanning overlay frame */}
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+            <div className="relative">
+              {/* Scanning frame - adjusted for barcode */}
+              <div className="w-80 h-48 border-2 border-primary/50 rounded-lg bg-transparent relative">
+                <div className="absolute inset-0 border-2 border-dashed border-primary/30 rounded-lg animate-pulse"></div>
+                
+                {/* Corner indicators */}
+                <div className="absolute -top-2 -left-2 w-6 h-6 border-l-4 border-t-4 border-primary rounded-tl-lg"></div>
+                <div className="absolute -top-2 -right-2 w-6 h-6 border-r-4 border-t-4 border-primary rounded-tr-lg"></div>
+                <div className="absolute -bottom-2 -left-2 w-6 h-6 border-l-4 border-b-4 border-primary rounded-bl-lg"></div>
+                <div className="absolute -bottom-2 -right-2 w-6 h-6 border-r-4 border-b-4 border-primary rounded-br-lg"></div>
               </div>
-            </div>
-
-            {/* Corner indicators */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64">
-              <div className="absolute top-0 left-0 w-8 h-8 border-l-4 border-t-4 border-purple-500 rounded-tl-lg"></div>
-              <div className="absolute top-0 right-0 w-8 h-8 border-r-4 border-t-4 border-purple-500 rounded-tr-lg"></div>
-              <div className="absolute bottom-0 left-0 w-8 h-8 border-l-4 border-b-4 border-purple-500 rounded-bl-lg"></div>
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-r-4 border-b-4 border-purple-500 rounded-br-lg"></div>
+              
+              {/* Instruction text */}
+              <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 text-center">
+                <p className="text-sm text-primary font-medium">Position barcode within frame</p>
+              </div>
             </div>
           </div>
 
-          {scanResult && (
-            <div className="absolute bottom-4 left-4 right-4 bg-green-500 text-white p-3 rounded-lg text-center">
-              <p className="font-medium">QR Code Detected!</p>
-              <p className="text-sm opacity-90">
-                Redirecting to product details...
-              </p>
-            </div>
-          )}
-
           {/* Stop button */}
-          <button
+          <Button
             onClick={handleStopScan}
-            className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+            variant="destructive" 
+            size="sm"
+            className="absolute top-4 right-4 rounded-full w-10 h-10 p-0"
           >
-            <X className="w-5 h-5" />
-          </button>
+            <X className="w-4 h-4" />
+          </Button>
         </div>
       );
     }
 
     return (
-      <div className="text-center">
-        <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mb-4 mx-auto">
-          <Scan className="w-12 h-12 text-purple-600" />
-        </div>
-        <p className="text-gray-600 mb-4">Tap to start QR scanning</p>
-        <div className="w-48 h-48 border-2 border-dashed border-purple-300 rounded-lg mx-auto flex items-center justify-center">
-          <QrCode className="w-16 h-16 text-purple-400" />
+      <div className="flex flex-col items-center justify-center h-full text-center">
+        <div className="text-center space-y-4">
+          <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+            <Camera className="w-8 h-8 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Ready to Scan</h2>
+            <p className="text-muted-foreground">
+              Position a product barcode within the frame to scan it
+            </p>
+          </div>
         </div>
       </div>
     );
   };
 
   return (
-    <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-background flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-center p-4">
-        <h1 className="text-lg font-semibold text-gray-900">QR Scanner</h1>
-      </div>
+      <header className="flex items-center justify-between p-4 border-b">
+        <Button variant="ghost" size="sm" onClick={handleBack}>
+          <ArrowLeft className="w-4 h-4" />
+        </Button>
+        <h1 className="text-lg font-semibold">Barcode Scanner</h1>
+        <div className="w-8" />
+      </header>
 
       {/* Content */}
-      <div className="flex-1 px-6 py-8 mb-16">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Scan QR Code
-          </h2>
-          <p className="text-gray-600">
-            Point your camera at the product's QR code to get details
-          </p>
-        </div>
-
-        {/* Scanner View */}
-        <div className="bg-gray-100 rounded-2xl p-4 mb-8 h-96 flex items-center justify-center relative overflow-hidden">
-          {renderScannerView()}
-        </div>
-
-        {/* Instructions */}
-        <div className="space-y-3 mb-8">
-          <div className="bg-gray-50 rounded-xl p-4">
-            <h3 className="font-medium text-gray-900 mb-2">How to scan:</h3>
-            <ul className="text-sm text-gray-600 space-y-1">
-              <li>• Ensure good lighting</li>
-              <li>• Hold device steady</li>
-              <li>• Center QR code in frame</li>
-              <li>• Wait for automatic detection</li>
-            </ul>
+      <div className="flex-1 p-4 pb-20">
+        <div className="space-y-4">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-2">Scan Product Barcode</h1>
+            <p className="text-muted-foreground">
+              Point your camera at a product barcode to find details
+            </p>
           </div>
-        </div>
 
-        <Button
-          onClick={handleScan}
-          disabled={isScanning || isLoading || scanResult !== null}
-          className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800 disabled:opacity-50"
-        >
-          {isLoading
-            ? "Starting Scanner..."
-            : isScanning
-            ? "Scanning..."
-            : error || hasPermission === false
-            ? "Try Scanner Again"
-            : "Start QR Scanner"}
-        </Button>
+          {/* Scanner View */}
+          <div className="bg-muted/30 rounded-2xl p-4 h-96 relative overflow-hidden">
+            {renderScannerView()}
+          </div>
 
-        {/* Skip & Continue Button */}
-        <div className="mt-4 mb-4">
+          {/* Action Button */}
           <Button
-            onClick={() => navigate("/store")}
-            variant="outline"
-            className="w-full border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-50"
+            onClick={handleScan}
+            disabled={isLoading || isScanning || productLoading}
+            className="w-full"
+            size="lg"
           >
-            Skip & Continue
+            {isLoading ? 'Starting Camera...' : 
+             isScanning ? 'Scanning...' : 
+             productLoading ? 'Looking up product...' : 
+             'Start Barcode Scanner'}
+          </Button>
+
+          {/* Skip Button */}
+          <Button
+            variant="outline"
+            onClick={() => navigate('/store')}
+            className="w-full"
+            size="lg"
+          >
+            Skip & Continue Shopping
           </Button>
         </div>
       </div>
-
-      {/* Bottom Navigation */}
+      
+      <ProductFoundDialog
+        open={showProductDialog}
+        product={foundProduct}
+        onClose={() => setShowProductDialog(false)}
+        onGoToProduct={() => {
+          setShowProductDialog(false);
+          navigate(`/product-details/${foundProduct.id}`);
+        }}
+      />
+      
       <BottomNavigation />
     </div>
   );
