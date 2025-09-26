@@ -303,16 +303,6 @@ export default function ProductScan() {
              productLoading ? 'Looking up product...' : 
              'Start Barcode Scanner'}
           </Button>
-
-          {/* Skip Button */}
-          <Button
-            variant="outline"
-            onClick={() => navigate('/store')}
-            className="w-full"
-            size="lg"
-          >
-            Skip & Continue Shopping
-          </Button>
         </div>
       </div>
       
