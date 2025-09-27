@@ -52,7 +52,12 @@ export const BrandProvider: React.FC<BrandProviderProps> = ({ children }) => {
     // Try to detect from subdomain (e.g., hm.yourapp.com)
     const hostname = window.location.hostname;
     const subdomain = hostname.split('.')[0];
-    if (subdomain && subdomain !== 'localhost' && subdomain !== 'www') {
+    
+    // Skip Lovable project IDs and development environments
+    const isLovableProjectId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(subdomain);
+    const isDevelopment = ['localhost', 'www', '127', '192'].some(dev => subdomain.startsWith(dev));
+    
+    if (subdomain && !isLovableProjectId && !isDevelopment) {
       return subdomain;
     }
 
@@ -80,13 +85,51 @@ export const BrandProvider: React.FC<BrandProviderProps> = ({ children }) => {
         .single();
 
       if (fetchError) {
-        throw new Error(`Brand not found: ${slug}`);
+        console.warn(`Brand not found: ${slug}, using default brand`);
+        // Try to fetch any available brand as fallback
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('brands')
+          .select('*')
+          .eq('is_active', true)
+          .limit(1)
+          .single();
+        
+        if (fallbackError || !fallbackData) {
+          // Create a default brand object if no brands exist
+          setCurrentBrand({
+            id: 'default',
+            name: 'Fashion Store',
+            slug: 'default',
+            logo_url: null,
+            primary_color: '#000000',
+            secondary_color: '#ffffff',
+            description: 'Default Fashion Store',
+            theme_config: {},
+            domain: null,
+            is_active: true
+          });
+        } else {
+          setCurrentBrand(fallbackData);
+        }
+      } else {
+        setCurrentBrand(data);
       }
-
-      setCurrentBrand(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load brand');
       console.error('Error loading brand:', err);
+      // Set a default brand to prevent app from breaking
+      setCurrentBrand({
+        id: 'default',
+        name: 'Fashion Store',
+        slug: 'default',
+        logo_url: null,
+        primary_color: '#000000',
+        secondary_color: '#ffffff',
+        description: 'Default Fashion Store',
+        theme_config: {},
+        domain: null,
+        is_active: true
+      });
     } finally {
       setLoading(false);
     }

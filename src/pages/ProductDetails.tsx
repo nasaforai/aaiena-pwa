@@ -28,13 +28,14 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useProduct, useProducts } from "@/hooks/useProducts";
 import { useSearchParams } from "react-router-dom";
 import BottomNavigation from "@/components/BottomNavigation";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ProductDetails() {
   const navigate = useNavigate();
   const { navigateBack } = useNavigation();
   const [searchParams] = useSearchParams();
   const productId = searchParams.get("id");
+  const { toast } = useToast();
   
   const [selectedSize, setSelectedSize] = useState("M");
   const [selectedColor, setSelectedColor] = useState("white");
@@ -79,66 +80,134 @@ export default function ProductDetails() {
   }
 
   const handleAddToCart = () => {
-    // Add to cart logic without navigation
-    const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
-    const newItem = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      originalPrice: product.original_price || product.price,
-      size: selectedSize,
-      color: selectedColor,
-      quantity: quantity,
-      image: product.image_url,
-    };
-
-    const existingItemIndex = cartItems.findIndex(
-      (item: any) =>
-        item.id === newItem.id &&
-        item.size === selectedSize &&
-        item.color === selectedColor
-    );
-
-    if (existingItemIndex > -1) {
-      cartItems[existingItemIndex].quantity += quantity;
-      toast.success("Item quantity updated in cart!");
-    } else {
-      cartItems.push(newItem);
-      toast.success("Item added to cart!");
+    console.log('Add to cart clicked', { product, selectedSize, selectedColor, quantity });
+    
+    if (!product) {
+      console.error('Product not found');
+      toast({
+        title: "Error",
+        description: "Product not found",
+        variant: "destructive",
+      });
+      return;
     }
 
-    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    if (!selectedSize || !selectedColor) {
+      toast({
+        title: "Missing Selection",
+        description: "Please select size and color",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Add to cart logic without navigation
+      const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
+      const newItem = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        originalPrice: product.original_price || product.price,
+        size: selectedSize,
+        color: selectedColor,
+        quantity: quantity,
+        image: product.image_url,
+      };
+
+      const existingItemIndex = cartItems.findIndex(
+        (item: any) =>
+          item.id === newItem.id &&
+          item.size === selectedSize &&
+          item.color === selectedColor
+      );
+
+      if (existingItemIndex > -1) {
+        cartItems[existingItemIndex].quantity += quantity;
+        toast({
+          title: "Cart Updated",
+          description: "Item quantity updated in cart!",
+        });
+      } else {
+        cartItems.push(newItem);
+        toast({
+          title: "Added to Cart",
+          description: "Item added to cart successfully!",
+        });
+      }
+
+      localStorage.setItem("cartItems", JSON.stringify(cartItems));
+      console.log('Cart updated successfully', cartItems);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add item to cart",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleBuyNowAndAddToCart = () => {
-    // Add to cart and navigate to cart
-    const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
-    const newItem = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      originalPrice: product.original_price || product.price,
-      size: selectedSize,
-      color: selectedColor,
-      quantity: quantity,
-      image: product.image_url,
-    };
-
-    const existingItemIndex = cartItems.findIndex(
-      (item: any) =>
-        item.id === newItem.id &&
-        item.size === selectedSize &&
-        item.color === selectedColor
-    );
-
-    if (existingItemIndex > -1) {
-      cartItems[existingItemIndex].quantity += quantity;
-    } else {
-      cartItems.push(newItem);
+    console.log('Buy now clicked', { product, selectedSize, selectedColor, quantity });
+    
+    if (!product) {
+      console.error('Product not found');
+      toast({
+        title: "Error",
+        description: "Product not found",
+        variant: "destructive",
+      });
+      return;
     }
 
-    localStorage.setItem("cartItems", JSON.stringify(cartItems));
-    navigate("/cart?back=product-details");
+    if (!selectedSize || !selectedColor) {
+      toast({
+        title: "Missing Selection",
+        description: "Please select size and color",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Add to cart and navigate to cart
+      const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
+      const newItem = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        originalPrice: product.original_price || product.price,
+        size: selectedSize,
+        color: selectedColor,
+        quantity: quantity,
+        image: product.image_url,
+      };
+
+      const existingItemIndex = cartItems.findIndex(
+        (item: any) =>
+          item.id === newItem.id &&
+          item.size === selectedSize &&
+          item.color === selectedColor
+      );
+
+      if (existingItemIndex > -1) {
+        cartItems[existingItemIndex].quantity += quantity;
+      } else {
+        cartItems.push(newItem);
+      }
+
+      localStorage.setItem("cartItems", JSON.stringify(cartItems));
+      console.log('Cart updated, navigating to cart', cartItems);
+      navigate("/cart?back=product-details");
+    } catch (error) {
+      console.error('Error in buy now:', error);
+      toast({
+        title: "Error",
+        description: "Failed to process purchase",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleBuyNow = () => {
