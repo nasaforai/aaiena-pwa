@@ -53,11 +53,12 @@ export const BrandProvider: React.FC<BrandProviderProps> = ({ children }) => {
     const hostname = window.location.hostname;
     const subdomain = hostname.split('.')[0];
     
-    // Skip Lovable project IDs and development environments
+    // Skip Lovable project IDs, Lovable preview hosts, and development environments
     const isLovableProjectId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(subdomain);
     const isDevelopment = ['localhost', 'www', '127', '192'].some(dev => subdomain.startsWith(dev));
+    const isLovableHost = hostname.endsWith('.lovable.app') || hostname.endsWith('.lovable.dev') || hostname.endsWith('.lovable.site');
     
-    if (subdomain && !isLovableProjectId && !isDevelopment) {
+    if (subdomain && !isLovableProjectId && !isDevelopment && !isLovableHost) {
       return subdomain;
     }
 

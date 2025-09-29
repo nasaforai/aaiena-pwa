@@ -63,21 +63,9 @@ export default function ProductDetails() {
     navigate(`/product-details?id=${productId}`);
   };
 
-  if (isLoading) {
-    return (
-      <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen items-center justify-center">
-        <div className="text-center">Loading...</div>
-      </div>
-    );
-  }
+  // Loading handled inline to keep actions visible
 
-  if (!product) {
-    return (
-      <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen items-center justify-center">
-        <div className="text-center">Product not found</div>
-      </div>
-    );
-  }
+  // If product not found, show placeholders; actions remain visible
 
   const handleAddToCart = () => {
     console.log('Add to cart clicked', { product, selectedSize, selectedColor, quantity });
@@ -274,16 +262,17 @@ export default function ProductDetails() {
         <img
           alt="Product"
           className="w-full h-full object-cover rounded-br-lg rounded-bl-lg"
-          src={product.image_url}
+          src={product?.image_url || "/placeholder.svg"}
         />
         <button
           onClick={handleAddToWishlist}
-          className="absolute top-4 right-4 p-2 bg-white bg-opacity-80 rounded-full"
+          disabled={!product}
+          className="absolute top-4 right-4 p-2 bg-white bg-opacity-80 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Heart className="w-5 h-5 text-gray-600" />
         </button>
 
-        {isLoggedIn && (
+        {isLoggedIn && product && (
           <div className="absolute left-0 bottom-0 w-full p-3">
             <div className="bg-white/80 flex items-center justify-between p-4 rounded-xl">
               <div>
@@ -316,14 +305,14 @@ export default function ProductDetails() {
       {/* Product Info */}
       <div className="px-4">
         <h1 className="text-xl font-semibold text-gray-900 mb-2">
-          {product.name}
+          {product?.name || "Loading..."}
         </h1>
         <div className="flex items-center space-x-2 mb-4">
-          {product.original_price && (
+          {product?.original_price && (
             <span className="text-md text-gray-500 line-through">₹{product.original_price}</span>
           )}
-          <span className="text-3xl font-semibold text-gray-900">₹{product.price}</span>
-          {product.discount_percentage && (
+          {product && <span className="text-3xl font-semibold text-gray-900">₹{product.price}</span>}
+          {product?.discount_percentage && (
             <span className="text-sm text-green-600 font-medium">{product.discount_percentage}% OFF</span>
           )}
         </div>
