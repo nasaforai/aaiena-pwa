@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
+import { VirtualTryOnAnimation3D } from '@/components/VirtualTryOnAnimation3D';
 
 export default function Welcome() {
   const [isLoading, setIsLoading] = useState(true);
@@ -40,16 +41,19 @@ export default function Welcome() {
 
       {/* Welcome Content */}
       <div className="flex-1 flex flex-col items-center justify-center space-y-8">
-        {/* Fashion Model/Animation */}
+        {/* 3D Virtual Try-On Animation */}
         <div className="relative mb-8">
           <div className="w-48 h-64 relative">
             <div className="absolute inset-0 bg-gradient-to-b from-purple-400/20 via-pink-400/15 to-purple-600/20 rounded-3xl blur-xl"></div>
-            <img 
-              src="/images/shopping.png" 
-              alt="Fashion Model" 
-              className="relative z-10 w-full h-full object-contain animate-bounce"
-              style={{ animationDuration: '3s' }}
-            />
+            <div className="relative z-10 w-full h-full">
+              <Suspense fallback={
+                <div className="w-full h-full flex items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+                </div>
+              }>
+                <VirtualTryOnAnimation3D />
+              </Suspense>
+            </div>
           </div>
           {/* Floating Elements */}
           <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-400/40 rounded-full animate-ping"></div>
