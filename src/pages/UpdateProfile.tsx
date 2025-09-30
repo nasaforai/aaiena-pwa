@@ -1,34 +1,91 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowLeft, Camera, Edit, Pen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useProfile } from "@/hooks/useProfile";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useToast } from "@/hooks/use-toast";
 
 export default function UpdateProfile() {
   const navigate = useNavigate();
   const { navigateBack } = useNavigation();
+  const { user } = useAuth();
+  const { profile, loading, updateProfile } = useProfile();
+  const { toast } = useToast();
+  
   const [selectedGender, setSelectedGender] = useState("Male");
   const [selectedShirtSize, setSelectedShirtSize] = useState("XL");
-  const [height, setHeight] = useState("177");
-  const [weight, setWeight] = useState("60");
-  const [chest, setChest] = useState("96");
-  const [waist, setWaist] = useState("81");
-  const [pantsSize, setPantsSize] = useState("32");
-  const profileImage = "/images/profile.png";
-  const [stylePreferences, setStylePreferences] = useState([
-    "Smart",
-    "Streetwear",
-    "Athletic",
-  ]);
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+  const [chest, setChest] = useState("");
+  const [waist, setWaist] = useState("");
+  const [pantsSize, setPantsSize] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [stylePreferences, setStylePreferences] = useState<string[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Load profile data when available
+  useEffect(() => {
+    if (profile) {
+      setSelectedGender(profile.gender || "Male");
+      setSelectedShirtSize(profile.shirt_size || "XL");
+      setHeight(profile.height?.toString() || "");
+      setWeight(profile.weight?.toString() || "");
+      setChest(profile.chest?.toString() || "");
+      setWaist(profile.waist?.toString() || "");
+      setPantsSize(profile.pants_size?.toString() || "");
+      setFullName(profile.full_name || user?.email || "");
+      setStylePreferences(profile.style_preferences || []);
+    }
+  }, [profile, user]);
 
   const handleBack = () => {
-    navigateBack("/image-guide");
+    navigateBack("/profile");
   };
 
-  const handleSave = () => {
-    navigate("/fit-profile");
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const updates = {
+        full_name: fullName,
+        gender: selectedGender,
+        height: height ? parseInt(height) : null,
+        weight: weight ? parseInt(weight) : null,
+        chest: chest ? parseInt(chest) : null,
+        waist: waist ? parseInt(waist) : null,
+        pants_size: pantsSize ? parseInt(pantsSize) : null,
+        shirt_size: selectedShirtSize,
+        style_preferences: stylePreferences,
+      };
+
+      const { error } = await updateProfile(updates);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: error,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Profile updated successfully!",
+        });
+        navigate("/profile");
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const toggleStylePreference = (style: string) => {
@@ -47,6 +104,22 @@ export default function UpdateProfile() {
     "Streetwear",
     "Athletic",
   ];
+
+  const displayName = fullName || user?.email || 'User';
+  const initials = displayName
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
+  if (loading) {
+    return (
+      <div className="bg-white flex lg:max-w-sm w-full flex-col mx-auto min-h-screen items-center justify-center">
+        <div className="text-lg text-gray-600">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
@@ -79,22 +152,24 @@ export default function UpdateProfile() {
       <div className="flex-1 px-4 py-6 overflow-y-auto">
         {/* Profile Image */}
         <div className="text-center mb-6">
-          <div
-            className="w-28 h-28 bg-gray-200 rounded-full mx-auto mb-2 relative"
-            style={{
-              backgroundImage: `url(${profileImage})`,
-              backgroundSize: "cover",
-              backgroundRepeat: "no-repeat",
-            }}
-          >
-            <div className="absolute bottom-0 right-0 w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center">
+          <div className="relative inline-block">
+            <Avatar className="w-28 h-28 mx-auto">
+              <AvatarImage src={profile?.avatar_url || ''} alt={displayName} />
+              <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
+            </Avatar>
+            <div className="absolute bottom-0 right-0 w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300">
               <Camera className="w-5 h-5 text-black" />
             </div>
           </div>
-          <h2 className="font-bold text-lg flex items-center justify-center">
-            <span>Jiya Raghav </span>
-            <Pen className="h-4" />
-          </h2>
+          <div className="mt-3">
+            <input
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="text-center font-bold text-lg border-b-2 border-transparent hover:border-gray-300 focus:border-purple-600 focus:outline-none px-2"
+              placeholder="Enter your name"
+            />
+          </div>
         </div>
 
         <div className="bg-gray-100 my-8 py-1 w-full"></div>
@@ -125,39 +200,43 @@ export default function UpdateProfile() {
           <div className="bg-gray-200 py-px mb-4"></div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Height</label>
+              <label className="block text-sm text-gray-600 mb-1">Height (cm)</label>
               <input
-                defaultValue={height}
+                value={height}
                 type="number"
                 onChange={(e) => setHeight(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
+                placeholder="177"
               ></input>
             </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Weight</label>
+              <label className="block text-sm text-gray-600 mb-1">Weight (kg)</label>
               <input
-                defaultValue={weight}
+                value={weight}
                 type="number"
                 onChange={(e) => setWeight(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
+                placeholder="60"
               ></input>
             </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Chest</label>
+              <label className="block text-sm text-gray-600 mb-1">Chest (cm)</label>
               <input
-                defaultValue={chest}
+                value={chest}
                 type="number"
                 onChange={(e) => setChest(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
+                placeholder="96"
               ></input>
             </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Waist</label>
+              <label className="block text-sm text-gray-600 mb-1">Waist (cm)</label>
               <input
-                defaultValue={waist}
+                value={waist}
                 type="number"
                 onChange={(e) => setWaist(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
+                placeholder="81"
               ></input>
             </div>
           </div>
@@ -195,10 +274,11 @@ export default function UpdateProfile() {
               Pants Size
             </label>
             <input
-              defaultValue={pantsSize}
+              value={pantsSize}
               type="number"
               onChange={(e) => setPantsSize(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-lg"
+              placeholder="32"
             ></input>
           </div>
         </div>
@@ -211,8 +291,17 @@ export default function UpdateProfile() {
           <div className="bg-gray-200 py-px mb-4"></div>
           <div className="grid grid-cols-2 gap-3">
             {styles.map((style) => (
-              <div className="flex items-center gap-2">
-                <Checkbox key={style}>{style}</Checkbox>
+              <div key={style} className="flex items-center gap-2">
+                <Checkbox
+                  checked={stylePreferences.includes(style)}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setStylePreferences([...stylePreferences, style]);
+                    } else {
+                      setStylePreferences(stylePreferences.filter(s => s !== style));
+                    }
+                  }}
+                />
                 <label className="block text-md text-gray-600">{style}</label>
               </div>
             ))}
@@ -222,9 +311,10 @@ export default function UpdateProfile() {
         {/* Save Button */}
         <Button
           onClick={handleSave}
+          disabled={isSaving}
           className="w-full bg-gray-900 text-white py-4 rounded-xl font-medium hover:bg-gray-800 mb-4"
         >
-          Save Profile
+          {isSaving ? "Saving..." : "Save Profile"}
         </Button>
 
         {/* Footer */}
