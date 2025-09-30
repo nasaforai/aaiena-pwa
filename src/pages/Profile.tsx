@@ -20,9 +20,9 @@ import Topbar from "@/components/ui/topbar";
 export default function Profile() {
   const navigate = useNavigate();
   const { user, signOut, loading: authLoading } = useAuth();
-  const { profile, loading: profileLoading } = useProfile();
+  const { profile, loading: profileLoading, updateProfile } = useProfile();
   const { toast } = useToast();
-  const { isKiosk, isDesktop } = useAuthState();
+  const { isKiosk, isDesktop, isMobile } = useAuthState();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -30,6 +30,7 @@ export default function Profile() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showMobileSwitchDialog, setShowMobileSwitchDialog] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
@@ -56,6 +57,71 @@ export default function Profile() {
       navigate('/store');
     }
     setIsSigningOut(false);
+  };
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Error",
+        description: "Please select an image file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "Image size must be less than 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user.id}/avatar.${fileExt}`;
+
+      // Upload to Supabase storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update profile with new avatar URL
+      const { error: updateError } = await updateProfile({ avatar_url: publicUrl });
+
+      if (updateError) throw new Error(updateError);
+
+      toast({
+        title: "Success",
+        description: "Profile picture updated successfully.",
+      });
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload profile picture. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingAvatar(false);
+      // Reset file input
+      event.target.value = '';
+    }
   };
 
   const handlePasswordChange = async () => {
@@ -185,14 +251,28 @@ export default function Profile() {
                   <AvatarImage src={profile?.avatar_url || ''} alt={displayName} />
                   <AvatarFallback className="text-xl">{initials}</AvatarFallback>
                 </Avatar>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full"
-                  onClick={() => navigate('/update-profile')}
-                >
-                  <Camera className="w-3 h-3" />
-                </Button>
+                {/* Show camera icon only on mobile/desktop, hide on kiosk */}
+                {!isKiosk && (
+                  <>
+                    <input
+                      type="file"
+                      id="avatar-upload"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleAvatarUpload}
+                      disabled={isUploadingAvatar}
+                    />
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full"
+                      onClick={() => document.getElementById('avatar-upload')?.click()}
+                      disabled={isUploadingAvatar}
+                    >
+                      <Camera className="w-3 h-3" />
+                    </Button>
+                  </>
+                )}
               </div>
               
               <h2 className="text-xl font-semibold mb-1">{displayName}</h2>
