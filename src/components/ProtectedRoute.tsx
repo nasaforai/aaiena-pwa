@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, deviceType } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -24,8 +24,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (!isAuthenticated) {
     // Device-aware redirect - mobile users go to sign-in, kiosk users go to signup-options
-    const { deviceType } = useAuth();
-    const redirectPath = deviceType === 'mobile' ? '/signin' : '/signup-options';
+    const redirectPath = deviceType === 'mobile' ? '/sign-in' : '/signup-options';
     return <Navigate to={redirectPath} state={{ from: location }} replace />;
   }
 
