@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Smartphone } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,12 +11,14 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 
 interface KioskInactivityWarningProps {
   open: boolean;
   remainingSeconds: number;
   onKeepLoggedIn: () => void;
   onSignOut: () => void;
+  onSwitchToMobile: () => void;
 }
 
 export const KioskInactivityWarning = ({
@@ -23,6 +26,7 @@ export const KioskInactivityWarning = ({
   remainingSeconds,
   onKeepLoggedIn,
   onSignOut,
+  onSwitchToMobile,
 }: KioskInactivityWarningProps) => {
   const [progress, setProgress] = useState(100);
 
@@ -59,6 +63,14 @@ export const KioskInactivityWarning = ({
           >
             Sign me out
           </AlertDialogCancel>
+          <Button
+            variant="outline"
+            onClick={onSwitchToMobile}
+            className="w-full sm:w-auto"
+          >
+            <Smartphone className="w-4 h-4 mr-2" />
+            Switch to Mobile
+          </Button>
           <AlertDialogAction 
             onClick={onKeepLoggedIn}
             className="w-full sm:w-auto"

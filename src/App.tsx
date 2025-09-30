@@ -14,6 +14,8 @@ import ScrollToTop from "./components/ScrollToTop";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { KioskInactivityWarning } from "@/components/KioskInactivityWarning";
 import { useKioskInactivityMonitor } from "@/hooks/useKioskInactivityMonitor";
+import MobileSwitchQRDialog from "@/components/MobileSwitchQRDialog";
+import { useState } from "react";
 
 // Direct imports for main navigation pages (no lazy loading)
 import Store from "./pages/Store";
@@ -68,15 +70,28 @@ const LoadingFallback = () => (
 
 // Wrapper component to use the hook inside AuthProvider context
 const KioskInactivityMonitor = () => {
-  const { showWarning, remainingSeconds, resetTimers, forceLogout } = useKioskInactivityMonitor();
+  const { showWarning, remainingSeconds, resetTimers, forceLogout, handleSwitchToMobile } = useKioskInactivityMonitor();
+  const [showMobileSwitchDialog, setShowMobileSwitchDialog] = useState(false);
+  
+  const onSwitchToMobile = () => {
+    handleSwitchToMobile();
+    setShowMobileSwitchDialog(true);
+  };
   
   return (
-    <KioskInactivityWarning
-      open={showWarning}
-      remainingSeconds={remainingSeconds}
-      onKeepLoggedIn={resetTimers}
-      onSignOut={forceLogout}
-    />
+    <>
+      <KioskInactivityWarning
+        open={showWarning}
+        remainingSeconds={remainingSeconds}
+        onKeepLoggedIn={resetTimers}
+        onSignOut={forceLogout}
+        onSwitchToMobile={onSwitchToMobile}
+      />
+      <MobileSwitchQRDialog
+        open={showMobileSwitchDialog}
+        onClose={() => setShowMobileSwitchDialog(false)}
+      />
+    </>
   );
 };
 

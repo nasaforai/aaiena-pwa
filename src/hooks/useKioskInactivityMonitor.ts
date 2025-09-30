@@ -92,6 +92,12 @@ export const useKioskInactivityMonitor = () => {
     resetTimers();
   }, [resetTimers]);
 
+  const handleSwitchToMobile = useCallback(() => {
+    clearAllTimers();
+    showWarningRef.current = false;
+    setShowWarning(false);
+  }, [clearAllTimers]);
+
   // Set up activity listeners
   useEffect(() => {
     if (!isKioskActive) {
@@ -142,5 +148,6 @@ export const useKioskInactivityMonitor = () => {
     remainingSeconds,
     resetTimers: handleKeepLoggedIn,
     forceLogout,
+    handleSwitchToMobile,
   };
 };
