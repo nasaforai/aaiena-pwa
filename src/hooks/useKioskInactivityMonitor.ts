@@ -74,12 +74,15 @@ export const useKioskInactivityMonitor = () => {
   const handleActivity = useCallback(() => {
     if (!isKioskActive) return;
     
+    // If warning is showing, ignore activity - user must click a button
+    if (showWarning) return;
+    
     const now = Date.now();
     // Debounce activity events (minimum 100ms between resets)
     if (now - lastActivityRef.current < 100) return;
     
     resetTimers();
-  }, [isKioskActive, resetTimers]);
+  }, [isKioskActive, showWarning, resetTimers]);
 
   const handleKeepLoggedIn = useCallback(() => {
     resetTimers();
