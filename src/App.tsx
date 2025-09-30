@@ -12,6 +12,8 @@ import { ProfileSidebar } from "@/components/ProfileSidebar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import { KioskInactivityWarning } from "@/components/KioskInactivityWarning";
+import { useKioskInactivityMonitor } from "@/hooks/useKioskInactivityMonitor";
 
 // Direct imports for main navigation pages (no lazy loading)
 import Store from "./pages/Store";
@@ -63,6 +65,20 @@ const LoadingFallback = () => (
     </div>
   </div>
 );
+
+// Wrapper component to use the hook inside AuthProvider context
+const KioskInactivityMonitor = () => {
+  const { showWarning, remainingSeconds, resetTimers, forceLogout } = useKioskInactivityMonitor();
+  
+  return (
+    <KioskInactivityWarning
+      open={showWarning}
+      remainingSeconds={remainingSeconds}
+      onKeepLoggedIn={resetTimers}
+      onSignOut={forceLogout}
+    />
+  );
+};
 
 const App = () => {
   return (
@@ -120,6 +136,7 @@ const App = () => {
                   </Suspense>
                   <PWAInstallPrompt />
                   <ProfileSidebar />
+                  <KioskInactivityMonitor />
                 </BrowserRouter>
               </TooltipProvider>
             </ProfileSidebarProvider>
