@@ -1,6 +1,5 @@
 import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Sphere, Box, Torus } from '@react-three/drei';
 import * as THREE from 'three';
 
 // Floating clothing icon component
@@ -18,9 +17,10 @@ function ClothingIcon({ position, speed, delay }: { position: [number, number, n
   });
 
   return (
-    <Box ref={meshRef} args={[0.3, 0.4, 0.1]} position={position}>
+    <mesh ref={meshRef} position={position}>
+      <boxGeometry args={[0.3, 0.4, 0.1]} />
       <meshStandardMaterial color="#c084fc" opacity={0.8} transparent />
-    </Box>
+    </mesh>
   );
 }
 
@@ -40,9 +40,10 @@ function Sparkle({ position }: { position: [number, number, number] }) {
   });
 
   return (
-    <Sphere ref={meshRef} args={[0.05, 8, 8]} position={position}>
+    <mesh ref={meshRef} position={position}>
+      <sphereGeometry args={[0.05, 8, 8]} />
       <meshBasicMaterial color="#f0abfc" transparent opacity={0.6} />
-    </Sphere>
+    </mesh>
   );
 }
 
@@ -74,17 +75,20 @@ function Avatar() {
   return (
     <group ref={groupRef} position={[0, -0.5, 0]}>
       {/* Body */}
-      <Box args={[0.8, 1.5, 0.4]} position={[0, 0, 0]}>
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[0.8, 1.5, 0.4]} />
         <meshStandardMaterial color="#e9d5ff" />
-      </Box>
+      </mesh>
       
       {/* Head */}
-      <Sphere args={[0.4, 16, 16]} position={[0, 1.2, 0]}>
+      <mesh position={[0, 1.2, 0]}>
+        <sphereGeometry args={[0.4, 16, 16]} />
         <meshStandardMaterial color="#f3e8ff" />
-      </Sphere>
+      </mesh>
       
       {/* Animated Clothing Layer */}
-      <Box ref={clothingRef} args={[0.85, 1.55, 0.45]} position={[0, 0, 0]}>
+      <mesh ref={clothingRef} position={[0, 0, 0]}>
+        <boxGeometry args={[0.85, 1.55, 0.45]} />
         <meshStandardMaterial 
           color="#c084fc" 
           transparent 
@@ -92,15 +96,17 @@ function Avatar() {
           metalness={0.3}
           roughness={0.4}
         />
-      </Box>
+      </mesh>
       
       {/* Arms */}
-      <Box args={[0.2, 1, 0.2]} position={[-0.6, 0.2, 0]} rotation={[0, 0, 0.3]}>
+      <mesh position={[-0.6, 0.2, 0]} rotation={[0, 0, 0.3]}>
+        <boxGeometry args={[0.2, 1, 0.2]} />
         <meshStandardMaterial color="#e9d5ff" />
-      </Box>
-      <Box args={[0.2, 1, 0.2]} position={[0.6, 0.2, 0]} rotation={[0, 0, -0.3]}>
+      </mesh>
+      <mesh position={[0.6, 0.2, 0]} rotation={[0, 0, -0.3]}>
+        <boxGeometry args={[0.2, 1, 0.2]} />
         <meshStandardMaterial color="#e9d5ff" />
-      </Box>
+      </mesh>
     </group>
   );
 }
@@ -117,9 +123,10 @@ function MagicRing() {
   });
 
   return (
-    <Torus ref={ringRef} args={[2, 0.05, 16, 100]} position={[0, 0, 0]}>
+    <mesh ref={ringRef} position={[0, 0, 0]}>
+      <torusGeometry args={[2, 0.05, 16, 100]} />
       <meshBasicMaterial color="#f0abfc" transparent opacity={0.3} />
-    </Torus>
+    </mesh>
   );
 }
 
@@ -146,14 +153,6 @@ function Scene() {
       <Sparkle position={[0.5, -0.5, 1]} />
       <Sparkle position={[-0.5, 2, -0.5]} />
       
-      <OrbitControls 
-        enableZoom={false} 
-        enablePan={false}
-        autoRotate={true}
-        autoRotateSpeed={1}
-        maxPolarAngle={Math.PI / 2}
-        minPolarAngle={Math.PI / 2.5}
-      />
     </>
   );
 }
