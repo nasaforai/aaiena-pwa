@@ -249,8 +249,8 @@ export default function ProductDetails() {
     }
   };
 
-  const colors = product.colors || [];
-  const sizes = product.sizes || ["XS", "S", "M", "L", "XL"];
+  const colors = product?.colors || [];
+  const sizes = product?.sizes || ["XS", "S", "M", "L", "XL"];
 
   return (
     <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
