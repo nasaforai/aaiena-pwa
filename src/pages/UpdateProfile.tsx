@@ -95,28 +95,6 @@ export default function UpdateProfile() {
             <span>Jiya Raghav </span>
             <Pen className="h-4" />
           </h2>
-          <button className="bg-purple-200 text-black px-16 py-4 rounded-xl text-m mt-2">
-            Upgrade your Plan
-          </button>
-        </div>
-
-        {/* Current Photos */}
-        <div className="mb-6">
-          <h3 className="font-medium mb-3">Your Current Photos</h3>
-          <div className="flex space-x-3">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className=" w-20 h-20 overflow-hidden bg-blue-200 rounded-lg relative"
-              >
-                <img
-                  src="/images/dress.jpg"
-                  alt=""
-                  className="absolute object-cover rounded-lg"
-                />
-              </div>
-            ))}
-          </div>
         </div>
 
         <div className="bg-gray-100 my-8 py-1 w-full"></div>
