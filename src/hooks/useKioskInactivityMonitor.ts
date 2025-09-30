@@ -14,6 +14,7 @@ export const useKioskInactivityMonitor = () => {
   const logoutTimerRef = useRef<NodeJS.Timeout | null>(null);
   const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
+  const showWarningRef = useRef<boolean>(false);
 
   const isKioskActive = isAuthenticated && deviceType === 'kiosk';
 
@@ -48,12 +49,14 @@ export const useKioskInactivityMonitor = () => {
 
   const forceLogout = useCallback(async () => {
     clearAllTimers();
+    showWarningRef.current = false;
     setShowWarning(false);
     await signOut();
   }, [clearAllTimers, signOut]);
 
   const resetTimers = useCallback(() => {
     clearAllTimers();
+    showWarningRef.current = false;
     setShowWarning(false);
     lastActivityRef.current = Date.now();
 
@@ -61,6 +64,7 @@ export const useKioskInactivityMonitor = () => {
 
     // Set warning timer (10 seconds)
     warningTimerRef.current = setTimeout(() => {
+      showWarningRef.current = true;
       setShowWarning(true);
       startCountdown();
     }, INACTIVITY_WARNING_TIME);
@@ -75,14 +79,14 @@ export const useKioskInactivityMonitor = () => {
     if (!isKioskActive) return;
     
     // If warning is showing, ignore activity - user must click a button
-    if (showWarning) return;
+    if (showWarningRef.current) return;
     
     const now = Date.now();
     // Debounce activity events (minimum 100ms between resets)
     if (now - lastActivityRef.current < 100) return;
     
     resetTimers();
-  }, [isKioskActive, showWarning, resetTimers]);
+  }, [isKioskActive, resetTimers]);
 
   const handleKeepLoggedIn = useCallback(() => {
     resetTimers();
@@ -92,6 +96,7 @@ export const useKioskInactivityMonitor = () => {
   useEffect(() => {
     if (!isKioskActive) {
       clearAllTimers();
+      showWarningRef.current = false;
       setShowWarning(false);
       return;
     }
