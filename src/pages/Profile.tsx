@@ -237,7 +237,7 @@ export default function Profile() {
     .slice(0, 2);
 
   return (
-    <div className="bg-white flex lg:max-w-sm w-full flex-col mx-auto min-h-screen">
+    <div className="bg-white flex lg:max-w-sm w-full flex-col mx-auto min-h-screen animate-slide-in-right">
       <Topbar handleBack={() => navigate("/store")} showBack={true} />
 
       <div className="flex-1 p-4">
