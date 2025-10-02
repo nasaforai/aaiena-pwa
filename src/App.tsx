@@ -6,8 +6,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProfileSidebarProvider } from "@/contexts/ProfileSidebarContext";
-import { BrandProvider } from "@/contexts/BrandContext";
+import { BrandProvider, useBrand } from "@/contexts/BrandContext";
 import { BrandThemeProvider } from "@/components/BrandThemeProvider";
+import { BrandErrorScreen } from "@/components/BrandErrorScreen";
+import { Loader2 } from "lucide-react";
 import { ProfileSidebar } from "@/components/ProfileSidebar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
@@ -95,20 +97,43 @@ const KioskInactivityMonitor = () => {
   );
 };
 
+// Brand validation wrapper
+const BrandGuard = ({ children }: { children: React.ReactNode }) => {
+  const { currentBrand, loading, error } = useBrand();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground text-lg font-medium">Loading brand...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !currentBrand) {
+    return <BrandErrorScreen error={error || 'Brand not found'} />;
+  }
+
+  return <>{children}</>;
+};
+
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrandProvider>
-        <BrandThemeProvider>
-          <AuthProvider>
-            <ProfileSidebarProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
-                  <Suspense fallback={<LoadingFallback />}>
-                    <ScrollToTop />
-                    <Routes>
+        <BrandGuard>
+          <BrandThemeProvider>
+            <AuthProvider>
+              <ProfileSidebarProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <BrowserRouter>
+                    <Suspense fallback={<LoadingFallback />}>
+                      <ScrollToTop />
+                      <Routes>
                  <Route path="/" element={<Index />} />
                  <Route path="/welcome" element={<Welcome />} />
                  <Route path="/sign-in" element={<SignIn />} />
@@ -157,6 +182,7 @@ const App = () => {
             </ProfileSidebarProvider>
           </AuthProvider>
         </BrandThemeProvider>
+        </BrandGuard>
       </BrandProvider>
     </QueryClientProvider>
   );

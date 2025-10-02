@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { QrCode, Camera, Monitor } from "lucide-react";
 import { createSearchParams, useNavigate } from "react-router-dom";
+import { useBrand } from "@/contexts/BrandContext";
 
 export default function FashionLane() {
   const navigate = useNavigate();
+  const { currentBrand } = useBrand();
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
 
   const handleContinue = () => {
@@ -46,10 +48,12 @@ export default function FashionLane() {
 
   return (
     <div className="bg-gradient-to-t from-[#FFE3F5] to-[#E8E1FF] flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen px-6 py-8 font-roboto">
-      {/* H&M Logo */}
-      <div className="flex justify-center mb-8">
-        <img src="/images/hm.png" alt="h&m logo" height={54} width={82} />
-      </div>
+      {/* Brand Logo */}
+      {currentBrand?.logo_url && (
+        <div className="flex justify-center mb-8">
+          <img src={currentBrand.logo_url} alt={`${currentBrand.name} logo`} height={54} width={82} className="object-contain" />
+        </div>
+      )}
 
       {/* Title */}
       <div className="text-left mb-12 pl-4">

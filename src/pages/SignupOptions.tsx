@@ -5,10 +5,12 @@ import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileSignupQRDialog from "@/components/MobileSignupQRDialog";
+import { useBrand } from "@/contexts/BrandContext";
 
 export default function SignupOptions() {
   const navigate = useNavigate();
   const { navigateBack } = useNavigation();
+  const { currentBrand } = useBrand();
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const isMobile = useIsMobile();
@@ -54,10 +56,12 @@ export default function SignupOptions() {
 
       {/* Content */}
       <div className="flex-1 px-6 py-8">
-        {/* H&M Logo */}
-        <div className="flex justify-center mb-8">
-          <img src="/images/hm.png" alt="h&m logo" width={82} height={54} />
-        </div>
+        {/* Brand Logo */}
+        {currentBrand?.logo_url && (
+          <div className="flex justify-center mb-8">
+            <img src={currentBrand.logo_url} alt={`${currentBrand.name} logo`} width={82} height={54} className="object-contain" />
+          </div>
+        )}
 
         <div className="text-center mb-12">
           <h2 className="text-2xl font-semibold text-gray-900 mb-2">

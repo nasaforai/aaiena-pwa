@@ -8,10 +8,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDeviceSession } from "@/hooks/useDeviceSession";
+import { useBrand } from '@/contexts/BrandContext';
 
 export default function OTPVerification() {
   const navigate = useNavigate();
   const { navigateBack } = useNavigation();
+  const { currentBrand } = useBrand();
   const { isAuthenticated, loading, user } = useAuth();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -204,10 +206,12 @@ export default function OTPVerification() {
 
       {/* Content */}
       <div className="flex-1 px-6 py-8">
-        {/* H&M Logo */}
-        <div className="flex justify-center mb-8">
-          <img src="/images/hm.png" alt="h&m logo" width={82} height={54} />
-        </div>
+        {/* Brand Logo */}
+        {currentBrand?.logo_url && (
+          <div className="flex justify-center mb-8">
+            <img src={currentBrand.logo_url} alt={`${currentBrand.name} logo`} width={82} height={54} className="object-contain" />
+          </div>
+        )}
 
         <div className="text-center mb-8">
           <h1 className="text-2xl font-semibold text-gray-900 mb-2">

@@ -8,6 +8,7 @@ import {
   Home,
   MessageCircle,
 } from "lucide-react";
+import { useBrand } from "@/contexts/BrandContext";
 
 interface StoreScreenProps {
   onBack?: () => void;
@@ -18,6 +19,8 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({
   onBack,
   onProductSelect,
 }) => {
+  const { currentBrand } = useBrand();
+  
   const handleBack = () => {
     if (onBack) {
       onBack();
@@ -40,7 +43,9 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({
         >
           <ArrowLeft className="w-6 h-6 text-gray-700" />
         </button>
-        <img src="/images/hm.png" alt="h&m logo" />
+        {currentBrand?.logo_url && (
+          <img src={currentBrand.logo_url} alt={`${currentBrand.name} logo`} className="h-10 object-contain" />
+        )}
         <ShoppingBag className="w-6 h-6 text-gray-700" />
       </div>
 

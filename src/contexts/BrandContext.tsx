@@ -42,14 +42,8 @@ export const BrandProvider: React.FC<BrandProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const detectBrandFromURL = (): string => {
-    // Try to detect brand from URL path (e.g., /brand/hm)
-    const pathMatch = window.location.pathname.match(/^\/brand\/([^\/]+)/);
-    if (pathMatch) {
-      return pathMatch[1];
-    }
-
-    // Try to detect from subdomain (e.g., hm.yourapp.com)
+  const detectBrandFromURL = (): string | null => {
+    // PRIMARY: Try to detect from subdomain (e.g., hm.yourapp.com, ucb.yourapp.com)
     const hostname = window.location.hostname;
     const subdomain = hostname.split('.')[0];
     
@@ -62,21 +56,38 @@ export const BrandProvider: React.FC<BrandProviderProps> = ({ children }) => {
       return subdomain;
     }
 
-    // Try to detect from query parameter (e.g., ?brand=hm)
+    // FALLBACK 1: Try to detect brand from URL path (e.g., /brand/hm)
+    const pathMatch = window.location.pathname.match(/^\/brand\/([^\/]+)/);
+    if (pathMatch) {
+      return pathMatch[1];
+    }
+
+    // FALLBACK 2: Try to detect from query parameter (e.g., ?brand=hm)
     const urlParams = new URLSearchParams(window.location.search);
     const brandParam = urlParams.get('brand');
     if (brandParam) {
       return brandParam;
     }
 
-    // Default to 'hm' if no brand detected
-    return 'hm';
+    // For development/testing only - default to 'hm'
+    if (isDevelopment || isLovableHost) {
+      return 'hm';
+    }
+
+    // No brand detected - this should only happen in production with misconfigured domain
+    return null;
   };
 
-  const setBrandBySlug = async (slug: string) => {
+  const setBrandBySlug = async (slug: string | null) => {
     try {
       setLoading(true);
       setError(null);
+
+      if (!slug) {
+        setError('No brand specified. Please access this app through a valid brand domain.');
+        setLoading(false);
+        return;
+      }
 
       const { data, error: fetchError } = await supabase
         .from('brands')
@@ -85,52 +96,17 @@ export const BrandProvider: React.FC<BrandProviderProps> = ({ children }) => {
         .eq('is_active', true)
         .single();
 
-      if (fetchError) {
-        console.warn(`Brand not found: ${slug}, using default brand`);
-        // Try to fetch any available brand as fallback
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('brands')
-          .select('*')
-          .eq('is_active', true)
-          .limit(1)
-          .single();
-        
-        if (fallbackError || !fallbackData) {
-          // Create a default brand object if no brands exist
-          setCurrentBrand({
-            id: 'default',
-            name: 'Fashion Store',
-            slug: 'default',
-            logo_url: null,
-            primary_color: '#000000',
-            secondary_color: '#ffffff',
-            description: 'Default Fashion Store',
-            theme_config: {},
-            domain: null,
-            is_active: true
-          });
-        } else {
-          setCurrentBrand(fallbackData);
-        }
+      if (fetchError || !data) {
+        console.error(`Brand not found or inactive: ${slug}`);
+        setError(`Brand "${slug}" not found or inactive. Please contact support.`);
+        setCurrentBrand(null);
       } else {
         setCurrentBrand(data);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load brand');
       console.error('Error loading brand:', err);
-      // Set a default brand to prevent app from breaking
-      setCurrentBrand({
-        id: 'default',
-        name: 'Fashion Store',
-        slug: 'default',
-        logo_url: null,
-        primary_color: '#000000',
-        secondary_color: '#ffffff',
-        description: 'Default Fashion Store',
-        theme_config: {},
-        domain: null,
-        is_active: true
-      });
+      setCurrentBrand(null);
     } finally {
       setLoading(false);
     }

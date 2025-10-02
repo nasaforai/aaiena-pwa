@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
+import { useBrand } from '@/contexts/BrandContext';
 
 export default function Welcome() {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const { currentBrand } = useBrand();
 
   useEffect(() => {
     // Simulate loading time for smooth transition
@@ -33,10 +35,12 @@ export default function Welcome() {
 
   return (
     <div className="bg-gradient-to-t from-[#FFE3F5] to-[#E8E1FF] flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen px-6 py-8 font-roboto">
-      {/* H&M Logo */}
-      <div className="flex justify-center mb-8">
-        <img src="/images/hm.png" alt="h&m logo" height={54} width={82} />
-      </div>
+      {/* Brand Logo */}
+      {currentBrand?.logo_url && (
+        <div className="flex justify-center mb-8">
+          <img src={currentBrand.logo_url} alt={`${currentBrand.name} logo`} height={54} width={82} className="object-contain" />
+        </div>
+      )}
 
       {/* Welcome Content */}
       <div className="flex-1 flex flex-col items-center justify-center space-y-8">
@@ -61,7 +65,7 @@ export default function Welcome() {
           <h1 className="text-3xl font-bold text-gray-900 leading-tight">
             Welcome to{' '}
             <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-purple-700 bg-clip-text text-transparent">
-              Fashion Lane
+              {currentBrand?.name || 'Fashion Lane'}
             </span>
           </h1>
           <p className="text-lg text-gray-700 font-light">

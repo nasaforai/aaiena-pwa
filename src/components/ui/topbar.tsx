@@ -18,16 +18,14 @@ const Topbar = ({ handleBack, showBack = true }) => {
             <ArrowLeft className="w-6 h-6 text-gray-700" />
           </button>
         )}
-        {currentBrand ? (
+        {currentBrand?.logo_url && (
           <img 
-            src={currentBrand.logo_url || "/images/hm.png"} 
+            src={currentBrand.logo_url} 
             alt={`${currentBrand.name} logo`} 
             width={40} 
             height={40} 
             className="object-contain"
           />
-        ) : (
-          <img src="/images/hm.png" alt="logo" width={40} height={40} />
         )}
         <div className="flex items-center space-x-4">
           <div

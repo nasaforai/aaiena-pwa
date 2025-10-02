@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Camera, QrCode, Monitor } from "lucide-react";
+import { useBrand } from "@/contexts/BrandContext";
 
 interface FashionLaneScreenProps {
   onContinue?: () => void;
@@ -8,6 +9,7 @@ interface FashionLaneScreenProps {
 export const FashionLaneScreen: React.FC<FashionLaneScreenProps> = ({
   onContinue,
 }) => {
+  const { currentBrand } = useBrand();
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
 
   const options = [
@@ -46,10 +48,12 @@ export const FashionLaneScreen: React.FC<FashionLaneScreenProps> = ({
 
   return (
     <div className="bg-[#EDE1FC] flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen relative px-6 py-8">
-      {/* H&M Logo */}
-      <div className="flex justify-center mb-8">
-        <img src="/images/hm.png" alt="h&m logo" />
-      </div>
+      {/* Brand Logo */}
+      {currentBrand?.logo_url && (
+        <div className="flex justify-center mb-8">
+          <img src={currentBrand.logo_url} alt={`${currentBrand.name} logo`} className="h-[54px] object-contain" />
+        </div>
+      )}
 
       {/* Title */}
       <div className="text-center mb-2">

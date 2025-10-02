@@ -9,10 +9,12 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDeviceSession } from "@/hooks/useDeviceSession";
 import { parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
+import { useBrand } from '@/contexts/BrandContext';
 
 export default function SignUp() {
   const navigate = useNavigate();
   const { navigateBack } = useNavigation();
+  const { currentBrand } = useBrand();
   const { isAuthenticated, loading, user, deviceType } = useAuth();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -178,9 +180,11 @@ export default function SignUp() {
     return (
       <div className="bg-white flex lg:max-w-sm w-full flex-col mx-auto min-h-screen items-center justify-center">
         <div className="flex flex-col items-center space-y-6 p-6 text-center">
-          <div className="flex justify-center mb-4">
-            <img src="/images/hm.png" alt="h&m logo" width={82} height={54} />
-          </div>
+          {currentBrand?.logo_url && (
+            <div className="flex justify-center mb-4">
+              <img src={currentBrand.logo_url} alt={`${currentBrand.name} logo`} width={82} height={54} className="object-contain" />
+            </div>
+          )}
           
           {updatingSession ? (
             <>
@@ -442,10 +446,12 @@ export default function SignUp() {
 
       {/* Content */}
       <div className="flex-1 px-6 py-8">
-        {/* H&M Logo */}
-        <div className="flex justify-center mb-8">
-          <img src="/images/hm.png" alt="h&m logo" width={82} height={54} />
-        </div>
+        {/* Brand Logo */}
+        {currentBrand?.logo_url && (
+          <div className="flex justify-center mb-8">
+            <img src={currentBrand.logo_url} alt={`${currentBrand.name} logo`} width={82} height={54} className="object-contain" />
+          </div>
+        )}
 
         <div className="text-center mb-8">
           <h1 className="text-2xl font-semibold text-gray-900 mb-2">
