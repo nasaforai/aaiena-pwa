@@ -28,7 +28,7 @@ import ProductCard from "@/components/ProductCard";
 import { Progress } from "@/components/ui/progress";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useProducts, useProductsByCategory } from "@/hooks/useProducts";
-import { useCategories } from "@/hooks/useCategories";
+import { useCategories, useParentCategories } from "@/hooks/useCategories";
 import { useBanners } from "@/hooks/useBanners";
 import { useBrand } from "@/contexts/BrandContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -43,10 +43,13 @@ export default function Store() {
   const { profile, loading: profileLoading } = useProfile();
   const [notifyToggle, setNotifyToggle] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedParentCategory, setSelectedParentCategory] = useState<string | null>(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const isMobile = useIsMobile();
 
   // Fetch brand-aware data from Supabase
   const brandId = currentBrand?.id;
+  const { data: parentCategories = [] } = useParentCategories(brandId);
   const { data: categories = [] } = useCategories(brandId);
   const { data: designerPicksBanner } = useBanners("designer_picks", brandId);
   const { data: discountBanners } = useBanners("discount", brandId);
@@ -55,16 +58,28 @@ export default function Store() {
   const { data: newProducts = [] } = useProductsByCategory("new", brandId);
   const { data: offerProducts = [] } = useProductsByCategory("offer", brandId);
 
-  // Filter products based on search term
+  // Filter products based on search term and category
   const filteredProducts = useMemo(() => {
-    if (!searchTerm.trim()) return [];
+    if (!searchTerm.trim() && !selectedSubcategory) return [];
     
-    return allProducts.filter(product =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.brand?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [allProducts, searchTerm]);
+    let filtered = allProducts;
+    
+    // Filter by search term
+    if (searchTerm.trim()) {
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.brand?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    // Filter by subcategory
+    if (selectedSubcategory) {
+      filtered = filtered.filter(product => product.category_id === selectedSubcategory);
+    }
+    
+    return filtered;
+  }, [allProducts, searchTerm, selectedSubcategory]);
 
   // Get display name with fallbacks
   const getDisplayName = () => {
@@ -225,41 +240,89 @@ export default function Store() {
         </div>
       )}
 
-      {/* Categories section */}
+      {/* Hierarchical Categories section */}
       <div className="px-4 mb-4">
-        <h3 className="font-bold text-lg mb-3">Shop All</h3>
-        <div className="overflow-y-hidden h-20">
-          <div className="flex justify-between overflow-scroll flex-nowrap gap-6 pb-5 ">
-            {categories.map((category) => (
-              <div key={category.id} className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-gray-200 rounded-md mb-2 relative overflow-hidden">
-                  <img
-                    src={category.image_url || "/images/dress.jpg"}
-                    alt={category.name}
-                    className="absolute left-0 top-0 w-full h-full object-cover"
-                  />
-                </div>
-                <span className="text-xs text-gray-600">{category.name}</span>
-              </div>
+        <h3 className="font-bold text-lg mb-3">Shop by Category</h3>
+        
+        {/* Parent Categories */}
+        <div className="overflow-y-hidden mb-4">
+          <div className="flex gap-4 overflow-x-auto pb-3">
+            <button
+              onClick={() => {
+                setSelectedParentCategory(null);
+                setSelectedSubcategory(null);
+              }}
+              className={`px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                !selectedParentCategory
+                  ? "bg-purple-600 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              All
+            </button>
+            {parentCategories.map((parent) => (
+              <button
+                key={parent.id}
+                onClick={() => {
+                  setSelectedParentCategory(parent.id);
+                  setSelectedSubcategory(null);
+                }}
+                className={`px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                  selectedParentCategory === parent.id
+                    ? "bg-purple-600 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {parent.name}
+              </button>
             ))}
           </div>
         </div>
+
+        {/* Subcategories - Show when parent is selected */}
+        {selectedParentCategory && (
+          <div className="overflow-y-hidden">
+            <div className="flex gap-4 overflow-x-auto pb-3">
+              {parentCategories
+                .find((p) => p.id === selectedParentCategory)
+                ?.subcategories?.map((subcat) => (
+                  <button
+                    key={subcat.id}
+                    onClick={() => setSelectedSubcategory(subcat.id)}
+                    className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
+                      selectedSubcategory === subcat.id
+                        ? "bg-purple-500 text-white"
+                        : "bg-white border border-gray-300 text-gray-700 hover:border-purple-300"
+                    }`}
+                  >
+                    {subcat.name}
+                  </button>
+                ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main Content Area */}
       <div className="flex-1 p-4">
-        {/* Search Results */}
-        {searchTerm.trim() && (
+        {/* Filtered Results - Show for search or category filter */}
+        {(searchTerm.trim() || selectedSubcategory) && (
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-lg">
-                Search Results ({filteredProducts.length})
+                {searchTerm.trim() ? `Search Results (${filteredProducts.length})` : 
+                 selectedSubcategory ? `${categories.find(c => c.id === selectedSubcategory)?.name || 'Category'} (${filteredProducts.length})` : 
+                 'Products'}
               </h3>
               <button
-                onClick={clearSearch}
+                onClick={() => {
+                  clearSearch();
+                  setSelectedSubcategory(null);
+                  setSelectedParentCategory(null);
+                }}
                 className="text-sm text-purple-600 hover:text-purple-800"
               >
-                Clear search
+                Clear filters
               </button>
             </div>
             {filteredProducts.length > 0 ? (
@@ -275,15 +338,15 @@ export default function Store() {
             ) : (
               <div className="text-center py-8 text-gray-500">
                 <Search className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                <p>No products found for "{searchTerm}"</p>
-                <p className="text-sm mt-1">Try different keywords or browse categories</p>
+                <p>No products found</p>
+                <p className="text-sm mt-1">Try different filters or browse all products</p>
               </div>
             )}
           </div>
         )}
 
-        {/* Show regular content only when not searching */}
-        {!searchTerm.trim() && (
+        {/* Show regular content only when not filtering */}
+        {!searchTerm.trim() && !selectedSubcategory && (
           <>
             {/* Discount Section */}
             {discountBanners && discountBanners.length > 0 && (
@@ -313,35 +376,34 @@ export default function Store() {
               </div>
             )}
 
-            {/* Category Carousel */}
-            <div className="h-10 overflow-y-hidden mt-10 mb-6">
-              <div className="flex space-x-4 flex-nowrap pb-5 overflow-x-scroll">
-                <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
-                  All
-                </div>
-                <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
-                  Women
-                </div>
-                <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
-                  Men
-                </div>
-                <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
-                  Kids
-                </div>
-                <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
-                  All
-                </div>
-                <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
-                  Man
-                </div>
-                <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
-                  Women
-                </div>
-                <div className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600">
-                  Kids
+            {/* Quick Category Filters */}
+            {parentCategories.length > 0 && (
+              <div className="h-10 overflow-y-hidden mt-10 mb-6">
+                <div className="flex space-x-4 flex-nowrap pb-5 overflow-x-scroll">
+                  <button
+                    onClick={() => {
+                      setSelectedParentCategory(null);
+                      setSelectedSubcategory(null);
+                    }}
+                    className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600 hover:bg-purple-50 hover:border-purple-300 transition-colors whitespace-nowrap"
+                  >
+                    All
+                  </button>
+                  {parentCategories.map((parent) => (
+                    <button
+                      key={parent.id}
+                      onClick={() => {
+                        setSelectedParentCategory(parent.id);
+                        setSelectedSubcategory(null);
+                      }}
+                      className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600 hover:bg-purple-50 hover:border-purple-300 transition-colors whitespace-nowrap"
+                    >
+                      {parent.name}
+                    </button>
+                  ))}
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Product Carousels */}
             <div className="space-y-6">

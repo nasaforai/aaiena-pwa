@@ -124,29 +124,38 @@ export type Database = {
       categories: {
         Row: {
           brand_id: string | null
+          category_level: number | null
           created_at: string
+          display_order: number | null
           icon_url: string | null
           id: string
           image_url: string | null
           name: string
+          parent_category_id: string | null
           updated_at: string
         }
         Insert: {
           brand_id?: string | null
+          category_level?: number | null
           created_at?: string
+          display_order?: number | null
           icon_url?: string | null
           id?: string
           image_url?: string | null
           name: string
+          parent_category_id?: string | null
           updated_at?: string
         }
         Update: {
           brand_id?: string | null
+          category_level?: number | null
           created_at?: string
+          display_order?: number | null
           icon_url?: string | null
           id?: string
           image_url?: string | null
           name?: string
+          parent_category_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -155,6 +164,13 @@ export type Database = {
             columns: ["brand_id"]
             isOneToOne: false
             referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "categories_parent_category_id_fkey"
+            columns: ["parent_category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
             referencedColumns: ["id"]
           },
         ]
