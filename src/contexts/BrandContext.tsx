@@ -50,15 +50,39 @@ export const BrandProvider: React.FC<BrandProviderProps> = ({ children }) => {
     // Skip Lovable project IDs, Lovable preview hosts, and development environments
     const isLovableProjectId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(subdomain);
     const isDevelopment = ['localhost', 'www', '127', '192'].some(dev => subdomain.startsWith(dev));
-    const isLovableHost = hostname.endsWith('.lovable.app') || hostname.endsWith('.lovable.dev') || hostname.endsWith('.lovable.site');
     
-    if (subdomain && !isLovableProjectId && !isDevelopment && !isLovableHost) {
+    // Enhanced Lovable host detection - catches all Lovable domains
+    const isLovableHost = hostname.includes('lovable.app') || 
+                          hostname.includes('lovable.dev') || 
+                          hostname.includes('lovable.site') ||
+                          hostname.includes('lovableproject.com');
+    
+    console.debug('Brand Detection Debug:', {
+      hostname,
+      subdomain,
+      isLovableProjectId,
+      isDevelopment,
+      isLovableHost,
+      pathname: window.location.pathname,
+      search: window.location.search
+    });
+    
+    // If we're in a development/preview environment, default to 'hm' immediately
+    if (isDevelopment || isLovableHost || isLovableProjectId) {
+      console.debug('Using default brand "hm" for development/preview environment');
+      return 'hm';
+    }
+    
+    // For production: try to detect from subdomain
+    if (subdomain) {
+      console.debug('Detected brand from subdomain:', subdomain);
       return subdomain;
     }
 
     // FALLBACK 1: Try to detect brand from URL path (e.g., /brand/hm)
     const pathMatch = window.location.pathname.match(/^\/brand\/([^\/]+)/);
     if (pathMatch && pathMatch[1] && !pathMatch[1].startsWith(':')) {
+      console.debug('Detected brand from path:', pathMatch[1]);
       return pathMatch[1];
     }
 
@@ -66,15 +90,12 @@ export const BrandProvider: React.FC<BrandProviderProps> = ({ children }) => {
     const urlParams = new URLSearchParams(window.location.search);
     const brandParam = urlParams.get('brand');
     if (brandParam) {
+      console.debug('Detected brand from query param:', brandParam);
       return brandParam;
     }
 
-    // For development/testing only - default to 'hm'
-    if (isDevelopment || isLovableHost) {
-      return 'hm';
-    }
-
     // No brand detected - this should only happen in production with misconfigured domain
+    console.warn('No brand detected - returning null');
     return null;
   };
 
