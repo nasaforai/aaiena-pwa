@@ -186,6 +186,62 @@ export type Database = {
         }
         Relationships: []
       }
+      product_variants: {
+        Row: {
+          chest_inches: number | null
+          created_at: string | null
+          hip_inches: number | null
+          id: string
+          inseam_length_inches: number | null
+          length_inches: number | null
+          product_id: string
+          shoulder_inches: number | null
+          size: string
+          sku: string | null
+          stock_quantity: number | null
+          updated_at: string | null
+          waist_inches: number | null
+        }
+        Insert: {
+          chest_inches?: number | null
+          created_at?: string | null
+          hip_inches?: number | null
+          id?: string
+          inseam_length_inches?: number | null
+          length_inches?: number | null
+          product_id: string
+          shoulder_inches?: number | null
+          size: string
+          sku?: string | null
+          stock_quantity?: number | null
+          updated_at?: string | null
+          waist_inches?: number | null
+        }
+        Update: {
+          chest_inches?: number | null
+          created_at?: string | null
+          hip_inches?: number | null
+          id?: string
+          inseam_length_inches?: number | null
+          length_inches?: number | null
+          product_id?: string
+          shoulder_inches?: number | null
+          size?: string
+          sku?: string | null
+          stock_quantity?: number | null
+          updated_at?: string | null
+          waist_inches?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           additional_images: string[] | null
@@ -194,21 +250,26 @@ export type Database = {
           brand_id: string | null
           care_instructions: string | null
           category_id: string | null
+          color_code: string | null
           colors: Json | null
           created_at: string
           description: string | null
           discount_percentage: number | null
+          gender: string | null
           id: string
           image_url: string
           is_new: boolean | null
           is_on_offer: boolean | null
           is_trending: boolean | null
           material: string | null
+          material_group: string | null
           name: string
           original_price: number | null
           price: number
+          season: string | null
           sizes: string[] | null
           stock_quantity: number | null
+          style_number: string | null
           updated_at: string
         }
         Insert: {
@@ -218,21 +279,26 @@ export type Database = {
           brand_id?: string | null
           care_instructions?: string | null
           category_id?: string | null
+          color_code?: string | null
           colors?: Json | null
           created_at?: string
           description?: string | null
           discount_percentage?: number | null
+          gender?: string | null
           id?: string
           image_url: string
           is_new?: boolean | null
           is_on_offer?: boolean | null
           is_trending?: boolean | null
           material?: string | null
+          material_group?: string | null
           name: string
           original_price?: number | null
           price: number
+          season?: string | null
           sizes?: string[] | null
           stock_quantity?: number | null
+          style_number?: string | null
           updated_at?: string
         }
         Update: {
@@ -242,21 +308,26 @@ export type Database = {
           brand_id?: string | null
           care_instructions?: string | null
           category_id?: string | null
+          color_code?: string | null
           colors?: Json | null
           created_at?: string
           description?: string | null
           discount_percentage?: number | null
+          gender?: string | null
           id?: string
           image_url?: string
           is_new?: boolean | null
           is_on_offer?: boolean | null
           is_trending?: boolean | null
           material?: string | null
+          material_group?: string | null
           name?: string
           original_price?: number | null
           price?: number
+          season?: string | null
           sizes?: string[] | null
           stock_quantity?: number | null
+          style_number?: string | null
           updated_at?: string
         }
         Relationships: [
