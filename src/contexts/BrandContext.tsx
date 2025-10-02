@@ -58,7 +58,7 @@ export const BrandProvider: React.FC<BrandProviderProps> = ({ children }) => {
 
     // FALLBACK 1: Try to detect brand from URL path (e.g., /brand/hm)
     const pathMatch = window.location.pathname.match(/^\/brand\/([^\/]+)/);
-    if (pathMatch) {
+    if (pathMatch && pathMatch[1] && !pathMatch[1].startsWith(':')) {
       return pathMatch[1];
     }
 
