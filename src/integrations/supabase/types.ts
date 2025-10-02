@@ -76,6 +76,44 @@ export type Database = {
           },
         ]
       }
+      brand_size_charts: {
+        Row: {
+          brand_id: string
+          category_ids: string[]
+          created_at: string
+          garment_type: string
+          id: string
+          size_system: string
+          updated_at: string
+        }
+        Insert: {
+          brand_id: string
+          category_ids?: string[]
+          created_at?: string
+          garment_type: string
+          id?: string
+          size_system: string
+          updated_at?: string
+        }
+        Update: {
+          brand_id?: string
+          category_ids?: string[]
+          created_at?: string
+          garment_type?: string
+          id?: string
+          size_system?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_size_charts_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brands: {
         Row: {
           created_at: string
@@ -213,6 +251,7 @@ export type Database = {
           product_id: string
           shoulder_inches: number | null
           size: string
+          size_chart_measurement_id: string | null
           sku: string | null
           stock_quantity: number | null
           updated_at: string | null
@@ -228,6 +267,7 @@ export type Database = {
           product_id: string
           shoulder_inches?: number | null
           size: string
+          size_chart_measurement_id?: string | null
           sku?: string | null
           stock_quantity?: number | null
           updated_at?: string | null
@@ -243,6 +283,7 @@ export type Database = {
           product_id?: string
           shoulder_inches?: number | null
           size?: string
+          size_chart_measurement_id?: string | null
           sku?: string | null
           stock_quantity?: number | null
           updated_at?: string | null
@@ -254,6 +295,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_variants_size_chart_measurement_id_fkey"
+            columns: ["size_chart_measurement_id"]
+            isOneToOne: false
+            referencedRelation: "size_chart_measurements"
             referencedColumns: ["id"]
           },
         ]
@@ -416,6 +464,59 @@ export type Database = {
           weight?: number | null
         }
         Relationships: []
+      }
+      size_chart_measurements: {
+        Row: {
+          chest_inches: number | null
+          created_at: string
+          display_order: number
+          hips_inches: number | null
+          id: string
+          inseam_inches: number | null
+          length_inches: number | null
+          shoulder_inches: number | null
+          size_chart_id: string
+          size_label: string
+          updated_at: string
+          waist_inches: number | null
+        }
+        Insert: {
+          chest_inches?: number | null
+          created_at?: string
+          display_order: number
+          hips_inches?: number | null
+          id?: string
+          inseam_inches?: number | null
+          length_inches?: number | null
+          shoulder_inches?: number | null
+          size_chart_id: string
+          size_label: string
+          updated_at?: string
+          waist_inches?: number | null
+        }
+        Update: {
+          chest_inches?: number | null
+          created_at?: string
+          display_order?: number
+          hips_inches?: number | null
+          id?: string
+          inseam_inches?: number | null
+          length_inches?: number | null
+          shoulder_inches?: number | null
+          size_chart_id?: string
+          size_label?: string
+          updated_at?: string
+          waist_inches?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "size_chart_measurements_size_chart_id_fkey"
+            columns: ["size_chart_id"]
+            isOneToOne: false
+            referencedRelation: "brand_size_charts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
