@@ -67,10 +67,10 @@ export const BrandProvider: React.FC<BrandProviderProps> = ({ children }) => {
       search: window.location.search
     });
     
-    // If we're in a development/preview environment, default to 'hm' immediately
+    // If we're in a development/preview environment, default to 'ucb' immediately
     if (isDevelopment || isLovableHost || isLovableProjectId) {
-      console.debug('Using default brand "hm" for development/preview environment');
-      return 'hm';
+      console.debug('Using default brand "ucb" for development/preview environment');
+      return 'ucb';
     }
     
     // For production: try to detect from subdomain
