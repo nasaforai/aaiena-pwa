@@ -243,49 +243,82 @@ export type Database = {
       product_variants: {
         Row: {
           chest_inches: number | null
+          color: string | null
           created_at: string | null
           hip_inches: number | null
-          id: string
+          id: number
+          image_url_1: string | null
+          image_url_2: string | null
+          image_url_3: string | null
+          image_url_4: string | null
+          image1: string | null
+          image2: string | null
+          image3: string | null
+          image4: string | null
           inseam_length_inches: number | null
           length_inches: number | null
-          product_id: string
+          price: number
+          product_id: number
+          season: string | null
           shoulder_inches: number | null
-          size: string
-          size_chart_measurement_id: string | null
+          size: string | null
           sku: string | null
           stock_quantity: number | null
+          style_number_size: string | null
           updated_at: string | null
           waist_inches: number | null
         }
         Insert: {
           chest_inches?: number | null
+          color?: string | null
           created_at?: string | null
           hip_inches?: number | null
-          id?: string
+          id?: number
+          image_url_1?: string | null
+          image_url_2?: string | null
+          image_url_3?: string | null
+          image_url_4?: string | null
+          image1?: string | null
+          image2?: string | null
+          image3?: string | null
+          image4?: string | null
           inseam_length_inches?: number | null
           length_inches?: number | null
-          product_id: string
+          price?: number
+          product_id: number
+          season?: string | null
           shoulder_inches?: number | null
-          size: string
-          size_chart_measurement_id?: string | null
+          size?: string | null
           sku?: string | null
           stock_quantity?: number | null
+          style_number_size?: string | null
           updated_at?: string | null
           waist_inches?: number | null
         }
         Update: {
           chest_inches?: number | null
+          color?: string | null
           created_at?: string | null
           hip_inches?: number | null
-          id?: string
+          id?: number
+          image_url_1?: string | null
+          image_url_2?: string | null
+          image_url_3?: string | null
+          image_url_4?: string | null
+          image1?: string | null
+          image2?: string | null
+          image3?: string | null
+          image4?: string | null
           inseam_length_inches?: number | null
           length_inches?: number | null
-          product_id?: string
+          price?: number
+          product_id?: number
+          season?: string | null
           shoulder_inches?: number | null
-          size?: string
-          size_chart_measurement_id?: string | null
+          size?: string | null
           sku?: string | null
           stock_quantity?: number | null
+          style_number_size?: string | null
           updated_at?: string | null
           waist_inches?: number | null
         }
@@ -295,104 +328,85 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "product_variants_size_chart_measurement_id_fkey"
-            columns: ["size_chart_measurement_id"]
-            isOneToOne: false
-            referencedRelation: "size_chart_measurements"
-            referencedColumns: ["id"]
+            referencedColumns: ["product_id"]
           },
         ]
       }
       products: {
         Row: {
           additional_images: string[] | null
-          barcode: string | null
-          brand: string | null
-          brand_id: string | null
-          care_instructions: string | null
+          base_image: string | null
+          brand_id: string
+          category: string | null
           category_id: string | null
-          color_code: string | null
           colors: Json | null
-          created_at: string
+          created_at: string | null
           description: string | null
           discount_percentage: number | null
           gender: string | null
-          id: string
-          image_url: string
+          image_url: string | null
           is_new: boolean | null
           is_on_offer: boolean | null
           is_trending: boolean | null
-          material: string | null
-          material_group: string | null
           name: string
           original_price: number | null
-          price: number
-          season: string | null
+          price: number | null
+          product_id: number
           sizes: string[] | null
-          stock_quantity: number | null
-          style_number: string | null
-          updated_at: string
+          sku: string
+          style_number: string
+          sub_category: string | null
+          updated_at: string | null
         }
         Insert: {
           additional_images?: string[] | null
-          barcode?: string | null
-          brand?: string | null
-          brand_id?: string | null
-          care_instructions?: string | null
+          base_image?: string | null
+          brand_id: string
+          category?: string | null
           category_id?: string | null
-          color_code?: string | null
           colors?: Json | null
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           discount_percentage?: number | null
           gender?: string | null
-          id?: string
-          image_url: string
+          image_url?: string | null
           is_new?: boolean | null
           is_on_offer?: boolean | null
           is_trending?: boolean | null
-          material?: string | null
-          material_group?: string | null
           name: string
           original_price?: number | null
-          price: number
-          season?: string | null
+          price?: number | null
+          product_id?: number
           sizes?: string[] | null
-          stock_quantity?: number | null
-          style_number?: string | null
-          updated_at?: string
+          sku: string
+          style_number: string
+          sub_category?: string | null
+          updated_at?: string | null
         }
         Update: {
           additional_images?: string[] | null
-          barcode?: string | null
-          brand?: string | null
-          brand_id?: string | null
-          care_instructions?: string | null
+          base_image?: string | null
+          brand_id?: string
+          category?: string | null
           category_id?: string | null
-          color_code?: string | null
           colors?: Json | null
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           discount_percentage?: number | null
           gender?: string | null
-          id?: string
-          image_url?: string
+          image_url?: string | null
           is_new?: boolean | null
           is_on_offer?: boolean | null
           is_trending?: boolean | null
-          material?: string | null
-          material_group?: string | null
           name?: string
           original_price?: number | null
-          price?: number
-          season?: string | null
+          price?: number | null
+          product_id?: number
           sizes?: string[] | null
-          stock_quantity?: number | null
-          style_number?: string | null
-          updated_at?: string
+          sku?: string
+          style_number?: string
+          sub_category?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
