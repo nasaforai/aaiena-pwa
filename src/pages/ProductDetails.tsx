@@ -11,6 +11,7 @@ import {
   Shirt,
   UsersRound,
   UserPen,
+  Ruler,
 } from "lucide-react";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import { useNavigation } from "@/hooks/useNavigation";
@@ -29,6 +30,9 @@ import { useProduct, useProducts } from "@/hooks/useProducts";
 import { useSearchParams } from "react-router-dom";
 import BottomNavigation from "@/components/BottomNavigation";
 import { useToast } from "@/hooks/use-toast";
+import { useProductSizeChart } from "@/hooks/useProductSizeChart";
+import { useSizeRecommendation } from "@/hooks/useSizeRecommendation";
+import { SizeChartDialog } from "@/components/SizeChartDialog";
 
 export default function ProductDetails() {
   const navigate = useNavigate();
@@ -40,6 +44,7 @@ export default function ProductDetails() {
   const [selectedSize, setSelectedSize] = useState("M");
   const [selectedColor, setSelectedColor] = useState("white");
   const [quantity, setQuantity] = useState(1);
+  const [sizeChartOpen, setSizeChartOpen] = useState(false);
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
   const hasMeasurements = localStorage.getItem("hasMeasurements") === "true";
   const isMobile = useIsMobile();
@@ -48,6 +53,8 @@ export default function ProductDetails() {
   // Fetch product data
   const { data: product, isLoading } = useProduct(productId || "");
   const { data: allProducts = [] } = useProducts();
+  const { data: sizeChart, isLoading: sizeChartLoading } = useProductSizeChart(productId);
+  const sizeRecommendation = useSizeRecommendation(sizeChart || null);
   // Chart data for size visualization
   const sizeChartData = [
     { name: "Small", value: 25, fill: "#FFD188" },
@@ -321,14 +328,26 @@ export default function ProductDetails() {
       <div className="flex justify-between">
         {/* Size Selection */}
         <div className="px-4 mb-4">
-          <span className="font-medium text-gray-900 mb-3 block">Sizes:</span>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="font-medium text-gray-900">Sizes:</span>
+            {sizeChart && (
+              <button
+                onClick={() => setSizeChartOpen(true)}
+                className="flex items-center gap-1 text-sm text-purple-600 hover:text-purple-700"
+              >
+                <Ruler className="w-4 h-4" />
+                <span>Size Guide</span>
+              </button>
+            )}
+          </div>
           <div className="flex space-x-3">
             {sizes.map((size) => (
               <button
                 key={size}
                 onClick={() => setSelectedSize(size)}
                 className={`text-sm w-8 h-8 rounded-md border border-gray-300 ${
-                  selectedSize === size ? "ring-2 ring-purple-500" : ""
+                  selectedSize === size ? "ring-2 ring-purple-500" : 
+                  sizeRecommendation.bestFit?.size === size ? "ring-2 ring-orange-400" : ""
                 }`}
               >
                 {size}
@@ -412,35 +431,43 @@ export default function ProductDetails() {
               </div>
 
               {/* Best Fit */}
-              <div className="bg-purple-200 rounded-xl p-4 mb-4 mt-10">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-900">
-                    <span className="font-medium">Best Fit:</span>
-                    <span className="bg-orange-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
-                      Large Size
+              {sizeRecommendation.bestFit && (
+                <div className="bg-purple-200 rounded-xl p-4 mb-4 mt-10">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-900">
+                      <span className="font-medium">Best Fit:</span>
+                      <span className="bg-orange-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
+                        {sizeRecommendation.bestFit.size}
+                      </span>
+                      <span className="ml-2 text-xs text-gray-600">
+                        ({sizeRecommendation.bestFit.matchPercentage}% match)
+                      </span>
                     </span>
-                  </span>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-2">
+                    {sizeRecommendation.bestFit.reason}
+                  </p>
                 </div>
-                <p className="text-xs text-gray-600 mt-2">
-                  We recommend Large "L" as the best fit for you—it offers a
-                  comfortable and well-balanced look.
-                </p>
-              </div>
+              )}
 
-              <div className="bg-white rounded-xl p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-900">
-                    <span className="font-medium">Other Fit:</span>
-                    <span className="bg-purple-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
-                      Medium Size
+              {sizeRecommendation.alternateFit && (
+                <div className="bg-white rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-900">
+                      <span className="font-medium">Other Fit:</span>
+                      <span className="bg-purple-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
+                        {sizeRecommendation.alternateFit.size}
+                      </span>
+                      <span className="ml-2 text-xs text-gray-600">
+                        ({sizeRecommendation.alternateFit.matchPercentage}% match)
+                      </span>
                     </span>
-                  </span>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-2">
+                    {sizeRecommendation.alternateFit.reason}
+                  </p>
                 </div>
-                <p className="text-xs text-gray-600 mt-2">
-                  Medium as the right fit for you—it could feel a bit snug.
-                  Great if you like tighter-fitting clothes.
-                </p>
-              </div>
+              )}
 
               <p className="text-xs text-gray-500 mt-4 ml-2">
                 *95% users said true to size
@@ -611,6 +638,14 @@ export default function ProductDetails() {
           </div>
         </div>
       </div>
+
+      {/* Size Chart Dialog */}
+      <SizeChartDialog
+        open={sizeChartOpen}
+        onOpenChange={setSizeChartOpen}
+        sizeChart={sizeChart || null}
+        isLoading={sizeChartLoading}
+      />
 
       {/* Bottom Navigation */}
       <BottomNavigation />

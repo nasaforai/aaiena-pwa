@@ -16,6 +16,10 @@ interface Profile {
   shirt_size: string | null;
   style_preferences: string[] | null;
   photos: string[] | null;
+  chest_inches: number | null;
+  waist_inches: number | null;
+  shoulder_inches: number | null;
+  hip_inches: number | null;
   created_at: string;
   updated_at: string;
 }

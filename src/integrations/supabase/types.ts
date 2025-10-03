@@ -415,52 +415,64 @@ export type Database = {
         Row: {
           avatar_url: string | null
           chest: number | null
+          chest_inches: number | null
           created_at: string
           full_name: string | null
           gender: string | null
           height: number | null
+          hip_inches: number | null
           id: string
           pants_size: number | null
           photos: string[] | null
           shirt_size: string | null
+          shoulder_inches: number | null
           style_preferences: string[] | null
           updated_at: string
           user_id: string
           waist: number | null
+          waist_inches: number | null
           weight: number | null
         }
         Insert: {
           avatar_url?: string | null
           chest?: number | null
+          chest_inches?: number | null
           created_at?: string
           full_name?: string | null
           gender?: string | null
           height?: number | null
+          hip_inches?: number | null
           id?: string
           pants_size?: number | null
           photos?: string[] | null
           shirt_size?: string | null
+          shoulder_inches?: number | null
           style_preferences?: string[] | null
           updated_at?: string
           user_id: string
           waist?: number | null
+          waist_inches?: number | null
           weight?: number | null
         }
         Update: {
           avatar_url?: string | null
           chest?: number | null
+          chest_inches?: number | null
           created_at?: string
           full_name?: string | null
           gender?: string | null
           height?: number | null
+          hip_inches?: number | null
           id?: string
           pants_size?: number | null
           photos?: string[] | null
           shirt_size?: string | null
+          shoulder_inches?: number | null
           style_preferences?: string[] | null
           updated_at?: string
           user_id?: string
           waist?: number | null
+          waist_inches?: number | null
           weight?: number | null
         }
         Relationships: []
