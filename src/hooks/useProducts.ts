@@ -21,9 +21,12 @@ export interface Product {
   is_on_offer: boolean | null;
   stock_quantity: number | null;
   brand: string | null;
+  brand_id: string | null;
   material: string | null;
   care_instructions: string | null;
   barcode: string | null;
+  gender: string | null;
+  style_number: string | null;
 }
 
 export const useProducts = (brandId?: string) => {
@@ -90,9 +93,11 @@ export const useProduct = (id: string) => {
         .from("products")
         .select("*")
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) return null;
+      
       return {
         ...data,
         colors: Array.isArray(data.colors) ? data.colors as { name: string; value: string; bgClass: string }[] : []
