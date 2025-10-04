@@ -561,61 +561,11 @@ export default function ProductDetails() {
           </button>
         </div>
       )}
-      {/* You might also like */}
-      <div className="mb-48 px-4">
-        <h3 className="font-semibold text-lg mb-3">You might also like</h3>
-        <Carousel className="w-full">
-          <CarouselContent className="-ml-2 md:-ml-4">
-            {allProducts.slice(4, 8).map((similarProduct) => (
-              <CarouselItem key={similarProduct.product_id} className="pl-2 md:pl-4 basis-1/2">
-                <ProductCard
-                  product={similarProduct}
-                  handleProductClick={handleProductClick}
-                />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselDots />
-        </Carousel>
-      </div>
+      <div className="mb-48"></div>
 
       {/* Bottom Action */}
       <div className="fixed bottom-0 left-0 w-full lg:lg:max-w-sm lg:left-1/2 lg:-translate-x-1/2">
         <div className="shadow-xl">
-          {(!isMobile || (isMobile && fromKiosk)) && (
-            <div className="bg-purple-200 rounded-tr-2xl rounded-tl-2xl p-4">
-              <div className="flex justify-between items-center mb-2">
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                    <UsersRound className="w-5" />
-                    <span className="text-md font-semibold text-gray-700">
-                      Moderate
-                    </span>
-                  </div>
-                  <button
-                    className="text-xs text-white bg-purple-400 font-medium px-4 py-2 rounded-md"
-                    onClick={handleJoinRoom}
-                  >
-                    JOIN ROOM
-                  </button>
-                </div>
-                <div className="flex flex-col space-y-2">
-                  <p>JOIN EMPTY ROOMS:</p>
-                  <div className="flex space-x-2">
-                    <span className="bg-purple-50 shadow-md py-2 px-4 rounded text-md">
-                      2A
-                    </span>
-                    <span className="bg-purple-50 shadow-md py-2 px-4 rounded text-md">
-                      3C
-                    </span>
-                    <span className="bg-purple-50 shadow-md py-2 px-4 rounded text-md">
-                      2B
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           <div className="px-4 py-2 bg-white shadow-md flex gap-2">
             <Button
