@@ -1,16 +1,43 @@
-import { ArrowLeft, ShoppingCart } from "lucide-react";
+import { ArrowLeft, ShoppingCart, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useBrand } from "@/contexts/BrandContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const Topbar = ({ handleBack, showBack = true }) => {
+const Topbar = ({ handleBack, showBack = true, showProfile = false, onProfileClick = () => {} }) => {
   const navigate = useNavigate();
   const { currentBrand } = useBrand();
+  const { user } = useAuth();
+  const { profile } = useProfile();
+
+  const getInitials = () => {
+    if (profile?.full_name) {
+      return profile.full_name.substring(0, 2).toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.substring(0, 2).toUpperCase();
+    }
+    return "U";
+  };
   
   return (
     <>
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-white border-b border-gray-100">
-        {showBack && (
+        {showProfile ? (
+          <button
+            onClick={onProfileClick}
+            className="flex items-center justify-center hover:opacity-80 transition-opacity"
+          >
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={profile?.avatar_url || undefined} alt="Profile" />
+              <AvatarFallback className="bg-purple-100 text-purple-700 font-medium">
+                {getInitials()}
+              </AvatarFallback>
+            </Avatar>
+          </button>
+        ) : showBack && (
           <button
             onClick={() => handleBack()}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"

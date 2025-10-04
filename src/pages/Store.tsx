@@ -34,6 +34,7 @@ import { useBrand } from "@/contexts/BrandContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import BottomNavigation from "@/components/BottomNavigation";
+import { useProfileSidebar } from "@/contexts/ProfileSidebarContext";
 
 export default function Store() {
   const navigate = useNavigate();
@@ -41,6 +42,7 @@ export default function Store() {
   const { isAuthenticated, user } = useAuth();
   const { currentBrand } = useBrand();
   const { profile, loading: profileLoading } = useProfile();
+  const { openSidebar } = useProfileSidebar();
   const [notifyToggle, setNotifyToggle] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedParentCategory, setSelectedParentCategory] = useState<string | null>(null);
@@ -117,7 +119,9 @@ export default function Store() {
     <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       <Topbar
         handleBack={() => handleBack()}
-        showBack={isMobile ? false : true}
+        showBack={false}
+        showProfile={true}
+        onProfileClick={openSidebar}
       />
 
       {isAuthenticated && (
