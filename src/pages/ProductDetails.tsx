@@ -28,7 +28,7 @@ import { RadialBarChart, RadialBar, ResponsiveContainer, Cell } from "recharts";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useProduct, useProducts } from "@/hooks/useProducts";
 import { useSearchParams } from "react-router-dom";
-import BottomNavigation from "@/components/BottomNavigation";
+
 import { useToast } from "@/hooks/use-toast";
 import { useProductSizeChart } from "@/hooks/useProductSizeChart";
 import { useSizeRecommendation } from "@/hooks/useSizeRecommendation";
@@ -280,7 +280,7 @@ export default function ProductDetails() {
   const sizes = productVariants?.map(v => v.size).filter(Boolean) || [];
 
   return (
-    <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
       <Topbar handleBack={handleBack} />
 
@@ -559,7 +559,7 @@ export default function ProductDetails() {
       <div className="mb-48"></div>
 
       {/* Bottom Action */}
-      <div className="fixed bottom-0 left-0 w-full lg:max-w-sm lg:left-1/2 lg:-translate-x-1/2 z-50">
+      <div className="fixed bottom-0 left-0 w-full lg:max-w-sm lg:left-1/2 lg:-translate-x-1/2 z-[60]">
         <div className="shadow-xl">
 
           <div className="px-4 py-2 bg-white shadow-md flex gap-2">
@@ -589,8 +589,6 @@ export default function ProductDetails() {
         isLoading={sizeChartLoading}
       />
 
-      {/* Bottom Navigation */}
-      <BottomNavigation />
     </div>
   );
 }
