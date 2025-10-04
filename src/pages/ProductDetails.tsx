@@ -554,23 +554,18 @@ export default function ProductDetails() {
 
           <div className="px-4 py-2 bg-white shadow-md flex gap-2">
             <Button
-              onClick={handleAddToCart}
-              variant="outline"
-              className="flex-1 border-gray-300 text-gray-900 py-3 rounded-lg font-medium hover:bg-gray-50"
-            >
-              Add to Cart
-            </Button>
-            <Button
               onClick={handleBuyNow}
               className="flex-1 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800"
             >
               Buy Now
             </Button>
             <Button
-              onClick={handleTryVirtually}
-              className="flex-1 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800"
+              onClick={handleAddToCart}
+              variant="outline"
+              size="icon"
+              className="border-gray-300 text-gray-900 rounded-lg hover:bg-gray-50 h-auto w-12 py-3"
             >
-              Try Virtually
+              <ShoppingCart className="w-5 h-5" />
             </Button>
           </div>
         </div>
