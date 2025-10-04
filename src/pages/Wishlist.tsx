@@ -97,7 +97,7 @@ export default function Wishlist() {
                     onClick={() => moveToCart(item, index)}
                     className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-200"
                   >
-                    Move To Bag
+                    Add to cart
                   </Button>
                 </div>
               </div>
