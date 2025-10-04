@@ -376,34 +376,6 @@ export default function Store() {
               </div>
             )}
 
-            {/* Quick Category Filters */}
-            {parentCategories.length > 0 && (
-              <div className="h-10 overflow-y-hidden mt-10 mb-6">
-                <div className="flex space-x-4 flex-nowrap pb-5 overflow-x-scroll">
-                  <button
-                    onClick={() => {
-                      setSelectedParentCategory(null);
-                      setSelectedSubcategory(null);
-                    }}
-                    className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600 hover:bg-purple-50 hover:border-purple-300 transition-colors whitespace-nowrap"
-                  >
-                    All
-                  </button>
-                  {parentCategories.map((parent) => (
-                    <button
-                      key={parent.id}
-                      onClick={() => {
-                        setSelectedParentCategory(parent.id);
-                        setSelectedSubcategory(null);
-                      }}
-                      className="border border-gray-400 px-10 py-1 text-sm rounded-lg text-gray-600 hover:bg-purple-50 hover:border-purple-300 transition-colors whitespace-nowrap"
-                    >
-                      {parent.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Product Carousels */}
             <div className="space-y-6">
