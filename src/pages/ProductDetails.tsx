@@ -40,6 +40,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { RoomJoinDialog } from "@/components/RoomJoinDialog";
 
 export default function ProductDetails() {
   const navigate = useNavigate();
@@ -57,6 +58,8 @@ export default function ProductDetails() {
   const isMobile = useIsMobile();
   const fromKiosk = localStorage.getItem("fromKiosk") === "true";
   const [isInWishlist, setIsInWishlist] = useState(false);
+  const [isRoomDialogOpen, setIsRoomDialogOpen] = useState(false);
+  const [isVirtualDialogOpen, setIsVirtualDialogOpen] = useState(false);
 
   // Fetch product data
   const { data: product, isLoading } = useProduct(productId || "");
@@ -585,21 +588,37 @@ export default function ProductDetails() {
       <div className="fixed bottom-0 left-0 w-full lg:max-w-sm lg:left-1/2 lg:-translate-x-1/2 z-[60]">
         <div className="shadow-xl">
 
-          <div className="px-4 py-2 bg-white shadow-md flex gap-2">
-            <Button
-              onClick={handleBuyNow}
-              className="flex-1 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800"
-            >
-              Buy Now
-            </Button>
-            <Button
-              onClick={handleAddToCart}
-              variant="outline"
-              size="icon"
-              className="border-gray-300 text-gray-900 rounded-lg hover:bg-gray-50 h-auto w-12 py-3"
-            >
-              <ShoppingCart className="w-5 h-5" />
-            </Button>
+          <div className="px-4 py-3 bg-white shadow-md">
+            <div className="flex gap-2 mb-2">
+              <Button
+                onClick={handleTryVirtually}
+                className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 text-white py-3 rounded-lg font-medium hover:from-purple-700 hover:to-purple-800"
+              >
+                Try Virtually
+              </Button>
+              <Button
+                onClick={() => setIsRoomDialogOpen(true)}
+                className="flex-1 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800"
+              >
+                Join Room
+              </Button>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleBuyNow}
+                className="flex-1 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800"
+              >
+                Buy Now
+              </Button>
+              <Button
+                onClick={handleAddToCart}
+                variant="outline"
+                size="icon"
+                className="border-gray-300 text-gray-900 rounded-lg hover:bg-gray-50 h-auto w-12 py-3"
+              >
+                <ShoppingCart className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -610,6 +629,13 @@ export default function ProductDetails() {
         onOpenChange={setSizeChartOpen}
         sizeChart={sizeChart || null}
         isLoading={sizeChartLoading}
+      />
+
+      {/* Room Join Dialog */}
+      <RoomJoinDialog
+        isJoinDialogOpen={isRoomDialogOpen}
+        isVirtualDialogOpen={isVirtualDialogOpen}
+        onClose={() => setIsRoomDialogOpen(false)}
       />
 
     </div>
