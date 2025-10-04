@@ -1,11 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
 import { useBrand } from "@/contexts/BrandContext";
 import { useCategories } from "@/hooks/useCategories";
 import { useProducts } from "@/hooks/useProducts";
 import ProductCard from "@/components/ProductCard";
 import BottomNavigation from "@/components/BottomNavigation";
 import { Skeleton } from "@/components/ui/skeleton";
+import Topbar from "@/components/ui/topbar";
 
 const CategoryProducts = () => {
   const { categoryId } = useParams();
@@ -20,6 +20,10 @@ const CategoryProducts = () => {
 
   const handleProductClick = (productId: string) => {
     navigate(`/product-details?id=${productId}`);
+  };
+
+  const handleBack = () => {
+    navigate("/store");
   };
 
   if (categoriesLoading || productsLoading) {
@@ -57,15 +61,7 @@ const CategoryProducts = () => {
   return (
     <div className="flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen bg-white">
       {/* Header */}
-      <div className="p-4 flex items-center gap-3 border-b sticky top-0 bg-white z-10">
-        <button
-          onClick={() => navigate("/store")}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <h1 className="text-lg font-semibold">{category.name}</h1>
-      </div>
+      <Topbar handleBack={handleBack} showBack={true} showProfile={false} />
 
       {/* Category Image Banner (if available) */}
       {category.image_url && (
