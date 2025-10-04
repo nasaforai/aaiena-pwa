@@ -19,7 +19,7 @@ const CategoryProducts = () => {
   const categoryProducts = products?.filter(product => product.category_id === categoryId) || [];
 
   const handleProductClick = (productId: string) => {
-    navigate(`/product/${productId}`);
+    navigate(`/product-details?id=${productId}`);
   };
 
   if (categoriesLoading || productsLoading) {
