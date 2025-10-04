@@ -329,7 +329,7 @@ export default function Store() {
               <div className="grid grid-cols-2 gap-4">
                 {filteredProducts.map((product) => (
                   <ProductCard
-                    key={product.id}
+                    key={product.product_id}
                     product={product}
                     handleProductClick={handleProductClick}
                   />
@@ -414,7 +414,7 @@ export default function Store() {
                   <Carousel className="w-full">
                     <CarouselContent className="-ml-2 md:-ml-4">
                       {trendingProducts.map((product) => (
-                        <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
+                        <CarouselItem key={product.product_id} className="pl-2 md:pl-4 basis-1/2">
                           <ProductCard
                             product={product}
                             handleProductClick={handleProductClick}
@@ -434,7 +434,7 @@ export default function Store() {
                   <Carousel className="w-full">
                     <CarouselContent className="-ml-2 md:-ml-4">
                       {newProducts.slice(0, 4).map((product) => (
-                        <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
+                        <CarouselItem key={product.product_id} className="pl-2 md:pl-4 basis-1/2">
                           <ProductCard
                             product={product}
                             handleProductClick={handleProductClick}
@@ -454,7 +454,7 @@ export default function Store() {
                   <Carousel className="w-full">
                     <CarouselContent className="-ml-2 md:-ml-4">
                       {newProducts.map((product) => (
-                        <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
+                        <CarouselItem key={product.product_id} className="pl-2 md:pl-4 basis-1/2">
                           <ProductCard
                             product={product}
                             handleProductClick={handleProductClick}
@@ -503,7 +503,7 @@ export default function Store() {
                 <Carousel className="w-full">
                   <CarouselContent className="-ml-2 md:-ml-4">
                     {offerProducts.map((product) => (
-                      <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
+                      <CarouselItem key={product.product_id} className="pl-2 md:pl-4 basis-1/2">
                         <ProductCard
                           product={product}
                           handleProductClick={handleProductClick}

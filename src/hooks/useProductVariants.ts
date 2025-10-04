@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface ProductVariant {
-  id: string;
-  product_id: string;
+  id: number;
+  product_id: number;
   size: string;
   sku: string | null;
   length_inches: number | null;
@@ -17,14 +17,15 @@ export interface ProductVariant {
   updated_at: string;
 }
 
-export const useProductVariants = (productId: string) => {
+export const useProductVariants = (productId: number | string) => {
   return useQuery({
     queryKey: ["product-variants", productId],
     queryFn: async () => {
+      const numericId = typeof productId === 'string' ? parseInt(productId) : productId;
       const { data, error } = await supabase
         .from("product_variants")
         .select("*")
-        .eq("product_id", productId)
+        .eq("product_id", numericId)
         .order("size");
 
       if (error) throw error;

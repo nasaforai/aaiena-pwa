@@ -306,7 +306,7 @@ export default function ProductScan() {
         onClose={() => setShowProductDialog(false)}
         onGoToProduct={() => {
           setShowProductDialog(false);
-          navigate(`/product-details/${foundProduct.id}`);
+          navigate(`/product-details?id=${foundProduct.product_id}`);
         }}
       />
       

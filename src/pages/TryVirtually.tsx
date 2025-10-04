@@ -357,7 +357,7 @@ export default function TryVirtually() {
         <Carousel className="w-full">
           <CarouselContent className="-ml-2 md:-ml-4">
             {allProducts.slice(0, 4).map((product) => (
-              <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
+              <CarouselItem key={product.product_id} className="pl-2 md:pl-4 basis-1/2">
                 <ProductCard
                   product={product}
                   handleProductClick={handleProductClick}
@@ -392,7 +392,7 @@ export default function TryVirtually() {
         <Carousel className="w-full">
           <CarouselContent className="-ml-2 md:-ml-4">
             {allProducts.slice(4, 8).map((product) => (
-              <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-1/2">
+              <CarouselItem key={product.product_id} className="pl-2 md:pl-4 basis-1/2">
                 <ProductCard
                   product={product}
                   handleProductClick={handleProductClick}

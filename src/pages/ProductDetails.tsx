@@ -100,7 +100,7 @@ export default function ProductDetails() {
       // Add to cart logic without navigation
       const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
       const newItem = {
-        id: product.id,
+        id: product.product_id,
         name: product.name,
         price: product.price,
         originalPrice: product.original_price || product.price,
@@ -169,7 +169,7 @@ export default function ProductDetails() {
       // Add to cart and navigate to cart
       const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
       const newItem = {
-        id: product.id,
+        id: product.product_id,
         name: product.name,
         price: product.price,
         originalPrice: product.original_price || product.price,
@@ -238,11 +238,13 @@ export default function ProductDetails() {
   };
 
   const handleAddToWishlist = () => {
+    if (!product) return;
+    
     const wishlistItems = JSON.parse(
       localStorage.getItem("wishlistItems") || "[]"
     );
     const newItem = {
-      id: product.id,
+      id: product.product_id,
       name: product.name,
       price: product.price,
       originalPrice: product.original_price || product.price,
@@ -525,8 +527,8 @@ export default function ProductDetails() {
         <h3 className="font-semibold text-lg mb-3">Find Similar</h3>
         <Carousel className="w-full">
           <CarouselContent className="-ml-2 md:-ml-4">
-            {allProducts.slice(0, 4).map((similarProduct) => (
-              <CarouselItem key={similarProduct.id} className="pl-2 md:pl-4 basis-1/2">
+          {allProducts.slice(0, 4).map((similarProduct) => (
+              <CarouselItem key={similarProduct.product_id} className="pl-2 md:pl-4 basis-1/2">
                 <ProductCard
                   product={similarProduct}
                   handleProductClick={handleProductClick}
@@ -565,7 +567,7 @@ export default function ProductDetails() {
         <Carousel className="w-full">
           <CarouselContent className="-ml-2 md:-ml-4">
             {allProducts.slice(4, 8).map((similarProduct) => (
-              <CarouselItem key={similarProduct.id} className="pl-2 md:pl-4 basis-1/2">
+              <CarouselItem key={similarProduct.product_id} className="pl-2 md:pl-4 basis-1/2">
                 <ProductCard
                   product={similarProduct}
                   handleProductClick={handleProductClick}

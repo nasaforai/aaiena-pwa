@@ -5,7 +5,7 @@ import type { Database } from "@/integrations/supabase/types";
 type ProductRow = Database["public"]["Tables"]["products"]["Row"];
 
 export interface Product {
-  id: string;
+  product_id: number;
   name: string;
   description: string | null;
   price: number;
@@ -19,14 +19,11 @@ export interface Product {
   is_trending: boolean | null;
   is_new: boolean | null;
   is_on_offer: boolean | null;
-  stock_quantity: number | null;
-  brand: string | null;
   brand_id: string | null;
-  material: string | null;
-  care_instructions: string | null;
-  barcode: string | null;
+  brand?: string | null;
   gender: string | null;
-  style_number: string | null;
+  style_number: string;
+  sku: string;
 }
 
 export const useProducts = (brandId?: string) => {
@@ -85,14 +82,14 @@ export const useProductsByCategory = (category: "trending" | "new" | "offer", br
   });
 };
 
-export const useProduct = (id: string) => {
+export const useProduct = (productId: string) => {
   return useQuery({
-    queryKey: ["product", id],
+    queryKey: ["product", productId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
         .select("*")
-        .eq("id", id)
+        .eq("product_id", parseInt(productId))
         .maybeSingle();
 
       if (error) throw error;
@@ -103,6 +100,6 @@ export const useProduct = (id: string) => {
         colors: Array.isArray(data.colors) ? data.colors as { name: string; value: string; bgClass: string }[] : []
       } as Product;
     },
-    enabled: !!id,
+    enabled: !!productId,
   });
 };

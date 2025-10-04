@@ -23,17 +23,19 @@ export interface ProductSizeChart {
   measurements: SizeChartMeasurement[];
 }
 
-export const useProductSizeChart = (productId: string | null) => {
+export const useProductSizeChart = (productId: string | number | null) => {
   return useQuery({
     queryKey: ["product-size-chart", productId],
     queryFn: async () => {
       if (!productId) return null;
 
+      const numericId = typeof productId === 'string' ? parseInt(productId) : productId;
+
       // First, get the product to find its brand_id and category_id
       const { data: product, error: productError } = await supabase
         .from("products")
         .select("brand_id, category_id")
-        .eq("id", productId)
+        .eq("product_id", numericId)
         .single();
 
       if (productError) throw productError;
