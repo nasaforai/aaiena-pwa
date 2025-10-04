@@ -276,8 +276,6 @@ export default function Store() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="left-2 h-8 w-8" />
-          <CarouselNext className="right-2 h-8 w-8" />
         </Carousel>
       </div>
 
