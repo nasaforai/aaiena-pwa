@@ -113,47 +113,6 @@ export default function Cart() {
             </div>
           </div>
         ))}
-
-        {/* Add Coupon */}
-        <div className="bg-gradient-to-r from-purple-400 to-pink-400  p-4 text-white mb-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="font-semibold">Add Coupon</h3>
-              <p className="text-sm opacity-90">
-                Save rs.400 on your first order
-              </p>
-            </div>
-            <button className="text-white">
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Timer */}
-        {!isMobile && (
-          <div className="bg-[#FFFBED] border border-[#FFE6A2] rounded-lg p-3 mb-4 text-[#584001] mx-4 py-4">
-            <div className="flex justify-between items-center">
-              <span className="text-xs">Limited to 5 mins</span>
-              <span className="text-sm bg-[#FFF0C6] px-2 py-1 rounded-sm">
-                2:28 min
-              </span>
-            </div>
-
-            <h3 className="font-semibold mb-3">Proceed to try product</h3>
-            <div className="space-y-2 ">
-              <Button className="w-full bg-[#FFE08D] hover:bg-amber-200 py-2 rounded-lg font-medium text-[#584001]">
-                <QrCode className="w-4 h-4" />
-                Switch To Mobile
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full py-2 rounded-lg font-medium bg-transparent border-[#FFB900] hover:bg-amber-200"
-              >
-                Try Product
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Payment Details */}
