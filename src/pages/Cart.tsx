@@ -144,7 +144,6 @@ export default function Cart() {
             <p className="text-xl font-bold text-gray-900">
               ₹{getTotal()}
             </p>
-            <button className="text-sm text-red-500 ">View Details</button>
           </div>
           <Button
             onClick={handleProceed}
