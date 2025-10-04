@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ArrowLeft,
   Heart,
@@ -56,6 +56,7 @@ export default function ProductDetails() {
   const hasMeasurements = localStorage.getItem("hasMeasurements") === "true";
   const isMobile = useIsMobile();
   const fromKiosk = localStorage.getItem("fromKiosk") === "true";
+  const [isInWishlist, setIsInWishlist] = useState(false);
 
   // Fetch product data
   const { data: product, isLoading } = useProduct(productId || "");
@@ -63,6 +64,16 @@ export default function ProductDetails() {
   const { data: sizeChart, isLoading: sizeChartLoading } = useProductSizeChart(productId);
   const sizeRecommendation = useSizeRecommendation(sizeChart || null);
   const { data: productVariants, isLoading: variantsLoading } = useProductVariants(productId || "");
+  
+  // Check if product is in wishlist on mount and when product changes
+  useEffect(() => {
+    if (product) {
+      const wishlistItems = JSON.parse(localStorage.getItem("wishlistItems") || "[]");
+      const exists = wishlistItems.some((item: any) => item.id === product.product_id);
+      setIsInWishlist(exists);
+    }
+  }, [product]);
+
   // Chart data for size visualization
   const sizeChartData = [
     { name: "Small", value: 25, fill: "#FFD188" },
@@ -256,23 +267,49 @@ export default function ProductDetails() {
   };
 
   const handleAddToWishlist = () => {
+    // Check authentication first
+    if (!isLoggedIn) {
+      if (isMobile) {
+        navigate(`/sign-up?${createSearchParams({ back: "product-details" })}`);
+      } else {
+        navigate("/qr-code?back=product-details");
+      }
+      return;
+    }
+
     if (!product) return;
     
     const wishlistItems = JSON.parse(
       localStorage.getItem("wishlistItems") || "[]"
     );
-    const newItem = {
-      id: product.product_id,
-      name: product.name,
-      price: product.price,
-      originalPrice: product.original_price || product.price,
-      image: product.image_url,
-    };
 
-    const exists = wishlistItems.some((item: any) => item.id === newItem.id);
-    if (!exists) {
+    const existingIndex = wishlistItems.findIndex((item: any) => item.id === product.product_id);
+
+    if (existingIndex > -1) {
+      // Remove from wishlist
+      wishlistItems.splice(existingIndex, 1);
+      localStorage.setItem("wishlistItems", JSON.stringify(wishlistItems));
+      setIsInWishlist(false);
+      toast({
+        title: "Removed from Wishlist",
+        description: "Item removed from your wishlist",
+      });
+    } else {
+      // Add to wishlist
+      const newItem = {
+        id: product.product_id,
+        name: product.name,
+        price: product.price,
+        originalPrice: product.original_price || product.price,
+        image: product.image_url,
+      };
       wishlistItems.push(newItem);
       localStorage.setItem("wishlistItems", JSON.stringify(wishlistItems));
+      setIsInWishlist(true);
+      toast({
+        title: "Added to Wishlist",
+        description: "Item added to your wishlist successfully!",
+      });
     }
   };
 
@@ -294,9 +331,15 @@ export default function ProductDetails() {
         <button
           onClick={handleAddToWishlist}
           disabled={!product}
-          className="absolute top-4 right-4 p-2 bg-white bg-opacity-80 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+          className="absolute top-4 right-4 p-2 bg-white bg-opacity-80 rounded-full disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white transition-all"
         >
-          <Heart className="w-5 h-5 text-gray-600" />
+          <Heart 
+            className={`w-5 h-5 transition-colors ${
+              isInWishlist 
+                ? "fill-red-500 text-red-500" 
+                : "text-gray-600"
+            }`} 
+          />
         </button>
 
         {isLoggedIn && product && (
