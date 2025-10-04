@@ -566,21 +566,12 @@ export default function ProductDetails() {
       <div className="bg-gray-100 w-full h-2 my-4"></div>
 
       {/* Product Information */}
-      <p className="text-md text-gray-800 mb-6 px-4">KNOW YOUR PRODUCT</p>
-      <Accordion type="single" collapsible className="px-4 mb-6">
-        <AccordionItem value="product-details">
-          <AccordionTrigger className="text-sm text-gray-800">PRODUCT DETAILS</AccordionTrigger>
-          <AccordionContent className="text-sm text-gray-600">
-            {product?.description || "No description available"}
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="know-product">
-          <AccordionTrigger className="text-sm text-gray-800">KNOW YOUR PRODUCT</AccordionTrigger>
-          <AccordionContent className="text-sm text-gray-600">
-            Additional product information coming soon
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
+      <div className="px-4 mb-6">
+        <p className="text-md text-gray-800 mb-3">KNOW YOUR PRODUCT</p>
+        <div className="text-sm text-gray-600">
+          {product?.description || "No description available"}
+        </div>
+      </div>
 
       {/* Try Another Button */}
       {isLoggedIn && (
