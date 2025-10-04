@@ -5,7 +5,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const Topbar = ({ handleBack, showBack = true, showProfile = false, onProfileClick = () => {} }) => {
+interface TopbarProps {
+  handleBack?: () => void;
+  showBack?: boolean;
+  showProfile?: boolean;
+  onProfileClick?: () => void;
+}
+
+const Topbar = ({ handleBack, showBack = true, showProfile = false, onProfileClick = () => {} }: TopbarProps) => {
   const navigate = useNavigate();
   const { currentBrand } = useBrand();
   const { user } = useAuth();
@@ -39,7 +46,7 @@ const Topbar = ({ handleBack, showBack = true, showProfile = false, onProfileCli
           </button>
         ) : showBack && (
           <button
-            onClick={() => handleBack()}
+            onClick={() => handleBack ? handleBack() : navigate(-1)}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <ArrowLeft className="w-6 h-6 text-gray-700" />
