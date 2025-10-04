@@ -416,25 +416,6 @@ export default function Store() {
               )}
             </div>
 
-            <div className="p-4 mt-6">
-              <div className="overflow-y-hidden h-24">
-                <div className="flex justify-between overflow-scroll flex-nowrap gap-6 pb-5 ">
-                  {categories.map((category) => (
-                    <div key={category.id} className="flex flex-col items-center">
-                      <div className="w-16 h-16 bg-gray-200 rounded-full mb-2 relative overflow-hidden">
-                        <img
-                          src={category.image_url || "/images/dress.jpg"}
-                          alt={category.name}
-                          className="absolute left-0 top-0 w-full h-full object-cover"
-                        />
-                      </div>
-                      <span className="text-xs text-gray-600">{category.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
             {/* What's New Section */}
             <div className="mt-6 bg-gradient-to-r from-pink-400 to-red-500 rounded-2xl px-6 py-10 text-white text-center">
               <p className="my-4 text-md">SEE ALL LATEST</p>
