@@ -559,7 +559,7 @@ export default function ProductDetails() {
       <div className="mb-48"></div>
 
       {/* Bottom Action */}
-      <div className="fixed bottom-0 left-0 w-full lg:lg:max-w-sm lg:left-1/2 lg:-translate-x-1/2">
+      <div className="fixed bottom-0 left-0 w-full lg:max-w-sm lg:left-1/2 lg:-translate-x-1/2 z-50">
         <div className="shadow-xl">
 
           <div className="px-4 py-2 bg-white shadow-md flex gap-2">
