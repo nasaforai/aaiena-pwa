@@ -279,69 +279,6 @@ export default function Store() {
         </Carousel>
       </div>
 
-      {/* Hierarchical Categories section */}
-      <div className="px-4 mb-4">
-        <h3 className="font-bold text-lg mb-3">Shop by Category</h3>
-        
-        {/* Parent Categories */}
-        <div className="overflow-y-hidden mb-4">
-          <div className="flex gap-4 overflow-x-auto pb-3">
-            <button
-              onClick={() => {
-                setSelectedParentCategory(null);
-                setSelectedSubcategory(null);
-              }}
-              className={`px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                !selectedParentCategory
-                  ? "bg-purple-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              All
-            </button>
-            {parentCategories.map((parent) => (
-              <button
-                key={parent.id}
-                onClick={() => {
-                  setSelectedParentCategory(parent.id);
-                  setSelectedSubcategory(null);
-                }}
-                className={`px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                  selectedParentCategory === parent.id
-                    ? "bg-purple-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {parent.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Subcategories - Show when parent is selected */}
-        {selectedParentCategory && (
-          <div className="overflow-y-hidden">
-            <div className="flex gap-4 overflow-x-auto pb-3">
-              {parentCategories
-                .find((p) => p.id === selectedParentCategory)
-                ?.subcategories?.map((subcat) => (
-                  <button
-                    key={subcat.id}
-                    onClick={() => setSelectedSubcategory(subcat.id)}
-                    className={`px-5 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
-                      selectedSubcategory === subcat.id
-                        ? "bg-purple-500 text-white"
-                        : "bg-white border border-gray-300 text-gray-700 hover:border-purple-300"
-                    }`}
-                  >
-                    {subcat.name}
-                  </button>
-                ))}
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* Main Content Area */}
       <div className="flex-1 p-4">
         {/* Filtered Results - Show for search or category filter */}
