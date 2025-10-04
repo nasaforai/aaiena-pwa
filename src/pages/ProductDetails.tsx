@@ -275,7 +275,7 @@ export default function ProductDetails() {
       <Topbar handleBack={handleBack} />
 
       {/* Product Image */}
-      <div className="relative bg-gradient-to-b from-pink-100 to-white min-h-[10vh] mx-4 mb-4 overflow-hidden">
+      <div className="relative bg-gradient-to-b from-pink-100 to-white h-[60vh] mx-4 mb-4 overflow-hidden">
         <img
           alt="Product"
           className="w-full h-full object-cover rounded-br-lg rounded-bl-lg"
