@@ -34,6 +34,12 @@ import { useProductSizeChart } from "@/hooks/useProductSizeChart";
 import { useSizeRecommendation } from "@/hooks/useSizeRecommendation";
 import { SizeChartDialog } from "@/components/SizeChartDialog";
 import { useProductVariants } from "@/hooks/useProductVariants";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function ProductDetails() {
   const navigate = useNavigate();
@@ -508,20 +514,20 @@ export default function ProductDetails() {
 
       {/* Product Information */}
       <p className="text-md text-gray-800 mb-6 px-4">Product Information</p>
-      <div className="px-4 space-y-4 mb-6">
-        <div className="border-b border-gray-200 pb-3">
-          <button className="flex justify-between items-center w-full">
-            <span className="text-sm text-gray-800">PRODUCT DETAILS</span>
-            <ChevronDown className="text-gray-400 h-5" />
-          </button>
-        </div>
-        <div className="border-b border-gray-200 pb-3">
-          <button className="flex justify-between items-center w-full">
-            <span className="text-sm text-gray-800">KNOW YOUR PRODUCT</span>
-            <ChevronDown className="text-gray-400 h-5" />
-          </button>
-        </div>
-      </div>
+      <Accordion type="single" collapsible className="px-4 mb-6">
+        <AccordionItem value="product-details">
+          <AccordionTrigger className="text-sm text-gray-800">PRODUCT DETAILS</AccordionTrigger>
+          <AccordionContent className="text-sm text-gray-600">
+            {product?.description || "No description available"}
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="know-product">
+          <AccordionTrigger className="text-sm text-gray-800">KNOW YOUR PRODUCT</AccordionTrigger>
+          <AccordionContent className="text-sm text-gray-600">
+            Additional product information coming soon
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
       {/* Try Another Button */}
       {isLoggedIn && (
