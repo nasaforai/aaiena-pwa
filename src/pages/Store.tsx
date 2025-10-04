@@ -114,17 +114,7 @@ export default function Store() {
   };
 
   const handleCategoryClick = (category: any) => {
-    if (category.category_level === 1) {
-      // Parent category - show subcategories
-      setSelectedParentCategory(category.id);
-      setSelectedSubcategory(null);
-    } else {
-      // Subcategory - filter products
-      setSelectedParentCategory(category.parent_category_id || null);
-      setSelectedSubcategory(category.id);
-    }
-    // Scroll to top to see results
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigate(`/category/${category.id}`);
   };
 
   return (

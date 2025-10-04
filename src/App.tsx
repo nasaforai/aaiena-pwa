@@ -28,6 +28,7 @@ import Welcome from "./pages/Welcome";
 const Index = React.lazy(() => import("./pages/Index"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 const BrandAdmin = React.lazy(() => import("./pages/BrandAdmin"));
+const CategoryProducts = React.lazy(() => import("./pages/CategoryProducts"));
 const SignIn = React.lazy(() => import("./pages/SignIn"));
 const SignUp = React.lazy(() => import("./pages/SignUp"));
 const SignupOptions = React.lazy(() => import("./pages/SignupOptions"));
@@ -141,6 +142,7 @@ const App = () => {
                  {/* Public routes */}
                  <Route path="/store" element={<Store />} />
                  <Route path="/brand/:brandSlug" element={<Store />} />
+                 <Route path="/category/:categoryId" element={<CategoryProducts />} />
                  <Route path="/brand-admin" element={<ProtectedRoute><BrandAdmin /></ProtectedRoute>} />
                  <Route path="/qr-code" element={<QRCode />} />
                 <Route path="/fashion-lane" element={<FashionLane />} />
