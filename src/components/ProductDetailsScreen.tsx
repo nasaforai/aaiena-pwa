@@ -52,8 +52,6 @@ export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
         </h1>
         <div className="flex items-center space-x-2 mb-4">
           <span className="text-2xl font-bold text-gray-900">₹700</span>
-          <span className="text-lg text-gray-500 line-through">₹1400</span>
-          <span className="text-sm text-green-600 font-medium">50% OFF</span>
         </div>
       </div>
 

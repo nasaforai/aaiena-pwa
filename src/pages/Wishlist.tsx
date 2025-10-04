@@ -88,10 +88,6 @@ export default function Wishlist() {
                     <span className="font-semibold text-gray-900">
                       ₹{item.price}
                     </span>
-                    <span className="text-xs text-gray-500 line-through">
-                      ₹{item.originalPrice}
-                    </span>
-                    <span className="text-xs text-green-600">20% OFF</span>
                   </div>
                   <Button
                     onClick={() => moveToCart(item, index)}

@@ -132,7 +132,6 @@ export default function ProductDetails() {
         id: product.product_id,
         name: product.name,
         price: product.price,
-        originalPrice: product.original_price || product.price,
         size: selectedSize,
         color: selectedColor,
         quantity: quantity,
@@ -201,7 +200,6 @@ export default function ProductDetails() {
         id: product.product_id,
         name: product.name,
         price: product.price,
-        originalPrice: product.original_price || product.price,
         size: selectedSize,
         color: selectedColor,
         quantity: quantity,
@@ -300,7 +298,6 @@ export default function ProductDetails() {
         id: product.product_id,
         name: product.name,
         price: product.price,
-        originalPrice: product.original_price || product.price,
         image: product.image_url,
       };
       wishlistItems.push(newItem);
@@ -352,13 +349,7 @@ export default function ProductDetails() {
               </div>
               <div className="flex flex-col justify-center">
                 <div className="text-xs flex flex-nowrap gap-1 items-center">
-                  {product.original_price && (
-                    <span className="text-gray-400 line-through">₹{product.original_price}</span>
-                  )}
-                  <span className="text-lg"> ₹{product.price}</span>
-                  {product.discount_percentage && (
-                    <span className="text-gray-400">{product.discount_percentage}% off</span>
-                  )}
+                  <span className="text-lg">₹{product.price}</span>
                 </div>
                 <button
                   className="bg-[#12002C] hover:bg-black/80 rounded-md text-white text-sm px-5 py-1"
@@ -378,13 +369,7 @@ export default function ProductDetails() {
           {product?.name || "Loading..."}
         </h1>
         <div className="flex items-center space-x-2 mb-4">
-          {product?.original_price && (
-            <span className="text-md text-gray-500 line-through">₹{product.original_price}</span>
-          )}
           {product && <span className="text-3xl font-semibold text-gray-900">₹{product.price}</span>}
-          {product?.discount_percentage && (
-            <span className="text-sm text-green-600 font-medium">{product.discount_percentage}% OFF</span>
-          )}
         </div>
       </div>
 

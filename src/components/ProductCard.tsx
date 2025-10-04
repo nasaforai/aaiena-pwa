@@ -32,13 +32,7 @@ const ProductCard = ({
       <div className="px-2 pt-1">
         <p className="text-xs">{product.name}</p>
         <div className="text-xs flex gap-1 items-center">
-          {product.original_price && (
-            <span className="text-gray-400 line-through">₹{product.original_price}</span>
-          )}
-          <span className="text-lg"> ₹{product.price}</span>
-          {product.discount_percentage && (
-            <span className="text-gray-400">{product.discount_percentage}% off</span>
-          )}
+          <span className="text-lg">₹{product.price}</span>
         </div>
       </div>
     </div>

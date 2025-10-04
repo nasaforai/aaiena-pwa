@@ -79,9 +79,6 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({
         <button className="w-full mt-3 bg-white bg-opacity-20 text-white py-2 rounded-xl text-sm font-medium">
           Try Virtually
         </button>
-        <div className="mt-2 text-center">
-          <span className="text-xs opacity-75">Today's Discount offer →</span>
-        </div>
         <button className="w-full mt-2 bg-white text-purple-500 py-2 rounded-xl text-sm font-medium">
           Log In To See Full Preview →
         </button>
@@ -116,12 +113,6 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({
 
       {/* Main Content Area */}
       <div className="flex-1 px-4 pb-20">
-        {/* Discount Section */}
-        <div className="bg-gradient-to-r from-orange-400 to-yellow-500 rounded-2xl p-6 mb-4 text-white">
-          <h3 className="text-xl font-bold mb-2">Discount</h3>
-          <p className="text-sm mb-2">New Users Only</p>
-        </div>
-
         {/* Product Grid */}
         <div className="space-y-6">
           <div>

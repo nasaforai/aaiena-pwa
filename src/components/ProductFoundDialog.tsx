@@ -57,18 +57,6 @@ export default function ProductFoundDialog({
               <span className="text-xl font-bold text-primary">
                 ₹{product.price}
               </span>
-              {product.original_price && product.original_price > product.price && (
-                <>
-                  <span className="text-muted-foreground line-through text-sm">
-                    ₹{product.original_price}
-                  </span>
-                  {product.discount_percentage && (
-                    <Badge variant="destructive" className="text-xs">
-                      {product.discount_percentage}% OFF
-                    </Badge>
-                  )}
-                </>
-              )}
             </div>
           </div>
           

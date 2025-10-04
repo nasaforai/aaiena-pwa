@@ -61,13 +61,6 @@ export default function Cart() {
     );
   };
 
-  const getDiscountTotal = () => {
-    return cartItems.reduce(
-      (total, item) =>
-        total + (item.originalPrice - item.price) * item.quantity,
-      0
-    );
-  };
 
   const handleProceed = () => {
     navigate("/checkout");
@@ -173,13 +166,6 @@ export default function Cart() {
               <span className="font-medium">₹{getTotal()}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Discount</span>
-              <span className="font-medium">-₹{getDiscountTotal()}</span>
-            </div>
-            <span className="text-xs text-gray-500">
-              &lt;COUPON&gt; applied
-            </span>
-            <div className="flex justify-between">
               <span className="text-gray-600">Packaging</span>
               <span className="font-medium">₹50 Free</span>
             </div>
@@ -187,23 +173,17 @@ export default function Cart() {
               <div className="flex justify-between">
                 <span className="font-semibold text-gray-900">TOTAL</span>
                 <span className="font-semibold text-gray-900">
-                  ₹{getTotal() - 100}
+                  ₹{getTotal()}
                 </span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-blue-50 p-2 mb-4">
-          <p className="text-sm text-center text-gray-800">
-            You're saving ₹{getDiscountTotal() + 100} on this order!
-          </p>
-        </div>
-
         <div className="flex items-center justify-between px-4 pb-4 mb-20">
           <div>
             <p className="text-xl font-bold text-gray-900">
-              ₹{getTotal() - 100}
+              ₹{getTotal()}
             </p>
             <button className="text-sm text-red-500 ">View Details</button>
           </div>

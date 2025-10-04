@@ -37,8 +37,6 @@ export const useProductByBarcode = () => {
         name: data.name,
         description: data.description,
         price: data.price,
-        original_price: data.original_price,
-        discount_percentage: data.discount_percentage,
         category_id: data.category_id,
         image_url: data.image_url || data.base_image || '',
         additional_images: data.additional_images,
