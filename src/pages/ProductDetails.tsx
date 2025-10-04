@@ -522,23 +522,6 @@ export default function ProductDetails() {
 
       <div className="bg-gray-100 w-full h-2 my-4"></div>
 
-      {/* Find Similar */}
-      <div className="mb-6 px-4">
-        <h3 className="font-semibold text-lg mb-3">Find Similar</h3>
-        <Carousel className="w-full">
-          <CarouselContent className="-ml-2 md:-ml-4">
-          {allProducts.slice(0, 4).map((similarProduct) => (
-              <CarouselItem key={similarProduct.product_id} className="pl-2 md:pl-4 basis-1/2">
-                <ProductCard
-                  product={similarProduct}
-                  handleProductClick={handleProductClick}
-                />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselDots />
-        </Carousel>
-      </div>
 
       {!hasMeasurements && (
         <div className="py-10 mb-6 flex flex-col items-center justify-center bg-yellow-300">
