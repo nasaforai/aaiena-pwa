@@ -267,7 +267,7 @@ export default function Store() {
           className="w-full"
         >
           <CarouselContent className="-ml-2">
-            {categories.map((category) => (
+            {categories.filter(cat => cat.name !== "Ladies" && cat.name !== "Mens").map((category) => (
               <CarouselItem key={category.id} className="pl-2 basis-1/4">
                 <button
                   onClick={() => handleCategoryClick(category)}
