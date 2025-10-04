@@ -246,39 +246,6 @@ export default function Store() {
         </div>
       )}
 
-      {/* Shop All Section */}
-      <div className="px-4 mb-6">
-        <h3 className="font-bold text-lg mb-3">Shop All</h3>
-        <Carousel
-          opts={{
-            align: "start",
-            loop: false,
-          }}
-          className="w-full"
-        >
-          <CarouselContent className="-ml-2">
-            {categories.filter(cat => cat.name !== "Ladies" && cat.name !== "Mens").map((category) => (
-              <CarouselItem key={category.id} className="pl-2 basis-1/4">
-                <button
-                  onClick={() => handleCategoryClick(category)}
-                  className="relative w-full h-24 rounded-lg overflow-hidden group"
-                >
-                  <img
-                    src={category.image_url || "/images/dress.jpg"}
-                    alt={category.name}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-2">
-                    <span className="text-white font-semibold text-xs">{category.name}</span>
-                  </div>
-                </button>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
-      </div>
-
       {/* Main Content Area */}
       <div className="flex-1 p-4">
         {/* Filtered Results - Show for search or category filter */}
