@@ -546,28 +546,6 @@ export default function ProductDetails() {
 
       <div className="bg-gray-100 w-full h-2 my-4"></div>
 
-
-      {!hasMeasurements && (
-        <div className="py-10 mb-6 flex flex-col items-center justify-center bg-yellow-300">
-          <img
-            src="/icons/tShirt.svg"
-            alt="dress icon"
-            height={24}
-            width={24}
-            className="mb-1"
-          />
-          <p className="text-xl">Struggling to spot your fit?</p>
-          <button
-            className="flex shadow-sm bg-white items-center rounded-md pl-10 pr-8 py-2 mt-4"
-            onClick={() => {
-              navigate("/measurement-profile");
-            }}
-          >
-            <span>Set your profile</span>
-            <ArrowRight className="h-4 ml-1" />
-          </button>
-        </div>
-      )}
       <div className="mb-48"></div>
 
       {/* Bottom Action */}
