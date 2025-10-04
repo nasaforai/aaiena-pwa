@@ -33,6 +33,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useProductSizeChart } from "@/hooks/useProductSizeChart";
 import { useSizeRecommendation } from "@/hooks/useSizeRecommendation";
 import { SizeChartDialog } from "@/components/SizeChartDialog";
+import { useProductVariants } from "@/hooks/useProductVariants";
 
 export default function ProductDetails() {
   const navigate = useNavigate();
@@ -55,6 +56,7 @@ export default function ProductDetails() {
   const { data: allProducts = [] } = useProducts();
   const { data: sizeChart, isLoading: sizeChartLoading } = useProductSizeChart(productId);
   const sizeRecommendation = useSizeRecommendation(sizeChart || null);
+  const { data: productVariants, isLoading: variantsLoading } = useProductVariants(productId || "");
   // Chart data for size visualization
   const sizeChartData = [
     { name: "Small", value: 25, fill: "#FFD188" },
@@ -259,7 +261,7 @@ export default function ProductDetails() {
   };
 
   const colors = product?.colors || [];
-  const sizes = product?.sizes || ["XS", "S", "M", "L", "XL"];
+  const sizes = productVariants?.map(v => v.size).filter(Boolean) || [];
 
   return (
     <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
@@ -343,18 +345,34 @@ export default function ProductDetails() {
             )}
           </div>
           <div className="flex space-x-3">
-            {sizes.map((size) => (
-              <button
-                key={size}
-                onClick={() => setSelectedSize(size)}
-                className={`text-sm w-8 h-8 rounded-md border border-gray-300 ${
-                  selectedSize === size ? "ring-2 ring-purple-500" : 
-                  sizeRecommendation.bestFit?.size === size ? "ring-2 ring-orange-400" : ""
-                }`}
-              >
-                {size}
-              </button>
-            ))}
+            {variantsLoading ? (
+              <div className="text-sm text-gray-500">Loading sizes...</div>
+            ) : sizes.length === 0 ? (
+              <div className="text-sm text-gray-500">No sizes available</div>
+            ) : (
+              sizes.map((size) => {
+                const variant = productVariants?.find(v => v.size === size);
+                const inStock = variant && variant.stock_quantity > 0;
+                const lowStock = variant && variant.stock_quantity > 0 && variant.stock_quantity <= 5;
+                
+                return (
+                  <button
+                    key={size}
+                    onClick={() => inStock && setSelectedSize(size)}
+                    disabled={!inStock}
+                    className={`text-sm w-8 h-8 rounded-md border border-gray-300 relative ${
+                      selectedSize === size ? "ring-2 ring-purple-500" : 
+                      sizeRecommendation.bestFit?.size === size ? "ring-2 ring-orange-400" : ""
+                    } ${
+                      !inStock ? "opacity-40 cursor-not-allowed line-through" : ""
+                    }`}
+                    title={!inStock ? "Out of stock" : lowStock ? `Only ${variant.stock_quantity} left` : `${variant?.stock_quantity} in stock`}
+                  >
+                    {size}
+                  </button>
+                );
+              })
+            )}
           </div>
         </div>
 
