@@ -124,11 +124,7 @@ export default function Cart() {
               <span className="text-gray-600">Bag Total</span>
               <span className="font-medium">₹{getTotal()}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Packaging</span>
-              <span className="font-medium">₹50 Free</span>
-            </div>
-            <div className="border-t border-dashed border-gray-400 pt-2">
+            <div className="border-t border-dashed border-gray-400 pt-2 mt-2">
               <div className="flex justify-between">
                 <span className="font-semibold text-gray-900">TOTAL</span>
                 <span className="font-semibold text-gray-900">
