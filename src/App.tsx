@@ -5,12 +5,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { ProfileSidebarProvider } from "@/contexts/ProfileSidebarContext";
 import { BrandProvider, useBrand } from "@/contexts/BrandContext";
 import { BrandThemeProvider } from "@/components/BrandThemeProvider";
 import { BrandErrorScreen } from "@/components/BrandErrorScreen";
 import { Loader2 } from "lucide-react";
-import { ProfileSidebar } from "@/components/ProfileSidebar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
@@ -126,14 +124,13 @@ const App = () => {
         <BrandGuard>
           <BrandThemeProvider>
             <AuthProvider>
-              <ProfileSidebarProvider>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner />
-                  <BrowserRouter>
-                    <Suspense fallback={<LoadingFallback />}>
-                      <ScrollToTop />
-                      <Routes>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Suspense fallback={<LoadingFallback />}>
+                    <ScrollToTop />
+                    <Routes>
                  <Route path="/" element={<Index />} />
                  <Route path="/welcome" element={<Welcome />} />
                  <Route path="/sign-in" element={<SignIn />} />
@@ -172,14 +169,12 @@ const App = () => {
                 <Route path="/try-virtually" element={<ProtectedRoute><TryVirtually /></ProtectedRoute>} />
                 
                 <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Suspense>
-                  <PWAInstallPrompt />
-                  <ProfileSidebar />
-                  <KioskInactivityMonitor />
-                </BrowserRouter>
-              </TooltipProvider>
-            </ProfileSidebarProvider>
+                  </Routes>
+                </Suspense>
+                <PWAInstallPrompt />
+                <KioskInactivityMonitor />
+              </BrowserRouter>
+            </TooltipProvider>
           </AuthProvider>
         </BrandThemeProvider>
         </BrandGuard>
