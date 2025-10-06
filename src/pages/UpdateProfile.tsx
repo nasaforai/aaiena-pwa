@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Camera, Edit, Pen } from "lucide-react";
+import { ArrowLeft, Camera, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,7 @@ export default function UpdateProfile() {
   const [fullName, setFullName] = useState("");
   const [stylePreferences, setStylePreferences] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState<"profile" | "size-guide" | "style-rating">("profile");
 
   // Load profile data when available
   useEffect(() => {
@@ -138,19 +139,43 @@ export default function UpdateProfile() {
 
       {/* Tab Navigation */}
       <div className="flex border-b">
-        <button className="flex-1 py-3 px-4 text-center border-b-2 border-purple-600 font-medium">
+        <button 
+          onClick={() => setActiveTab("profile")}
+          className={`flex-1 py-3 px-4 text-center border-b-2 font-medium transition-colors ${
+            activeTab === "profile" 
+              ? "border-purple-600 text-gray-900" 
+              : "border-transparent text-gray-500 hover:text-gray-700"
+          }`}
+        >
           Profile
         </button>
-        <button className="flex-1 py-3 px-4 text-center text-gray-500">
+        <button 
+          onClick={() => setActiveTab("size-guide")}
+          className={`flex-1 py-3 px-4 text-center border-b-2 font-medium transition-colors ${
+            activeTab === "size-guide" 
+              ? "border-purple-600 text-gray-900" 
+              : "border-transparent text-gray-500 hover:text-gray-700"
+          }`}
+        >
           Size Guide
         </button>
-        <button className="flex-1 py-3 px-4 text-center text-gray-500">
+        <button 
+          onClick={() => setActiveTab("style-rating")}
+          className={`flex-1 py-3 px-4 text-center border-b-2 font-medium transition-colors ${
+            activeTab === "style-rating" 
+              ? "border-purple-600 text-gray-900" 
+              : "border-transparent text-gray-500 hover:text-gray-700"
+          }`}
+        >
           Style Rating
         </button>
       </div>
 
       {/* Content */}
       <div className="flex-1 px-4 py-6 overflow-y-auto">
+        {/* Profile Tab Content */}
+        {activeTab === "profile" && (
+          <>
         {/* Profile Image */}
         <div className="text-center mb-6">
           <div className="relative inline-block">
@@ -322,6 +347,34 @@ export default function UpdateProfile() {
         <div className="text-center mt-20 mb-20">
           <p className="text-gray-400 font-bold text-lg">Aaiena</p>
         </div>
+        </>
+        )}
+
+        {/* Size Guide Tab Content */}
+        {activeTab === "size-guide" && (
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-6">
+            <div className="w-20 h-20 rounded-full bg-purple-100 flex items-center justify-center mb-6">
+              <Clock className="w-10 h-10 text-purple-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">Coming Soon!</h2>
+            <p className="text-gray-600 max-w-md">
+              Our comprehensive size guide is currently under development and will be available soon to help you find the perfect fit.
+            </p>
+          </div>
+        )}
+
+        {/* Style Rating Tab Content */}
+        {activeTab === "style-rating" && (
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-6">
+            <div className="w-20 h-20 rounded-full bg-purple-100 flex items-center justify-center mb-6">
+              <Clock className="w-10 h-10 text-purple-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">Coming Soon!</h2>
+            <p className="text-gray-600 max-w-md">
+              Style rating feature is currently under development and will help you discover your unique style preferences.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Bottom Navigation */}
