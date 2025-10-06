@@ -31,8 +31,8 @@ export const KioskInactivityWarning = ({
   const [progress, setProgress] = useState(100);
 
   useEffect(() => {
-    // Calculate progress (20 seconds total)
-    const progressValue = (remainingSeconds / 20) * 100;
+    // Calculate progress (15 seconds total)
+    const progressValue = (remainingSeconds / 15) * 100;
     setProgress(progressValue);
   }, [remainingSeconds]);
 

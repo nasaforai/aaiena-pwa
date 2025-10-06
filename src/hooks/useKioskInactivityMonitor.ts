@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
-const INACTIVITY_WARNING_TIME = 10000; // 10 seconds
+const INACTIVITY_WARNING_TIME = 15000; // 15 seconds
 const INACTIVITY_LOGOUT_TIME = 30000; // 30 seconds
-const COUNTDOWN_DURATION = 20; // 20 seconds for countdown
+const COUNTDOWN_DURATION = 15; // 15 seconds for countdown
 
 export const useKioskInactivityMonitor = () => {
   const { isAuthenticated, deviceType, signOut } = useAuth();
@@ -62,7 +62,7 @@ export const useKioskInactivityMonitor = () => {
 
     if (!isKioskActive) return;
 
-    // Set warning timer (10 seconds)
+    // Set warning timer (15 seconds)
     warningTimerRef.current = setTimeout(() => {
       showWarningRef.current = true;
       setShowWarning(true);
