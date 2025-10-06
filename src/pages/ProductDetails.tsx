@@ -601,8 +601,6 @@ export default function ProductDetails() {
         </div>
       )}
 
-      <div className="bg-gray-100 w-full h-2 my-4"></div>
-
       <div className="mb-48"></div>
 
       {/* Bottom Action */}
