@@ -264,7 +264,11 @@ export default function Store() {
                   className="relative w-full h-24 rounded-lg overflow-hidden group"
                 >
                   <img
-                    src={category.image_url || "/images/dress.jpg"}
+                    src={
+                      category.name.toLowerCase().includes('t-shirt') || category.name.toLowerCase().includes('tshirt')
+                        ? "/images/ucb-tshirts.jpg"
+                        : category.image_url || "/images/dress.jpg"
+                    }
                     alt={category.name}
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
