@@ -38,12 +38,12 @@ export const KioskInactivityWarning = ({
 
   return (
     <AlertDialog open={open}>
-      <AlertDialogContent className="max-w-[90vw] sm:max-w-md mx-4">
+      <AlertDialogContent className="w-[calc(100vw-2rem)] max-w-sm sm:max-w-md p-4 sm:p-6 rounded-lg max-h-[85vh] overflow-y-auto">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-center text-lg sm:text-xl">
+          <AlertDialogTitle className="text-center text-lg sm:text-xl leading-tight break-words">
             Automatic Logout Warning
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-center space-y-4">
+          <AlertDialogDescription className="text-center space-y-3 sm:space-y-4 break-words">
             <div className="text-base sm:text-lg">
               The kiosk will automatically log you out in{' '}
               <span className="font-bold text-destructive">
@@ -56,24 +56,24 @@ export const KioskInactivityWarning = ({
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="flex-col gap-2 sm:gap-3">
+        <AlertDialogFooter className="w-full flex-col gap-2 sm:flex-row sm:gap-3">
           <AlertDialogCancel 
             onClick={onSignOut}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto text-sm sm:text-base whitespace-normal min-w-0"
           >
             Sign me out
           </AlertDialogCancel>
           <Button
             variant="outline"
             onClick={onSwitchToMobile}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto text-sm sm:text-base whitespace-normal min-w-0"
           >
             <Smartphone className="w-4 h-4 mr-2" />
             Switch to Mobile
           </Button>
           <AlertDialogAction 
             onClick={onKeepLoggedIn}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto text-sm sm:text-base whitespace-normal min-w-0"
           >
             Keep me logged in
           </AlertDialogAction>
