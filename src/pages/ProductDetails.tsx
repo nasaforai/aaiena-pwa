@@ -165,7 +165,6 @@ export default function ProductDetails() {
 
       localStorage.setItem("cartItems", JSON.stringify(cartItems));
       console.log('Cart updated successfully', cartItems);
-      navigate("/cart");
     } catch (error) {
       console.error('Error adding to cart:', error);
       toast({
