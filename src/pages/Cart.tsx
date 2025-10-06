@@ -119,7 +119,6 @@ export default function Cart() {
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex-1 pr-2">
-                        <p className="text-xs text-muted-foreground mb-1">Fit & Regular</p>
                         <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2">
                           {item.name}
                         </h3>
