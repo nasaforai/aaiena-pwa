@@ -63,16 +63,12 @@ const CategoryProducts = () => {
       {/* Header */}
       <Topbar handleBack={handleBack} showBack={true} showProfile={false} />
 
-      {/* Category Image Banner (if available) */}
-      {category.image_url && (
-        <div className="w-full h-32 overflow-hidden">
-          <img
-            src={category.image_url}
-            alt={category.name}
-            className="w-full h-full object-cover"
-          />
-        </div>
-      )}
+      {/* Category Name Header */}
+      <div className="w-full px-4 py-6 bg-gradient-to-r from-purple-50 to-pink-50 border-b">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center">
+          {category.name}
+        </h1>
+      </div>
 
       {/* Product Count */}
       <div className="px-4 py-3 border-b">
