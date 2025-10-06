@@ -422,21 +422,21 @@ export default function ProductDetails() {
               })
             )}
           </div>
-        </div>
 
-        {/* Color Selection */}
-        <div className="px-4 mb-4">
-          <span className="font-medium text-gray-900 mb-3 block">Color:</span>
-          <div className="flex space-x-3">
-            {colors.map((color) => (
-              <button
-                key={color.name}
-                onClick={() => setSelectedColor(color.name)}
-                className={`w-8 h-8 rounded ${color.bgClass} ${
-                  selectedColor === color.name ? "ring-2 ring-purple-500" : ""
-                }`}
-              />
-            ))}
+          {/* Color Selection */}
+          <div className="mt-4">
+            <span className="font-medium text-gray-900 mb-3 block">Color:</span>
+            <div className="flex space-x-3">
+              {colors.map((color) => (
+                <button
+                  key={color.name}
+                  onClick={() => setSelectedColor(color.name)}
+                  className={`w-8 h-8 rounded ${color.bgClass} ${
+                    selectedColor === color.name ? "ring-2 ring-purple-500" : ""
+                  }`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
