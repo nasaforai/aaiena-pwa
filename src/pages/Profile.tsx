@@ -403,9 +403,9 @@ export default function Profile() {
           
           {/* Expanded Settings Section */}
           {isSettingsExpanded && (
-            <Card className="ml-8 mr-0">
+            <Card className="mx-auto max-w-md">
               <CardHeader>
-                <CardTitle className="text-base">Change Password</CardTitle>
+                <CardTitle className="text-base text-center">Change Password</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
