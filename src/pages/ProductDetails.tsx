@@ -98,16 +98,6 @@ export default function ProductDetails() {
   // If product not found, show placeholders; actions remain visible
 
   const handleAddToCart = () => {
-    // Check authentication first
-    if (!isLoggedIn) {
-      if (isMobile) {
-        navigate(`/sign-up?${createSearchParams({ back: "product-details" })}`);
-      } else {
-        navigate("/qr-code?back=product-details");
-      }
-      return;
-    }
-
     console.log('Add to cart clicked', { product, selectedSize, selectedColor, quantity });
     
     if (!product) {

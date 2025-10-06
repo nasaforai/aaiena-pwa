@@ -156,7 +156,7 @@ const App = () => {
                 <Route path="/waiting-room" element={<WaitingRoom />} />
                 
                 {/* Protected routes */}
-                <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+                <Route path="/cart" element={<Cart />} />
                 <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/measurement-profile" element={<ProtectedRoute><MeasurementProfile /></ProtectedRoute>} />
