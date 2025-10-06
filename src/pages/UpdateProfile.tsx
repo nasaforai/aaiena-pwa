@@ -9,6 +9,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
+import BottomNavigation from "@/components/BottomNavigation";
 
 export default function UpdateProfile() {
   const navigate = useNavigate();
@@ -318,10 +319,13 @@ export default function UpdateProfile() {
         </Button>
 
         {/* Footer */}
-        <div className="text-center mt-20">
+        <div className="text-center mt-20 mb-20">
           <p className="text-gray-400 font-bold text-lg">Aaiena</p>
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }
