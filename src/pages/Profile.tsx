@@ -364,15 +364,6 @@ export default function Profile() {
 
         {/* Menu Options */}
         <div className="space-y-2 mb-6">
-          <Button
-            variant="ghost"
-            className="w-full justify-start h-12"
-            onClick={() => navigate('/update-profile')}
-          >
-            <User className="w-5 h-5 mr-3" />
-            Body Measurements
-          </Button>
-          
           {/* Switch to Mobile - Only show on kiosk/desktop */}
           {(isKiosk || isDesktop) && (
             <Button
