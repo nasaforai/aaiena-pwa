@@ -440,6 +440,27 @@ export default function ProductDetails() {
         </div>
       </div>
 
+      {/* Quantity Selection */}
+      <div className="px-4 mb-4">
+        <span className="font-medium text-gray-900 mb-3 block">Quantity:</span>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            disabled={quantity <= 1}
+            className="w-8 h-8 flex items-center justify-center rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Minus className="w-4 h-4" />
+          </button>
+          <span className="text-lg font-medium min-w-[2rem] text-center">{quantity}</span>
+          <button
+            onClick={() => setQuantity(quantity + 1)}
+            className="w-8 h-8 flex items-center justify-center rounded-md border border-gray-300 hover:bg-gray-50"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
       {/* Recommendation Section */}
       {isLoggedIn && hasMeasurements && (
         <div className="px-4 mb-4">
