@@ -41,7 +41,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { RoomJoinDialog } from "@/components/RoomJoinDialog";
-import BottomNavigation from "@/components/BottomNavigation";
 
 export default function ProductDetails() {
   const navigate = useNavigate();
@@ -657,9 +656,6 @@ export default function ProductDetails() {
         isVirtualDialogOpen={isVirtualDialogOpen}
         onClose={() => setIsRoomDialogOpen(false)}
       />
-
-      {/* Bottom Navigation */}
-      <BottomNavigation />
 
     </div>
   );
