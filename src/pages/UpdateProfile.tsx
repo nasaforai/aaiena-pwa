@@ -55,11 +55,11 @@ export default function UpdateProfile() {
       const updates = {
         full_name: fullName,
         gender: selectedGender,
-        height: height ? parseInt(height) : null,
-        weight: weight ? parseInt(weight) : null,
-        chest: chest ? parseInt(chest) : null,
-        waist: waist ? parseInt(waist) : null,
-        pants_size: pantsSize ? parseInt(pantsSize) : null,
+        height: height ? parseFloat(height) : null,
+        weight: weight ? parseFloat(weight) : null,
+        chest: chest ? parseFloat(chest) : null,
+        waist: waist ? parseFloat(waist) : null,
+        pants_size: pantsSize ? parseFloat(pantsSize) : null,
         shirt_size: selectedShirtSize,
         style_preferences: stylePreferences,
       };
@@ -230,6 +230,8 @@ export default function UpdateProfile() {
               <input
                 value={height}
                 type="number"
+                step="0.1"
+                inputMode="decimal"
                 onChange={(e) => setHeight(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
                 placeholder="177"
@@ -240,6 +242,8 @@ export default function UpdateProfile() {
               <input
                 value={weight}
                 type="number"
+                step="0.1"
+                inputMode="decimal"
                 onChange={(e) => setWeight(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
                 placeholder="60"
@@ -250,6 +254,8 @@ export default function UpdateProfile() {
               <input
                 value={chest}
                 type="number"
+                step="0.1"
+                inputMode="decimal"
                 onChange={(e) => setChest(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
                 placeholder="96"
@@ -260,6 +266,8 @@ export default function UpdateProfile() {
               <input
                 value={waist}
                 type="number"
+                step="0.1"
+                inputMode="decimal"
                 onChange={(e) => setWaist(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
                 placeholder="81"
@@ -302,6 +310,8 @@ export default function UpdateProfile() {
             <input
               value={pantsSize}
               type="number"
+              step="0.1"
+              inputMode="decimal"
               onChange={(e) => setPantsSize(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-lg"
               placeholder="32"
