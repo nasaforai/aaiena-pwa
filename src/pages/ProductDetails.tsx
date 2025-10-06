@@ -605,10 +605,8 @@ export default function ProductDetails() {
       <div className="mb-48"></div>
 
       {/* Bottom Action */}
-      <div className="fixed bottom-16 left-0 w-full lg:max-w-sm lg:left-1/2 lg:-translate-x-1/2 z-[60]">
-        <div className="shadow-xl">
-
-          <div className="px-4 py-3 bg-white shadow-md">
+      <div className="fixed bottom-[64px] left-0 w-full lg:max-w-sm lg:left-1/2 lg:-translate-x-1/2 z-[60]">
+        <div className="px-4 py-3 bg-white border-t border-gray-100">
             <div className="flex gap-2 mb-2">
               <Button
                 onClick={handleTryVirtually}
@@ -640,7 +638,6 @@ export default function ProductDetails() {
               </Button>
             </div>
           </div>
-        </div>
       </div>
 
       {/* Size Chart Dialog */}
