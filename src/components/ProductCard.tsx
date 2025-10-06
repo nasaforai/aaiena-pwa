@@ -61,10 +61,10 @@ const ProductCard = ({
           <ShoppingBag className="w-4 h-4 text-gray-600" />
         </button>
 
-        <div className="absolute left-0 bottom-0 bg-white/30 right-0 py-2 flex justify-center">
+        <div className="absolute left-0 bottom-0 bg-black/60 right-0 py-2 flex justify-center">
           <button
             onClick={() => handleProductClick(product.product_id.toString())}
-            className="text-sm text-white hover:text-purple-600 transition-colors mb-1 block"
+            className="text-sm text-white font-medium hover:text-purple-300 transition-colors mb-1 block"
           >
             View Details
           </button>
