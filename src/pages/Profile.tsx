@@ -291,58 +291,72 @@ export default function Profile() {
         </Card>
 
         {/* Body Measurements */}
-        {profile && (profile.height || profile.weight || profile.chest || profile.waist) && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="text-base">Body Measurements</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                {profile.height && (
-                  <div>
-                    <span className="text-gray-600">Height:</span>
-                    <span className="ml-2 font-medium">{profile.height} cm</span>
-                  </div>
-                )}
-                {profile.weight && (
-                  <div>
-                    <span className="text-gray-600">Weight:</span>
-                    <span className="ml-2 font-medium">{profile.weight} kg</span>
-                  </div>
-                )}
-                {profile.chest && (
-                  <div>
-                    <span className="text-gray-600">Chest:</span>
-                    <span className="ml-2 font-medium">{profile.chest} cm</span>
-                  </div>
-                )}
-                {profile.waist && (
-                  <div>
-                    <span className="text-gray-600">Waist:</span>
-                    <span className="ml-2 font-medium">{profile.waist} cm</span>
-                  </div>
-                )}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-base">Body Measurements</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {profile && (profile.height || profile.weight || profile.chest || profile.waist) ? (
+              <>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  {profile.height && (
+                    <div>
+                      <span className="text-gray-600">Height:</span>
+                      <span className="ml-2 font-medium">{profile.height} cm</span>
+                    </div>
+                  )}
+                  {profile.weight && (
+                    <div>
+                      <span className="text-gray-600">Weight:</span>
+                      <span className="ml-2 font-medium">{profile.weight} kg</span>
+                    </div>
+                  )}
+                  {profile.chest && (
+                    <div>
+                      <span className="text-gray-600">Chest:</span>
+                      <span className="ml-2 font-medium">{profile.chest} cm</span>
+                    </div>
+                  )}
+                  {profile.waist && (
+                    <div>
+                      <span className="text-gray-600">Waist:</span>
+                      <span className="ml-2 font-medium">{profile.waist} cm</span>
+                    </div>
+                  )}
+                </div>
+                
+                <Separator />
+                
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  {profile.shirt_size && (
+                    <div>
+                      <span className="text-gray-600">Shirt Size:</span>
+                      <span className="ml-2 font-medium">{profile.shirt_size}</span>
+                    </div>
+                  )}
+                  {profile.pants_size && (
+                    <div>
+                      <span className="text-gray-600">Pants Size:</span>
+                      <span className="ml-2 font-medium">{profile.pants_size}</span>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-6">
+                <p className="text-sm text-muted-foreground mb-4 text-center">
+                  Add your body measurements to get personalized size recommendations
+                </p>
+                <Button
+                  onClick={() => navigate('/fit-profile')}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  Complete Profile
+                </Button>
               </div>
-              
-              <Separator />
-              
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                {profile.shirt_size && (
-                  <div>
-                    <span className="text-gray-600">Shirt Size:</span>
-                    <span className="ml-2 font-medium">{profile.shirt_size}</span>
-                  </div>
-                )}
-                {profile.pants_size && (
-                  <div>
-                    <span className="text-gray-600">Pants Size:</span>
-                    <span className="ml-2 font-medium">{profile.pants_size}</span>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            )}
+          </CardContent>
+        </Card>
 
         {/* Style Preferences */}
         {profile?.style_preferences && profile.style_preferences.length > 0 && (
