@@ -101,7 +101,7 @@ export default function Cart() {
           </div>
 
           {/* Cart Items */}
-          <div className="flex-1 px-4 py-4 space-y-3 overflow-y-auto pb-[280px]">
+          <div className="flex-1 px-4 py-4 space-y-3 overflow-y-auto pb-80">
             {cartItems.map((item, index) => (
               <div
                 key={index}
@@ -162,12 +162,12 @@ export default function Cart() {
           </div>
 
           {/* Payment Details - Fixed at bottom */}
-          <div className="fixed bottom-0 left-0 right-0 lg:left-auto lg:right-auto lg:max-w-sm lg:mx-auto w-full bg-card border-t border-border shadow-2xl">
+          <div className="fixed bottom-16 left-0 right-0 lg:left-auto lg:right-auto lg:max-w-sm w-full bg-card border-t border-border shadow-2xl max-h-[40vh] overflow-y-auto">
             <div className="p-4">
               <h3 className="text-xs font-semibold text-muted-foreground mb-3 tracking-wider uppercase">
                 Payment Details
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Bag Total</span>
                   <span className="text-sm font-semibold text-foreground">
@@ -178,8 +178,8 @@ export default function Cart() {
                   <span className="text-sm text-muted-foreground">Delivery</span>
                   <span className="text-sm font-semibold text-green-600">FREE</span>
                 </div>
-                <div className="border-t border-dashed border-border pt-3">
-                  <div className="flex justify-between items-center mb-4">
+                <div className="border-t border-dashed border-border pt-2 mt-2">
+                  <div className="flex justify-between items-center mb-3">
                     <span className="text-base font-bold text-foreground">Total Amount</span>
                     <span className="text-xl font-bold text-foreground">
                       ₹{getTotal().toLocaleString()}
@@ -188,16 +188,13 @@ export default function Cart() {
                   
                   <Button
                     onClick={handleProceed}
-                    className="w-full bg-primary text-primary-foreground py-6 rounded-xl font-semibold hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl text-base"
+                    className="w-full bg-primary text-primary-foreground py-5 rounded-xl font-semibold hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl text-base"
                   >
                     Proceed to Checkout
                   </Button>
                 </div>
               </div>
             </div>
-            
-            {/* Bottom Navigation spacer */}
-            <div className="h-16"></div>
           </div>
         </>
       )}
