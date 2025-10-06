@@ -8,11 +8,11 @@ interface Profile {
   full_name: string | null;
   avatar_url: string | null;
   gender: string | null;
-  height: number | null;
-  weight: number | null;
-  chest: number | null;
-  waist: number | null;
-  pants_size: number | null;
+  height: number | null; // Now supports decimals
+  weight: number | null; // Now supports decimals
+  chest: number | null; // Now supports decimals
+  waist: number | null; // Now supports decimals
+  pants_size: number | null; // Now supports decimals
   shirt_size: string | null;
   style_preferences: string[] | null;
   photos: string[] | null;
