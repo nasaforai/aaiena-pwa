@@ -71,99 +71,133 @@ export default function Cart() {
   };
 
   return (
-    <div className="bg-gray-100 flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
+    <div className="bg-background flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       <Topbar handleBack={handleBack} showBack={true} />
 
       {cartItems.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
-          <ShoppingBag className="w-20 h-20 text-gray-300 mb-4" />
-          <h2 className="text-2xl font-semibold text-gray-800 mb-2">Your cart is empty</h2>
-          <p className="text-gray-500 text-center mb-6">
-            Looks like you haven't added any items yet
+          <div className="relative mb-6">
+            <div className="absolute inset-0 bg-primary/5 rounded-full blur-2xl"></div>
+            <ShoppingBag className="relative w-24 h-24 text-muted-foreground/40" strokeWidth={1.5} />
+          </div>
+          <h2 className="text-2xl font-semibold text-foreground mb-2">Your cart is empty</h2>
+          <p className="text-muted-foreground text-center mb-8 max-w-sm">
+            Looks like you haven't added any items yet. Start shopping to fill your cart!
           </p>
           <Button
             onClick={() => navigate("/store")}
-            className="bg-gray-900 text-white px-8 py-3 rounded-xl font-medium"
+            className="bg-primary text-primary-foreground px-8 py-6 rounded-xl font-medium hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl"
           >
             Continue Shopping
           </Button>
         </div>
       ) : (
         <>
+          {/* Header with item count */}
+          <div className="px-4 py-3 bg-card border-b border-border">
+            <h1 className="text-lg font-semibold text-foreground">
+              Shopping Cart ({cartItems.length} {cartItems.length === 1 ? 'item' : 'items'})
+            </h1>
+          </div>
+
           {/* Cart Items */}
-          <div className="lg:flex-1">
+          <div className="flex-1 px-4 py-4 space-y-3 overflow-y-auto pb-[280px]">
             {cartItems.map((item, index) => (
               <div
                 key={index}
-                className="flex items-start space-x-3 mb-4 bg-gray-50 p-4"
+                className="bg-card rounded-xl border border-border p-4 shadow-sm hover:shadow-md transition-all"
               >
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-20 h-24 rounded-lg object-cover"
-                />
-                <div className="flex-1">
-                  <div className="flex justify-between items-start mb-1">
-                    <div>
-                      <p className="text-sm text-gray-600">Fit & Regular</p>
-                      <p className="font-medium text-gray-900 text-sm w-9/12 truncate ">
-                        {item.name}
+                <div className="flex items-start space-x-4">
+                  <div className="relative">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-24 h-28 rounded-lg object-cover"
+                    />
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex-1 pr-2">
+                        <p className="text-xs text-muted-foreground mb-1">Fit & Regular</p>
+                        <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2">
+                          {item.name}
+                        </h3>
+                      </div>
+                      <button
+                        onClick={() => removeItem(index)}
+                        className="p-1.5 hover:bg-destructive/10 rounded-lg transition-colors group"
+                        aria-label="Remove item"
+                      >
+                        <X className="w-4 h-4 text-muted-foreground group-hover:text-destructive transition-colors" />
+                      </button>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <span className="text-xs bg-secondary text-secondary-foreground px-3 py-1 rounded-full font-medium">
+                        Size: {item.size}
+                      </span>
+                      {item.color && (
+                        <span className="text-xs bg-secondary text-secondary-foreground px-3 py-1 rounded-full font-medium">
+                          {item.color}
+                        </span>
+                      )}
+                      <span className="text-xs bg-secondary text-secondary-foreground px-3 py-1 rounded-full font-medium">
+                        Qty: {item.quantity}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <p className="text-lg font-bold text-foreground">
+                        ₹{(item.price * item.quantity).toLocaleString()}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        ₹{item.price.toLocaleString()} each
                       </p>
                     </div>
-                    <button
-                      onClick={() => removeItem(index)}
-                      className="p-1 hover:bg-gray-200 rounded"
-                    >
-                      <X className="w-4 h-4 text-gray-500" />
-                    </button>
                   </div>
-                  <div className="flex space-x-1">
-                    <p className="text-xs text-gray-600 mb-2 bg-[#F5F0F0] px-2 flex items-center">
-                      Size : {item.size}
-                    </p>
-                    <p className="text-xs text-gray-600 mb-2 bg-[#F5F0F0] px-2 flex items-center">
-                      Qty {item.quantity} <ChevronDown className="w-3 ml-1" />
-                    </p>
-                  </div>
-                  <p className="font-medium text-gray-900">₹{item.price}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Payment Details */}
-          <div className="bg-white rounded-lg">
+          {/* Payment Details - Fixed at bottom */}
+          <div className="fixed bottom-0 left-0 right-0 lg:left-auto lg:right-auto lg:max-w-sm lg:mx-auto w-full bg-card border-t border-border shadow-2xl">
             <div className="p-4">
-              <h3 className="font-semibold text-gray-800 mb-3">PAYMENT DETAILS</h3>
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Bag Total</span>
-                  <span className="font-medium">₹{getTotal()}</span>
+              <h3 className="text-xs font-semibold text-muted-foreground mb-3 tracking-wider uppercase">
+                Payment Details
+              </h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Bag Total</span>
+                  <span className="text-sm font-semibold text-foreground">
+                    ₹{getTotal().toLocaleString()}
+                  </span>
                 </div>
-                <div className="border-t border-dashed border-gray-400 pt-2 mt-2">
-                  <div className="flex justify-between">
-                    <span className="font-semibold text-gray-900">TOTAL</span>
-                    <span className="font-semibold text-gray-900">
-                      ₹{getTotal()}
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Delivery</span>
+                  <span className="text-sm font-semibold text-green-600">FREE</span>
+                </div>
+                <div className="border-t border-dashed border-border pt-3">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-base font-bold text-foreground">Total Amount</span>
+                    <span className="text-xl font-bold text-foreground">
+                      ₹{getTotal().toLocaleString()}
                     </span>
                   </div>
+                  
+                  <Button
+                    onClick={handleProceed}
+                    className="w-full bg-primary text-primary-foreground py-6 rounded-xl font-semibold hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl text-base"
+                  >
+                    Proceed to Checkout
+                  </Button>
                 </div>
               </div>
             </div>
-
-            <div className="flex items-center justify-between px-4 pb-4 mb-20">
-              <div>
-                <p className="text-xl font-bold text-gray-900">
-                  ₹{getTotal()}
-                </p>
-              </div>
-              <Button
-                onClick={handleProceed}
-                className="bg-gray-900 text-white px-8 py-3 rounded-xl font-medium"
-              >
-                Proceed to Buy
-              </Button>
-            </div>
+            
+            {/* Bottom Navigation spacer */}
+            <div className="h-16"></div>
           </div>
         </>
       )}
