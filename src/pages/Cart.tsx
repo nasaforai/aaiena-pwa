@@ -101,7 +101,7 @@ export default function Cart() {
           </div>
 
           {/* Cart Items */}
-          <div className="flex-1 px-4 py-4 space-y-3 overflow-y-auto pb-80">
+          <div className="flex-1 px-4 py-4 space-y-3 overflow-y-auto mb-4">
             {cartItems.map((item, index) => (
               <div
                 key={index}
@@ -161,7 +161,7 @@ export default function Cart() {
           </div>
 
           {/* Payment Details - Fixed at bottom */}
-          <div className="fixed bottom-16 left-0 right-0 lg:left-auto lg:right-auto lg:max-w-sm w-full bg-card border-t border-border shadow-2xl max-h-[40vh] overflow-y-auto">
+          <div className="bg-card border-t border-border shadow-lg">
             <div className="p-4">
               <h3 className="text-xs font-semibold text-muted-foreground mb-3 tracking-wider uppercase">
                 Payment Details
