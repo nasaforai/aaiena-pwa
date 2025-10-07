@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const checkProfile = async () => {
+  const checkProfile = useCallback(async () => {
     if (!user) {
       setHasProfile(null);
       return;
@@ -66,12 +66,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Error checking profile:', error);
       setHasProfile(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -102,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [checkProfile]);
 
   // Cart management functions
   const addToCart = useCallback((item: CartItem) => {
