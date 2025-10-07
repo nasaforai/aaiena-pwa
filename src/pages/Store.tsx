@@ -38,7 +38,7 @@ import BottomNavigation from "@/components/BottomNavigation";
 export default function Store() {
   const navigate = useNavigate();
   const { navigateBack } = useNavigation();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, deviceType } = useAuth();
   const { currentBrand } = useBrand();
   const { profile, loading: profileLoading } = useProfile();
   const [notifyToggle, setNotifyToggle] = useState(true);
@@ -220,7 +220,11 @@ export default function Store() {
               <button
                 className="w-full mt-2 bg-purple-100 text-black py-3 rounded-xl text-md font-medium"
                 onClick={() => {
-                  navigate(`/qr-code?${createSearchParams({ back: "store" })}`);
+                  if (deviceType === 'kiosk') {
+                    navigate('/signup-options');
+                  } else {
+                    navigate(`/qr-code?${createSearchParams({ back: "store" })}`);
+                  }
                 }}
               >
                 Log In To See Full Preview →
