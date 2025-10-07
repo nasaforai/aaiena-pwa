@@ -61,6 +61,7 @@ export default function ProductDetails() {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isRoomDialogOpen, setIsRoomDialogOpen] = useState(false);
   const [isVirtualDialogOpen, setIsVirtualDialogOpen] = useState(false);
+  const [displayImages, setDisplayImages] = useState<string[]>([]);
 
   // Fetch product data
   const { data: product, isLoading } = useProduct(productId || "");
@@ -77,6 +78,32 @@ export default function ProductDetails() {
       setIsInWishlist(exists);
     }
   }, [product]);
+
+  // Update displayed images when size/color changes
+  useEffect(() => {
+    if (!product) return;
+    
+    if (!productVariants || productVariants.length === 0) {
+      setDisplayImages([product.image_url].filter(Boolean));
+      return;
+    }
+    
+    // Find variant matching selected size and color
+    const currentVariant = productVariants.find(
+      v => v.size === selectedSize && v.color === selectedColor
+    ) || productVariants.find(v => v.size === selectedSize) || productVariants[0];
+    
+    // Collect all images from variant
+    const variantImages = [
+      currentVariant.image1,
+      currentVariant.image2,
+      currentVariant.image3,
+      currentVariant.image4,
+    ].filter(Boolean);
+    
+    // Use variant images if available, otherwise fall back to product image
+    setDisplayImages(variantImages.length > 0 ? variantImages : [product.image_url].filter(Boolean));
+  }, [product, productVariants, selectedSize, selectedColor]);
 
   // Chart data for size visualization
   const sizeChartData = [
@@ -313,17 +340,31 @@ export default function ProductDetails() {
       {/* Header */}
       <Topbar handleBack={handleBack} />
 
-      {/* Product Image */}
-      <div className="relative bg-gradient-to-b from-pink-100 to-white h-[60vh] mx-4 mb-4 overflow-hidden">
-        <img
-          alt="Product"
-          className="w-full h-full object-cover rounded-br-lg rounded-bl-lg"
-          src={product?.image_url || "/placeholder.svg"}
-        />
+      {/* Product Image Carousel */}
+      <div className="relative bg-gradient-to-b from-pink-100 to-white h-[60vh] mx-4 mb-4 overflow-hidden rounded-br-lg rounded-bl-lg">
+        <Carousel className="w-full h-full">
+          <CarouselContent className="h-full">
+            {displayImages.map((imageUrl, idx) => (
+              <CarouselItem key={idx} className="h-full">
+                <img
+                  alt={`Product view ${idx + 1}`}
+                  className="w-full h-full object-cover"
+                  src={imageUrl || "/placeholder.svg"}
+                />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          {displayImages.length > 1 && (
+            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10">
+              <CarouselDots />
+            </div>
+          )}
+        </Carousel>
+        
         <button
           onClick={handleAddToWishlist}
           disabled={!product}
-          className="absolute top-4 right-4 p-2 bg-white bg-opacity-80 rounded-full disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white transition-all"
+          className="absolute top-4 right-4 p-2 bg-white bg-opacity-80 rounded-full disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white transition-all z-10"
         >
           <Heart 
             className={`w-5 h-5 transition-colors ${
@@ -335,7 +376,7 @@ export default function ProductDetails() {
         </button>
 
         {isLoggedIn && product && (
-          <div className="absolute left-0 bottom-0 w-full p-3">
+          <div className="absolute left-0 bottom-0 w-full p-3 z-10">
             <div className="bg-white/80 flex items-center justify-between p-4 rounded-xl">
               <div>
                 <p className="text-sm max-w-40">
