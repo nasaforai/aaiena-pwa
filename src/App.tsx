@@ -15,7 +15,6 @@ import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { KioskInactivityWarning } from "@/components/KioskInactivityWarning";
 import { useKioskInactivityMonitor } from "@/hooks/useKioskInactivityMonitor";
 import MobileSwitchQRDialog from "@/components/MobileSwitchQRDialog";
-import { useState } from "react";
 
 // Direct imports for main navigation pages (no lazy loading)
 import Store from "./pages/Store";
@@ -23,6 +22,7 @@ import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";  
 import Profile from "./pages/Profile";
 import Welcome from "./pages/Welcome";
+import SignupOptions from "./pages/SignupOptions";
 
 // Lazy load other pages
 const Index = React.lazy(() => import("./pages/Index"));
@@ -31,7 +31,6 @@ const BrandAdmin = React.lazy(() => import("./pages/BrandAdmin"));
 const CategoryProducts = React.lazy(() => import("./pages/CategoryProducts"));
 const SignIn = React.lazy(() => import("./pages/SignIn"));
 const SignUp = React.lazy(() => import("./pages/SignUp"));
-const SignupOptions = React.lazy(() => import("./pages/SignupOptions"));
 const OTPVerification = React.lazy(() => import("./pages/OTPVerification"));
 const MeasurementProfile = React.lazy(() => import("./pages/MeasurementProfile"));
 const DeviceConnected = React.lazy(() => import("./pages/DeviceConnected"));
@@ -72,7 +71,7 @@ const LoadingFallback = () => (
 // Wrapper component to use the hook inside AuthProvider context
 const KioskInactivityMonitor = () => {
   const { showWarning, remainingSeconds, resetTimers, forceLogout, handleSwitchToMobile } = useKioskInactivityMonitor();
-  const [showMobileSwitchDialog, setShowMobileSwitchDialog] = useState(false);
+  const [showMobileSwitchDialog, setShowMobileSwitchDialog] = React.useState(false);
   
   const onSwitchToMobile = () => {
     handleSwitchToMobile();
