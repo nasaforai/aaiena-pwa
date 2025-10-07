@@ -4,6 +4,7 @@ import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -24,6 +25,7 @@ export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
+  const [gender, setGender] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
 
@@ -238,6 +240,15 @@ export default function SignUp() {
       return false;
     }
 
+    if (!gender) {
+      toast({
+        title: "Error",
+        description: "Please select your gender",
+        variant: "destructive",
+      });
+      return false;
+    }
+
     if (!email.trim()) {
       toast({
         title: "Error",
@@ -286,6 +297,7 @@ export default function SignUp() {
           emailRedirectTo: redirectUrl,
           data: {
             full_name: name.trim(),
+            gender: gender,
           }
         }
       });
@@ -374,6 +386,15 @@ export default function SignUp() {
       return;
     }
 
+    if (!gender) {
+      toast({
+        title: "Error",
+        description: "Please select your gender",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Validate phone number
     try {
       if (!isValidPhoneNumber(phone)) {
@@ -392,6 +413,11 @@ export default function SignUp() {
       
       const { error } = await supabase.auth.signInWithOtp({
         phone: formattedPhone,
+        options: {
+          data: {
+            gender: gender,
+          }
+        }
       });
 
       if (error) {
@@ -490,6 +516,21 @@ export default function SignUp() {
               </p>
             </div>
 
+            <div>
+              <label className="block text-lg font-medium text-gray-700 mb-3">
+                Gender
+              </label>
+              <Select value={gender} onValueChange={setGender} disabled={isLoading}>
+                <SelectTrigger className="w-full h-14 text-lg">
+                  <SelectValue placeholder="Select your gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Male">Male</SelectItem>
+                  <SelectItem value="Female">Female</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <Button
               onClick={handlePhoneSignUp}
               disabled={isLoading}
@@ -521,6 +562,20 @@ export default function SignUp() {
                   placeholder="Enter your name"
                   disabled={isLoading}
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Gender
+                </label>
+                <Select value={gender} onValueChange={setGender} disabled={isLoading}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select your gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
