@@ -25,8 +25,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   
-  // Enhanced state management
-  const [deviceType] = useState<DeviceType>(getDeviceType);
+  // Enhanced state management with dynamic device type detection
+  const [deviceType, setDeviceType] = useState<DeviceType>(() => {
+    const detected = getDeviceType();
+    // Persist kiosk mode to localStorage
+    if (detected === 'kiosk') {
+      localStorage.setItem('deviceType', 'kiosk');
+    }
+    return detected;
+  });
   const [fromKiosk, setFromKiosk] = useState<boolean>(() => 
     Boolean(localStorage.getItem('fromKiosk')) || window.location.search.includes('session_id=')
   );
@@ -68,6 +75,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user]);
 
+  // Dynamic device type detection on URL changes
+  useEffect(() => {
+    const checkDeviceType = () => {
+      const detected = getDeviceType();
+      if (detected !== deviceType) {
+        console.log('[AuthContext] Device type changed:', deviceType, '->', detected);
+        setDeviceType(detected);
+        // Persist kiosk mode
+        if (detected === 'kiosk') {
+          localStorage.setItem('deviceType', 'kiosk');
+        } else {
+          localStorage.removeItem('deviceType');
+        }
+      }
+    };
+
+    // Check on mount and URL changes
+    checkDeviceType();
+    
+    // Listen for popstate events (back/forward navigation)
+    window.addEventListener('popstate', checkDeviceType);
+    
+    return () => {
+      window.removeEventListener('popstate', checkDeviceType);
+    };
+  }, [deviceType]);
+
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -75,6 +109,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        console.log('[AuthContext] Auth state changed:', event, 'isAuthenticated:', !!session?.user, 'deviceType:', deviceType);
         
         // Check profile when user changes
         if (session?.user) {
@@ -102,7 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, [checkProfile]);
+  }, [checkProfile, deviceType]);
 
   // Cart management functions
   const addToCart = useCallback((item: CartItem) => {
@@ -188,6 +224,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signOut = async () => {
+    console.log('[AuthContext] Signing out, deviceType:', deviceType);
     const { error } = await supabase.auth.signOut();
     if (!error) {
       // Clean up all localStorage flags and data
@@ -196,6 +233,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('fromKiosk');
       localStorage.removeItem('cart');
       localStorage.removeItem('wishlist');
+      // Clear deviceType unless on kiosk (kiosk mode persists)
+      if (deviceType !== 'kiosk') {
+        localStorage.removeItem('deviceType');
+      }
       
       // Reset state
       setHasProfile(null);
