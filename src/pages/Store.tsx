@@ -284,7 +284,7 @@ export default function Store() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 p-4">
+      <div className="flex-1 p-4 pb-28">
         {/* Filtered Results - Show for search or category filter */}
         {(searchTerm.trim() || selectedSubcategory) && (
           <div className="mb-6">
