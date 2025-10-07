@@ -31,7 +31,7 @@ const Topbar = ({ handleBack, showBack = true, showProfile = false, onProfileCli
   return (
     <>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-white border-b border-gray-100">
+      <div className="flex items-center justify-between p-4 bg-white border-b border-gray-100 relative z-50">
         {showProfile ? (
           <button
             onClick={onProfileClick}
@@ -47,7 +47,7 @@ const Topbar = ({ handleBack, showBack = true, showProfile = false, onProfileCli
         ) : showBack && (
           <button
             onClick={() => handleBack ? handleBack() : navigate(-1)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative z-50 pointer-events-auto"
           >
             <ArrowLeft className="w-6 h-6 text-gray-700" />
           </button>
