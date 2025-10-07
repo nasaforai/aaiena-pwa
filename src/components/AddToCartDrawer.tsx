@@ -3,8 +3,6 @@ import { Minus, Plus, ShoppingBag } from "lucide-react";
 import { Product } from "@/hooks/useProducts";
 import { useProductVariants } from "@/hooks/useProductVariants";
 import { toast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
 import {
   Drawer,
   DrawerClose,
@@ -27,8 +25,6 @@ export const AddToCartDrawer = ({ product, trigger }: AddToCartDrawerProps) => {
   const [quantity, setQuantity] = useState(1);
   const [open, setOpen] = useState(false);
   
-  const { isAuthenticated, addToCart } = useAuth();
-  const navigate = useNavigate();
   const { data: variants, isLoading } = useProductVariants(product.product_id);
 
   // Reset state when drawer opens
@@ -50,18 +46,7 @@ export const AddToCartDrawer = ({ product, trigger }: AddToCartDrawerProps) => {
     }
   };
 
-  const handleAddToCart = async () => {
-    if (!isAuthenticated) {
-      toast({
-        title: "Sign In Required",
-        description: "Please sign in to add items to your cart",
-        variant: "destructive",
-      });
-      setOpen(false);
-      navigate('/sign-in');
-      return;
-    }
-
+  const handleAddToCart = () => {
     if (!selectedSize) {
       toast({
         title: "Size Required",
@@ -71,29 +56,40 @@ export const AddToCartDrawer = ({ product, trigger }: AddToCartDrawerProps) => {
       return;
     }
 
-    try {
-      await addToCart({
-        id: product.product_id.toString(),
-        name: product.name,
-        image_url: product.image_url,
-        price: product.price,
-        size: selectedSize,
-        quantity: quantity,
+    const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
+    
+    const newItem = {
+      product_id: product.product_id,
+      name: product.name,
+      image: product.image_url,
+      price: product.price,
+      size: selectedSize,
+      quantity: quantity,
+    };
+    
+    // Check if item with same product and size exists
+    const existingItemIndex = cartItems.findIndex(
+      (item: any) => item.product_id === product.product_id && item.size === selectedSize
+    );
+    
+    if (existingItemIndex >= 0) {
+      // Update quantity if item exists
+      cartItems[existingItemIndex].quantity += quantity;
+      toast({
+        title: "Cart Updated",
+        description: `${product.name} quantity updated in cart`,
       });
-
+    } else {
+      // Add new item to cart
+      cartItems.push(newItem);
       toast({
         title: "Added to Cart",
         description: `${product.name} (${selectedSize}) has been added to your cart`,
       });
-      
-      setOpen(false);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to add item to cart. Please try again.",
-        variant: "destructive",
-      });
     }
+    
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    setOpen(false);
   };
 
   return (
@@ -109,10 +105,7 @@ export const AddToCartDrawer = ({ product, trigger }: AddToCartDrawerProps) => {
         <DrawerHeader className="text-left">
           <DrawerTitle>Add to Cart</DrawerTitle>
           <DrawerDescription>
-            {isAuthenticated 
-              ? `Select size and quantity for ${product.name}`
-              : "Sign in to add items to your cart"
-            }
+            Select size and quantity for {product.name}
           </DrawerDescription>
         </DrawerHeader>
         
@@ -206,42 +199,20 @@ export const AddToCartDrawer = ({ product, trigger }: AddToCartDrawerProps) => {
         </div>
 
         <DrawerFooter>
-          {isAuthenticated ? (
-            <>
-              <Button
-                onClick={handleAddToCart}
-                disabled={!selectedSize}
-                size="lg"
-                className="w-full"
-              >
-                <ShoppingBag className="w-4 h-4 mr-2" />
-                Add to Cart
-              </Button>
-              <DrawerClose asChild>
-                <Button variant="outline" size="lg">
-                  Cancel
-                </Button>
-              </DrawerClose>
-            </>
-          ) : (
-            <>
-              <Button
-                onClick={() => {
-                  setOpen(false);
-                  navigate('/sign-in');
-                }}
-                size="lg"
-                className="w-full"
-              >
-                Sign In to Add to Cart
-              </Button>
-              <DrawerClose asChild>
-                <Button variant="outline" size="lg">
-                  Cancel
-                </Button>
-              </DrawerClose>
-            </>
-          )}
+          <Button
+            onClick={handleAddToCart}
+            disabled={!selectedSize}
+            size="lg"
+            className="w-full"
+          >
+            <ShoppingBag className="w-4 h-4 mr-2" />
+            Add to Cart
+          </Button>
+          <DrawerClose asChild>
+            <Button variant="outline" size="lg">
+              Cancel
+            </Button>
+          </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
