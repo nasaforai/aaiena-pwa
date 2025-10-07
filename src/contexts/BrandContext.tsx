@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
+import type { ReactNode } from 'react';
 
 export interface Brand {
   id: string;
@@ -34,10 +35,10 @@ export const useBrand = () => {
 };
 
 interface BrandProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-export const BrandProvider: React.FC<BrandProviderProps> = ({ children }) => {
+export const BrandProvider = ({ children }: BrandProviderProps) => {
   const [currentBrand, setCurrentBrand] = useState<Brand | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
