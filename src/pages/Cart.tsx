@@ -25,15 +25,31 @@ import Topbar from "@/components/ui/topbar";
 export default function Cart() {
   const navigate = useNavigate();
   const { navigateBack } = useNavigation();
+  const { isAuthenticated, loading } = useAuth();
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [queryParams] = useSearchParams();
   const backRoute = queryParams.get("back");
   const isMobile = useIsMobile();
 
+  // Check authentication and redirect if not logged in
   useEffect(() => {
-    const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
-    setCartItems(items);
-  }, []);
+    if (!loading && !isAuthenticated) {
+      // Redirect to sign-in page
+      if (isMobile) {
+        navigate('/sign-in');
+      } else {
+        navigate('/signup-options');
+      }
+    }
+  }, [isAuthenticated, loading, navigate, isMobile]);
+
+  useEffect(() => {
+    // Only load cart items if authenticated
+    if (isAuthenticated) {
+      const items = JSON.parse(localStorage.getItem("cartItems") || "[]");
+      setCartItems(items);
+    }
+  }, [isAuthenticated]);
 
   const updateQuantity = (index: number, newQuantity: number) => {
     if (newQuantity === 0) {
