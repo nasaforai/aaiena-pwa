@@ -5,12 +5,7 @@ export interface ProductVariant {
   id: number;
   product_id: number;
   size: string;
-  color: string | null;
   sku: string | null;
-  image1: string | null;
-  image2: string | null;
-  image3: string | null;
-  image4: string | null;
   length_inches: number | null;
   waist_inches: number | null;
   chest_inches: number | null;
