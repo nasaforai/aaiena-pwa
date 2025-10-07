@@ -28,6 +28,7 @@ import { RadialBarChart, RadialBar, ResponsiveContainer, Cell } from "recharts";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useProduct, useProducts } from "@/hooks/useProducts";
 import { useSearchParams } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 import { useToast } from "@/hooks/use-toast";
 import { useProductSizeChart } from "@/hooks/useProductSizeChart";
@@ -49,13 +50,14 @@ export default function ProductDetails() {
   const [searchParams] = useSearchParams();
   const productId = searchParams.get("id");
   const { toast } = useToast();
+  const { isAuthenticated, hasMeasurements: authHasMeasurements } = useAuth();
   
   const [selectedSize, setSelectedSize] = useState("M");
   const [selectedColor, setSelectedColor] = useState("white");
   const [quantity, setQuantity] = useState(1);
   const [sizeChartOpen, setSizeChartOpen] = useState(false);
-  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-  const hasMeasurements = localStorage.getItem("hasMeasurements") === "true";
+  const isLoggedIn = isAuthenticated;
+  const hasMeasurements = authHasMeasurements;
   const isMobile = useIsMobile();
   const fromKiosk = localStorage.getItem("fromKiosk") === "true";
   const [isInWishlist, setIsInWishlist] = useState(false);
@@ -99,6 +101,22 @@ export default function ProductDetails() {
 
   const handleAddToCart = () => {
     console.log('Add to cart clicked', { product, selectedSize, selectedColor, quantity });
+    
+    // Check authentication first
+    if (!isAuthenticated) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to add items to cart",
+        variant: "destructive",
+      });
+      
+      if (isMobile) {
+        navigate(`/sign-in?${createSearchParams({ back: "product-details" })}`);
+      } else {
+        navigate("/signup-options");
+      }
+      return;
+    }
     
     if (!product) {
       console.error('Product not found');
@@ -168,6 +186,22 @@ export default function ProductDetails() {
 
   const handleBuyNowAndAddToCart = () => {
     console.log('Buy now clicked', { product, selectedSize, selectedColor, quantity });
+    
+    // Check authentication first
+    if (!isAuthenticated) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to continue",
+        variant: "destructive",
+      });
+      
+      if (isMobile) {
+        navigate(`/sign-in?${createSearchParams({ back: "product-details" })}`);
+      } else {
+        navigate("/signup-options");
+      }
+      return;
+    }
     
     if (!product) {
       console.error('Product not found');
