@@ -142,7 +142,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, [loadCart]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Cart management functions
   const addToCart = useCallback(async (item: CartItem) => {
