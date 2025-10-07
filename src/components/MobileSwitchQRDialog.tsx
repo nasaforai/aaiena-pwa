@@ -29,7 +29,7 @@ export default function MobileSwitchQRDialog({ open, onClose }: MobileSwitchQRDi
     if (open && !sessionId && user) {
       const newSessionId = crypto.randomUUID();
       setSessionId(newSessionId);
-      setSwitchUrl(`${window.location.origin}/signin?switch_session_id=${newSessionId}&user_id=${user.id}`);
+      setSwitchUrl(`${window.location.origin}/sign-in?switch_session_id=${newSessionId}&user_id=${user.id}`);
       
       // Create authenticated session transfer in database
       createAuthenticatedSessionTransfer(newSessionId, user.id);
