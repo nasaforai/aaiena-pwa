@@ -144,7 +144,7 @@ export const useDeviceSession = () => {
     sessionId: string,
     onAuthenticated: (userId: string) => void
   ) => {
-    console.log('Setting up device session subscription for:', sessionId);
+    console.log('[Kiosk Flow] Setting up realtime subscription for session:', sessionId);
     
     const channel = supabase
       .channel(`device-auth-${sessionId}`)
@@ -157,35 +157,51 @@ export const useDeviceSession = () => {
           filter: `kiosk_session_id=eq.${sessionId}`
         },
         async (payload) => {
-          console.log('Device session updated:', payload);
+          console.log('[Kiosk Flow] ✓ Realtime update received:', payload);
+          console.log('[Kiosk Flow] Update details:', {
+            event: payload.eventType,
+            old: payload.old,
+            new: payload.new
+          });
+          
           if (payload.new.status === 'authenticated' && payload.new.user_id) {
-            console.log('User authenticated via mobile device:', payload.new.user_id);
+            console.log('[Kiosk Flow] ✓ User authenticated via mobile device:', payload.new.user_id);
             onAuthenticated(payload.new.user_id);
+          } else {
+            console.log('[Kiosk Flow] Update received but not authenticated yet:', {
+              status: payload.new.status,
+              user_id: payload.new.user_id
+            });
           }
         }
       )
       .subscribe((status) => {
-        console.log('Subscription status:', status);
+        console.log('[Kiosk Flow] Subscription status:', status);
         if (status === 'SUBSCRIBED') {
-          console.log('Successfully subscribed to device session changes');
+          console.log('[Kiosk Flow] ✓ Successfully subscribed to device session changes');
         } else if (status === 'CHANNEL_ERROR') {
-          console.error('Failed to subscribe to device session changes');
+          console.error('[Kiosk Flow] ✗ Failed to subscribe to device session changes');
           // Retry subscription after a delay
           setTimeout(() => {
-            console.log('Retrying subscription...');
+            console.log('[Kiosk Flow] Retrying subscription...');
             subscribeToDeviceSession(sessionId, onAuthenticated);
           }, 2000);
+        } else if (status === 'TIMED_OUT') {
+          console.error('[Kiosk Flow] ✗ Subscription timed out');
+        } else if (status === 'CLOSED') {
+          console.log('[Kiosk Flow] Subscription closed');
         }
       });
 
     // Set up session timeout with enhanced cleanup
     const timeoutId = setTimeout(() => {
-      console.log('Device session timeout, cleaning up...');
+      console.log('[Kiosk Flow] Device session timeout (10 minutes), cleaning up...');
       SessionCleanup.cleanupSession(sessionId);
       supabase.removeChannel(channel);
     }, 10 * 60 * 1000); // 10 minutes timeout
 
     return () => {
+      console.log('[Kiosk Flow] Cleaning up subscription for session:', sessionId);
       clearTimeout(timeoutId);
       supabase.removeChannel(channel);
     };
