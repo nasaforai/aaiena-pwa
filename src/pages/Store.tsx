@@ -367,7 +367,7 @@ export default function Store() {
             </div>
 
             {/* Product Carousels */}
-            <div className="space-y-6">
+            <div className="space-y-6 mt-8">
               {/* Recently Tried Carousel - showing new products as fallback */}
               {newProducts.length > 0 && (
                 <div>
