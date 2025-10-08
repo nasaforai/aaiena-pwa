@@ -5,6 +5,7 @@ import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -203,21 +204,17 @@ export default function UpdateProfile() {
         {/* Gender */}
         <div className="mb-10">
           <h3 className="font-medium mb-3">Gender</h3>
-          <div className="flex space-x-3">
-            {["Male", "Female"].map((gender) => (
-              <button
-                key={gender}
-                onClick={() => setSelectedGender(gender)}
-                className={`px-10 py-2 rounded-xl font-medium ${
-                  selectedGender === gender
-                    ? "bg-gray-900 text-white"
-                    : "border border-gray-200 text-gray-700"
-                }`}
-              >
-                {gender}
-              </button>
-            ))}
-          </div>
+          <Select value={selectedGender} onValueChange={setSelectedGender}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select gender" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Male">Male</SelectItem>
+              <SelectItem value="Female">Female</SelectItem>
+              <SelectItem value="Other">Other</SelectItem>
+              <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Body Measurements */}
