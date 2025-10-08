@@ -13,7 +13,7 @@ export class NavigationManager {
   ): string {
     // If user doesn't have a profile, redirect to profile creation
     if (hasProfile === false) {
-      return '/fit-profile';
+      return '/update-profile';
     }
     
     // If we have a session ID, we're in a kiosk flow
