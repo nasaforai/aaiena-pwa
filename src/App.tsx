@@ -34,6 +34,7 @@ const SignUp = React.lazy(() => import("./pages/SignUp"));
 const OTPVerification = React.lazy(() => import("./pages/OTPVerification"));
 const MeasurementProfile = React.lazy(() => import("./pages/MeasurementProfile"));
 const DeviceConnected = React.lazy(() => import("./pages/DeviceConnected"));
+const FitProfile = React.lazy(() => import("./pages/FitProfile"));
 const OrderSuccess = React.lazy(() => import("./pages/OrderSuccess"));
 const PhotoSource = React.lazy(() => import("./pages/PhotoSource"));
 const UpdateProfile = React.lazy(() => import("./pages/UpdateProfile"));
@@ -159,6 +160,7 @@ const App = () => {
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/measurement-profile" element={<ProtectedRoute><MeasurementProfile /></ProtectedRoute>} />
                 <Route path="/device-connected" element={<ProtectedRoute><DeviceConnected /></ProtectedRoute>} />
+                <Route path="/fit-profile" element={<ProtectedRoute><FitProfile /></ProtectedRoute>} />
                 <Route path="/order-success" element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} />
                 <Route path="/photo-source" element={<ProtectedRoute><PhotoSource /></ProtectedRoute>} />
                 <Route path="/update-profile" element={<ProtectedRoute><UpdateProfile /></ProtectedRoute>} />

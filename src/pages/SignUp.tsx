@@ -4,13 +4,6 @@ import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,7 +21,6 @@ export default function SignUp() {
   const { toast } = useToast();
   const { updateDeviceSession } = useDeviceSession();
   const [name, setName] = useState("");
-  const [gender, setGender] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
@@ -246,15 +238,6 @@ export default function SignUp() {
       return false;
     }
 
-    if (!gender) {
-      toast({
-        title: "Error",
-        description: "Please select your gender",
-        variant: "destructive",
-      });
-      return false;
-    }
-
     if (!email.trim()) {
       toast({
         title: "Error",
@@ -303,7 +286,6 @@ export default function SignUp() {
           emailRedirectTo: redirectUrl,
           data: {
             full_name: name.trim(),
-            gender: gender,
           }
         }
       });
@@ -539,20 +521,6 @@ export default function SignUp() {
                   placeholder="Enter your name"
                   disabled={isLoading}
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Gender
-                </label>
-                <Select value={gender} onValueChange={setGender} disabled={isLoading}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select your gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Male">Male</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">

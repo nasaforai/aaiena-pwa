@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -26,6 +26,7 @@ export default function UpdateProfile() {
   const [waist, setWaist] = useState("");
   const [pantsSize, setPantsSize] = useState("");
   const [fullName, setFullName] = useState("");
+  const [stylePreferences, setStylePreferences] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "size-guide" | "style-rating">("profile");
 
@@ -40,6 +41,7 @@ export default function UpdateProfile() {
       setWaist(profile.waist?.toString() || "");
       setPantsSize(profile.pants_size?.toString() || "");
       setFullName(profile.full_name || user?.email || "");
+      setStylePreferences(profile.style_preferences || []);
     }
   }, [profile, user]);
 
@@ -59,6 +61,7 @@ export default function UpdateProfile() {
         waist: waist ? parseFloat(waist) : null,
         pants_size: pantsSize ? parseFloat(pantsSize) : null,
         shirt_size: selectedShirtSize,
+        style_preferences: stylePreferences,
       };
 
       const { error } = await updateProfile(updates);
@@ -87,7 +90,22 @@ export default function UpdateProfile() {
     }
   };
 
+  const toggleStylePreference = (style: string) => {
+    setStylePreferences((prev) =>
+      prev.includes(style) ? prev.filter((s) => s !== style) : [...prev, style]
+    );
+  };
+
   const shirtSizes = ["XS", "S", "M", "L", "XL", "XXL"];
+  const styles = [
+    "Smart",
+    "Business",
+    "Casual",
+    "Vintage",
+    "Formal",
+    "Streetwear",
+    "Athletic",
+  ];
 
   const displayName = fullName || user?.email || 'User';
   const initials = displayName
@@ -185,15 +203,21 @@ export default function UpdateProfile() {
         {/* Gender */}
         <div className="mb-10">
           <h3 className="font-medium mb-3">Gender</h3>
-          <Select value={selectedGender} onValueChange={setSelectedGender}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select gender" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Male">Male</SelectItem>
-              <SelectItem value="Female">Female</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex space-x-3">
+            {["Male", "Female"].map((gender) => (
+              <button
+                key={gender}
+                onClick={() => setSelectedGender(gender)}
+                className={`px-10 py-2 rounded-xl font-medium ${
+                  selectedGender === gender
+                    ? "bg-gray-900 text-white"
+                    : "border border-gray-200 text-gray-700"
+                }`}
+              >
+                {gender}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Body Measurements */}
@@ -223,6 +247,30 @@ export default function UpdateProfile() {
                 onChange={(e) => setWeight(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
                 placeholder="60"
+              ></input>
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Chest (cm)</label>
+              <input
+                value={chest}
+                type="number"
+                step="0.1"
+                inputMode="decimal"
+                onChange={(e) => setChest(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+                placeholder="96"
+              ></input>
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Waist (cm)</label>
+              <input
+                value={waist}
+                type="number"
+                step="0.1"
+                inputMode="decimal"
+                onChange={(e) => setWaist(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+                placeholder="81"
               ></input>
             </div>
           </div>
@@ -268,6 +316,31 @@ export default function UpdateProfile() {
               className="w-full p-2 border border-gray-300 rounded-lg"
               placeholder="32"
             ></input>
+          </div>
+        </div>
+
+        <div className="bg-gray-100 my-8 py-1 w-full"></div>
+
+        {/* Style Preferences */}
+        <div className="mb-8">
+          <h3 className="font-medium mb-3">Style Preferences</h3>
+          <div className="bg-gray-200 py-px mb-4"></div>
+          <div className="grid grid-cols-2 gap-3">
+            {styles.map((style) => (
+              <div key={style} className="flex items-center gap-2">
+                <Checkbox
+                  checked={stylePreferences.includes(style)}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setStylePreferences([...stylePreferences, style]);
+                    } else {
+                      setStylePreferences(stylePreferences.filter(s => s !== style));
+                    }
+                  }}
+                />
+                <label className="block text-md text-gray-600">{style}</label>
+              </div>
+            ))}
           </div>
         </div>
 

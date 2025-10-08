@@ -9,6 +9,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const { currentBrand } = useBrand();
 
   useEffect(() => {
+    localStorage.clear();
     const timer = setTimeout(() => {
       onComplete();
     }, 3000); // Show for 3 seconds
@@ -17,7 +18,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   }, [onComplete]);
 
   return (
-    <div className="bg-[#EDE1FC] flex lg:max-w-sm w-full flex-col items-center justify-center overflow-hidden mx-auto min-h-screen relative">
+    <div className="bg-[#EDE1FC] flex lg:lg:max-w-sm w-full flex-col items-center justify-center overflow-hidden mx-auto min-h-screen relative">
       <div className="flex flex-col items-center animate-fade-in space-y-8">
         {currentBrand?.logo_url && (
           <img
