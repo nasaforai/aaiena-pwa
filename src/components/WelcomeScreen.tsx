@@ -23,7 +23,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
     <div
       role="application"
       aria-label="Welcome screen for guest users"
-      className="bg-[#EDE1FC] flex lg:lg:max-w-sm w-full flex-col items-center justify-center overflow-hidden items-center mx-auto min-h-screen relative"
+      className="bg-[#EDE1FC] flex lg:max-w-sm w-full flex-col items-center justify-center overflow-hidden items-center mx-auto min-h-screen relative"
     >
       {/* <StatusBar /> */}
       <WelcomeHero onButtonClick={handleBrowseStore} />
