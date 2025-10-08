@@ -456,9 +456,11 @@ export default function ProductDetails() {
                 <button
                   key={color.name}
                   onClick={() => setSelectedColor(color.name)}
-                  className={`w-8 h-8 rounded ${color.bgClass} ${
+                  style={{ backgroundColor: color.value || '#000000' }}
+                  className={`w-8 h-8 rounded border border-gray-300 ${
                     selectedColor === color.name ? "ring-2 ring-purple-500" : ""
                   }`}
+                  title={color.name}
                 />
               ))}
             </div>
