@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,7 +26,6 @@ export default function UpdateProfile() {
   const [waist, setWaist] = useState("");
   const [pantsSize, setPantsSize] = useState("");
   const [fullName, setFullName] = useState("");
-  const [stylePreferences, setStylePreferences] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "size-guide" | "style-rating">("profile");
 
@@ -42,7 +40,6 @@ export default function UpdateProfile() {
       setWaist(profile.waist?.toString() || "");
       setPantsSize(profile.pants_size?.toString() || "");
       setFullName(profile.full_name || user?.email || "");
-      setStylePreferences(profile.style_preferences || []);
     }
   }, [profile, user]);
 
@@ -62,7 +59,6 @@ export default function UpdateProfile() {
         waist: waist ? parseFloat(waist) : null,
         pants_size: pantsSize ? parseFloat(pantsSize) : null,
         shirt_size: selectedShirtSize,
-        style_preferences: stylePreferences,
       };
 
       const { error } = await updateProfile(updates);
@@ -91,22 +87,7 @@ export default function UpdateProfile() {
     }
   };
 
-  const toggleStylePreference = (style: string) => {
-    setStylePreferences((prev) =>
-      prev.includes(style) ? prev.filter((s) => s !== style) : [...prev, style]
-    );
-  };
-
   const shirtSizes = ["XS", "S", "M", "L", "XL", "XXL"];
-  const styles = [
-    "Smart",
-    "Business",
-    "Casual",
-    "Vintage",
-    "Formal",
-    "Streetwear",
-    "Athletic",
-  ];
 
   const displayName = fullName || user?.email || 'User';
   const initials = displayName
@@ -287,31 +268,6 @@ export default function UpdateProfile() {
               className="w-full p-2 border border-gray-300 rounded-lg"
               placeholder="32"
             ></input>
-          </div>
-        </div>
-
-        <div className="bg-gray-100 my-8 py-1 w-full"></div>
-
-        {/* Style Preferences */}
-        <div className="mb-8">
-          <h3 className="font-medium mb-3">Style Preferences</h3>
-          <div className="bg-gray-200 py-px mb-4"></div>
-          <div className="grid grid-cols-2 gap-3">
-            {styles.map((style) => (
-              <div key={style} className="flex items-center gap-2">
-                <Checkbox
-                  checked={stylePreferences.includes(style)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setStylePreferences([...stylePreferences, style]);
-                    } else {
-                      setStylePreferences(stylePreferences.filter(s => s !== style));
-                    }
-                  }}
-                />
-                <label className="block text-md text-gray-600">{style}</label>
-              </div>
-            ))}
           </div>
         </div>
 
