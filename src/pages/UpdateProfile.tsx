@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import BottomNavigation from "@/components/BottomNavigation";
 
+// Profile update page for user measurements and preferences
 export default function UpdateProfile() {
   const navigate = useNavigate();
   const { navigateBack } = useNavigation();
