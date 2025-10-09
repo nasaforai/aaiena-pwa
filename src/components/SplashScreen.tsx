@@ -7,9 +7,9 @@ interface SplashScreenProps {
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const { currentBrand } = useBrand();
+  localStorage.clear();
 
   useEffect(() => {
-    localStorage.clear();
     const timer = setTimeout(() => {
       onComplete();
     }, 3000); // Show for 3 seconds

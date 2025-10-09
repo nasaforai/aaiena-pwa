@@ -55,7 +55,7 @@ export default function SignUp() {
   // Validate session ID before attempting to update
   const validateSession = async (sessionId: string): Promise<boolean> => {
     try {
-      console.log('[Mobile Flow] Validating device session:', sessionId);
+      console.log('Validating session ID:', sessionId);
       const { data, error } = await supabase
         .from('device_sessions')
         .select('*')
@@ -63,12 +63,12 @@ export default function SignUp() {
         .single();
 
       if (error) {
-        console.error('[Mobile Flow] Session validation error:', error);
+        console.error('Session validation error:', error);
         return false;
       }
 
       if (!data) {
-        console.log('[Mobile Flow] Session not found in database');
+        console.log('Session not found');
         return false;
       }
 
@@ -76,40 +76,37 @@ export default function SignUp() {
       const expiresAt = new Date(data.expires_at);
       
       if (now > expiresAt) {
-        console.log('[Mobile Flow] Session has expired');
+        console.log('Session expired');
         return false;
       }
 
-      console.log('[Mobile Flow] Session is valid:', data);
+      console.log('Session is valid:', data);
       return true;
     } catch (error) {
-      console.error('[Mobile Flow] Session validation failed:', error);
+      console.error('Session validation failed:', error);
       return false;
     }
   };
 
-  // Effect to handle device session update after authentication
   useEffect(() => {
-    console.log('[Mobile Flow] Auth state:', { 
+    console.log('Auth effect triggered:', { 
       loading, 
       isAuthenticated, 
-      hasUser: !!user,
-      userId: user?.id,
+      hasUser: !!user, 
       sessionId, 
       deviceSessionUpdated, 
       updatingSession,
-      sessionValidated,
-      url: window.location.href
+      sessionValidated 
     });
 
     if (!loading && isAuthenticated && user && sessionId && !deviceSessionUpdated && !updatingSession) {
-      console.log('[Mobile Flow] Starting device session update process...');
+      console.log('Starting device session update process...');
       setUpdatingSession(true);
       
       // First validate the session
       validateSession(sessionId).then((isValid) => {
         if (!isValid) {
-          console.log('[Mobile Flow] Session is invalid or expired');
+          console.log('Session is invalid or expired');
           setUpdatingSession(false);
           toast({
             title: "Session Expired",
@@ -120,18 +117,16 @@ export default function SignUp() {
         }
 
         setSessionValidated(true);
-        console.log('[Mobile Flow] Session validated, updating device session...');
+        console.log('Session validated, updating device session...');
         
         // Add a small delay to ensure all states are properly set
         setTimeout(() => {
-          console.log('[Mobile Flow] Calling updateDeviceSession with:', { sessionId, userId: user.id });
           updateDeviceSession(sessionId, user.id).then((success) => {
-            console.log('[Mobile Flow] updateDeviceSession result:', success);
             setUpdatingSession(false);
             setDeviceSessionUpdated(true);
             
             if (success) {
-              console.log('[Mobile Flow] ✓ Device session updated successfully - kiosk should now receive realtime update');
+              console.log('Device session updated successfully - kiosk should now detect login');
               toast({
                 title: "Success!",
                 description: "Successfully connected to kiosk. You can now close this page.",
@@ -142,7 +137,7 @@ export default function SignUp() {
                 navigate("/store", { replace: true });
               }, 2000);
             } else {
-              console.log('[Mobile Flow] ✗ Device session update failed');
+              console.log('Device session update failed');
               toast({
                 title: "Connection Failed",
                 description: "Failed to connect to kiosk. Please try the QR code again.",
@@ -150,7 +145,7 @@ export default function SignUp() {
               });
             }
           }).catch((error) => {
-            console.error('[Mobile Flow] Device session update error:', error);
+            console.error('Device session update error:', error);
             setUpdatingSession(false);
             toast({
               title: "Connection Error",
@@ -162,11 +157,9 @@ export default function SignUp() {
       });
     } else if (!loading && isAuthenticated && user && !sessionId) {
       // Regular authenticated user without session ID
-      console.log('[Mobile Flow] Regular authenticated user, redirecting to store');
+      console.log('Regular authenticated user, redirecting to store');
       const from = location.state?.from?.pathname || "/store";
       navigate(from, { replace: true });
-    } else if (sessionId && !isAuthenticated && !loading) {
-      console.log('[Mobile Flow] ⚠ User has session_id but is not authenticated yet - waiting for email verification');
     }
   }, [isAuthenticated, loading, navigate, location, sessionId, user, updateDeviceSession, deviceSessionUpdated, updatingSession, toast]);
 

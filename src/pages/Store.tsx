@@ -284,7 +284,7 @@ export default function Store() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 p-4 pb-28">
+      <div className="flex-1 p-4">
         {/* Filtered Results - Show for search or category filter */}
         {(searchTerm.trim() || selectedSubcategory) && (
           <div className="mb-6">
@@ -359,6 +359,26 @@ export default function Store() {
 
             {/* Product Carousels */}
             <div className="space-y-6">
+              {/* Trending Now Carousel */}
+              {trendingProducts.length > 0 && (
+                <div>
+                  <h3 className="font-bold text-lg mb-3">Trending Now</h3>
+                  <Carousel className="w-full">
+                    <CarouselContent className="-ml-2 md:-ml-4">
+                      {trendingProducts.map((product) => (
+                        <CarouselItem key={product.product_id} className="pl-2 md:pl-4 basis-1/2">
+                          <ProductCard
+                            product={product}
+                            handleProductClick={handleProductClick}
+                          />
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselDots />
+                  </Carousel>
+                </div>
+              )}
+
               {/* Recently Tried Carousel - showing new products as fallback */}
               {newProducts.length > 0 && (
                 <div>
@@ -409,34 +429,13 @@ export default function Store() {
               </button>
             </div>
 
-
             {/* In Offer Carousel */}
             {offerProducts.length > 0 && (
-              <div className="mt-8 mb-6">
+              <div className="mt-6 mb-20">
                 <h3 className="font-bold text-lg mb-3">In Offer</h3>
                 <Carousel className="w-full">
                   <CarouselContent className="-ml-2 md:-ml-4">
                     {offerProducts.map((product) => (
-                      <CarouselItem key={product.product_id} className="pl-2 md:pl-4 basis-1/2">
-                        <ProductCard
-                          product={product}
-                          handleProductClick={handleProductClick}
-                        />
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselDots />
-                </Carousel>
-              </div>
-            )}
-
-            {/* Trending Now Carousel */}
-            {trendingProducts.length > 0 && (
-              <div className="mt-8 mb-20">
-                <h3 className="font-bold text-lg mb-3">Trending Now</h3>
-                <Carousel className="w-full">
-                  <CarouselContent className="-ml-2 md:-ml-4">
-                    {trendingProducts.map((product) => (
                       <CarouselItem key={product.product_id} className="pl-2 md:pl-4 basis-1/2">
                         <ProductCard
                           product={product}

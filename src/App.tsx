@@ -15,6 +15,7 @@ import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { KioskInactivityWarning } from "@/components/KioskInactivityWarning";
 import { useKioskInactivityMonitor } from "@/hooks/useKioskInactivityMonitor";
 import MobileSwitchQRDialog from "@/components/MobileSwitchQRDialog";
+import { useState } from "react";
 
 // Direct imports for main navigation pages (no lazy loading)
 import Store from "./pages/Store";
@@ -22,10 +23,6 @@ import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";  
 import Profile from "./pages/Profile";
 import Welcome from "./pages/Welcome";
-import SignupOptions from "./pages/SignupOptions";
-// Critical pages - direct import to avoid module loading issues
-import ProductDetails from "./pages/ProductDetails";
-import UpdateProfile from "./pages/UpdateProfile";
 
 // Lazy load other pages
 const Index = React.lazy(() => import("./pages/Index"));
@@ -34,12 +31,16 @@ const BrandAdmin = React.lazy(() => import("./pages/BrandAdmin"));
 const CategoryProducts = React.lazy(() => import("./pages/CategoryProducts"));
 const SignIn = React.lazy(() => import("./pages/SignIn"));
 const SignUp = React.lazy(() => import("./pages/SignUp"));
+const SignupOptions = React.lazy(() => import("./pages/SignupOptions"));
 const OTPVerification = React.lazy(() => import("./pages/OTPVerification"));
 const MeasurementProfile = React.lazy(() => import("./pages/MeasurementProfile"));
 const DeviceConnected = React.lazy(() => import("./pages/DeviceConnected"));
+const FitProfile = React.lazy(() => import("./pages/FitProfile"));
 const OrderSuccess = React.lazy(() => import("./pages/OrderSuccess"));
 const PhotoSource = React.lazy(() => import("./pages/PhotoSource"));
+const UpdateProfile = React.lazy(() => import("./pages/UpdateProfile"));
 const ImageGuide = React.lazy(() => import("./pages/ImageGuide"));
+const ProductDetails = React.lazy(() => import("./pages/ProductDetails"));
 const QRCode = React.lazy(() => import("./pages/QRCode"));
 const FashionLane = React.lazy(() => import("./pages/FashionLane"));
 const Payment = React.lazy(() => import("./pages/Payment"));
@@ -71,7 +72,7 @@ const LoadingFallback = () => (
 // Wrapper component to use the hook inside AuthProvider context
 const KioskInactivityMonitor = () => {
   const { showWarning, remainingSeconds, resetTimers, forceLogout, handleSwitchToMobile } = useKioskInactivityMonitor();
-  const [showMobileSwitchDialog, setShowMobileSwitchDialog] = React.useState(false);
+  const [showMobileSwitchDialog, setShowMobileSwitchDialog] = useState(false);
   
   const onSwitchToMobile = () => {
     handleSwitchToMobile();
@@ -160,6 +161,7 @@ const App = () => {
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/measurement-profile" element={<ProtectedRoute><MeasurementProfile /></ProtectedRoute>} />
                 <Route path="/device-connected" element={<ProtectedRoute><DeviceConnected /></ProtectedRoute>} />
+                <Route path="/fit-profile" element={<ProtectedRoute><FitProfile /></ProtectedRoute>} />
                 <Route path="/order-success" element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} />
                 <Route path="/photo-source" element={<ProtectedRoute><PhotoSource /></ProtectedRoute>} />
                 <Route path="/update-profile" element={<ProtectedRoute><UpdateProfile /></ProtectedRoute>} />

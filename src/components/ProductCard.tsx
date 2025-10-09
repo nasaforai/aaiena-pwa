@@ -1,9 +1,6 @@
 import { ShoppingBag } from "lucide-react";
 import { Product } from "@/hooks/useProducts";
 import { toast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const ProductCard = ({
   product,
@@ -12,32 +9,42 @@ const ProductCard = ({
   product: Product;
   handleProductClick: (productId: string) => void;
 }) => {
-  const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
-  const isMobile = useIsMobile();
-
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    // Check if user is authenticated
-    if (!isAuthenticated) {
+    const cartItems = JSON.parse(localStorage.getItem("cartItems") || "[]");
+    
+    const newItem = {
+      product_id: product.product_id,
+      name: product.name,
+      image: product.image_url,
+      price: product.price,
+      size: "M", // Default size
+      quantity: 1,
+    };
+    
+    // Check if item already exists in cart
+    const existingItemIndex = cartItems.findIndex(
+      (item: any) => item.product_id === product.product_id && item.size === "M"
+    );
+    
+    if (existingItemIndex >= 0) {
+      // Increase quantity if item exists
+      cartItems[existingItemIndex].quantity += 1;
       toast({
-        title: "Sign in required",
-        description: "Please sign in to add items to cart",
-        variant: "destructive",
+        title: "Cart Updated",
+        description: `Quantity updated for ${product.name}`,
       });
-      
-      // Redirect to sign-in page
-      if (isMobile) {
-        navigate('/sign-in');
-      } else {
-        navigate('/signup-options');
-      }
-      return;
+    } else {
+      // Add new item to cart
+      cartItems.push(newItem);
+      toast({
+        title: "Added to Cart",
+        description: `${product.name} has been added to your cart`,
+      });
     }
-
-    // Redirect to product details for proper size/color selection
-    navigate(`/product-details?id=${product.product_id}`);
+    
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
   };
   return (
     <div>

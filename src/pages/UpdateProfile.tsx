@@ -10,14 +10,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import BottomNavigation from "@/components/BottomNavigation";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-// Profile update page for user measurements and preferences
 export default function UpdateProfile() {
   const navigate = useNavigate();
   const { navigateBack } = useNavigation();
   const { user } = useAuth();
-  const { profile, loading, updateProfile, createProfile } = useProfile();
+  const { profile, loading, updateProfile } = useProfile();
   const { toast } = useToast();
   
   const [selectedGender, setSelectedGender] = useState("Male");
@@ -28,14 +26,13 @@ export default function UpdateProfile() {
   const [waist, setWaist] = useState("");
   const [pantsSize, setPantsSize] = useState("");
   const [fullName, setFullName] = useState("");
-  const [bodyType, setBodyType] = useState("");
+  const [stylePreferences, setStylePreferences] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "size-guide" | "style-rating">("profile");
-  const [isProfileLoaded, setIsProfileLoaded] = useState(false);
 
-  // Load profile data when available (only once)
+  // Load profile data when available
   useEffect(() => {
-    if (profile && !isProfileLoaded) {
+    if (profile) {
       setSelectedGender(profile.gender || "Male");
       setSelectedShirtSize(profile.shirt_size || "XL");
       setHeight(profile.height?.toString() || "");
@@ -44,10 +41,9 @@ export default function UpdateProfile() {
       setWaist(profile.waist?.toString() || "");
       setPantsSize(profile.pants_size?.toString() || "");
       setFullName(profile.full_name || user?.email || "");
-      setBodyType(profile.body_type || "");
-      setIsProfileLoaded(true);
+      setStylePreferences(profile.style_preferences || []);
     }
-  }, [profile, user, isProfileLoaded]);
+  }, [profile, user]);
 
   const handleBack = () => {
     navigateBack("/profile");
@@ -55,30 +51,8 @@ export default function UpdateProfile() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    
-    // Log authentication state
-    console.log('[UpdateProfile] Save initiated:', {
-      hasUser: !!user,
-      userId: user?.id,
-      hasProfile: !!profile,
-      profileId: profile?.id,
-      operation: profile ? 'update' : 'create'
-    });
-
-    // Check authentication
-    if (!user) {
-      console.error('[UpdateProfile] No authenticated user found');
-      toast({
-        title: "Error",
-        description: "You must be logged in to save your profile.",
-        variant: "destructive",
-      });
-      setIsSaving(false);
-      return;
-    }
-
     try {
-      const profileData = {
+      const updates = {
         full_name: fullName,
         gender: selectedGender,
         height: height ? parseFloat(height) : null,
@@ -87,44 +61,28 @@ export default function UpdateProfile() {
         waist: waist ? parseFloat(waist) : null,
         pants_size: pantsSize ? parseFloat(pantsSize) : null,
         shirt_size: selectedShirtSize,
-        body_type: bodyType || null,
+        style_preferences: stylePreferences,
       };
 
-      console.log('[UpdateProfile] Profile data to save:', profileData);
-
-      // Check if profile exists - if not, create it; otherwise, update it
-      const { error } = profile 
-        ? await updateProfile(profileData)
-        : await createProfile(profileData);
-
-      console.log('[UpdateProfile] Operation result:', { error, hasError: !!error });
+      const { error } = await updateProfile(updates);
 
       if (error) {
-        console.error('[UpdateProfile] Save failed:', error);
         toast({
           title: "Error",
           description: error,
           variant: "destructive",
         });
       } else {
-        console.log('[UpdateProfile] Save successful');
         toast({
           title: "Success",
-          description: profile ? "Profile updated successfully!" : "Profile created successfully!",
+          description: "Profile updated successfully!",
         });
         navigate("/profile");
       }
     } catch (err) {
-      console.error('[UpdateProfile] Unexpected error during save:', {
-        error: err,
-        message: err instanceof Error ? err.message : 'Unknown error',
-        stack: err instanceof Error ? err.stack : undefined
-      });
-      
-      const errorMessage = err instanceof Error ? err.message : "Failed to save profile.";
       toast({
         title: "Error",
-        description: errorMessage,
+        description: "Failed to update profile.",
         variant: "destructive",
       });
     } finally {
@@ -132,7 +90,22 @@ export default function UpdateProfile() {
     }
   };
 
+  const toggleStylePreference = (style: string) => {
+    setStylePreferences((prev) =>
+      prev.includes(style) ? prev.filter((s) => s !== style) : [...prev, style]
+    );
+  };
+
   const shirtSizes = ["XS", "S", "M", "L", "XL", "XXL"];
+  const styles = [
+    "Smart",
+    "Business",
+    "Casual",
+    "Vintage",
+    "Formal",
+    "Streetwear",
+    "Athletic",
+  ];
 
   const displayName = fullName || user?.email || 'User';
   const initials = displayName
@@ -230,97 +203,77 @@ export default function UpdateProfile() {
         {/* Gender */}
         <div className="mb-10">
           <h3 className="font-medium mb-3">Gender</h3>
-          <Select value={selectedGender} onValueChange={setSelectedGender}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select gender" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Male">Male</SelectItem>
-              <SelectItem value="Female">Female</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex space-x-3">
+            {["Male", "Female"].map((gender) => (
+              <button
+                key={gender}
+                onClick={() => setSelectedGender(gender)}
+                className={`px-10 py-2 rounded-xl font-medium ${
+                  selectedGender === gender
+                    ? "bg-gray-900 text-white"
+                    : "border border-gray-200 text-gray-700"
+                }`}
+              >
+                {gender}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Body Measurements */}
         <div className="mb-6">
-          <h3 className="font-medium mb-3">Body Measurement</h3>
+          <h3 className="font-medium mb-3">Body Measurement (cm)</h3>
           <div className="bg-gray-200 py-px mb-4"></div>
-          
-          {/* For Male Gender */}
-          {selectedGender === "Male" && (
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">Height (cm)</label>
-                <input
-                  value={height}
-                  type="number"
-                  step="0.1"
-                  inputMode="decimal"
-                  onChange={(e) => setHeight(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-lg"
-                  placeholder="177"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">Weight (kg)</label>
-                <input
-                  value={weight}
-                  type="number"
-                  step="0.1"
-                  inputMode="decimal"
-                  onChange={(e) => setWeight(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-lg"
-                  placeholder="60"
-                />
-              </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Height (cm)</label>
+              <input
+                value={height}
+                type="number"
+                step="0.1"
+                inputMode="decimal"
+                onChange={(e) => setHeight(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+                placeholder="177"
+              ></input>
             </div>
-          )}
-
-          {/* For Female Gender */}
-          {selectedGender === "Female" && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1">Height (cm)</label>
-                  <input
-                    value={height}
-                    type="number"
-                    step="0.1"
-                    inputMode="decimal"
-                    onChange={(e) => setHeight(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-lg"
-                    placeholder="165"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1">Weight (kg)</label>
-                  <input
-                    value={weight}
-                    type="number"
-                    step="0.1"
-                    inputMode="decimal"
-                    onChange={(e) => setWeight(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-lg"
-                    placeholder="55"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">Body Type</label>
-                <Select value={bodyType} onValueChange={setBodyType}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select body type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="rectangle">Rectangle</SelectItem>
-                    <SelectItem value="triangle">Triangle</SelectItem>
-                    <SelectItem value="inverted">Inverted</SelectItem>
-                    <SelectItem value="diamond">Diamond</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Weight (kg)</label>
+              <input
+                value={weight}
+                type="number"
+                step="0.1"
+                inputMode="decimal"
+                onChange={(e) => setWeight(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+                placeholder="60"
+              ></input>
             </div>
-          )}
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Chest (cm)</label>
+              <input
+                value={chest}
+                type="number"
+                step="0.1"
+                inputMode="decimal"
+                onChange={(e) => setChest(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+                placeholder="96"
+              ></input>
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Waist (cm)</label>
+              <input
+                value={waist}
+                type="number"
+                step="0.1"
+                inputMode="decimal"
+                onChange={(e) => setWaist(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+                placeholder="81"
+              ></input>
+            </div>
+          </div>
         </div>
 
         <div className="bg-gray-100 my-8 py-1 w-full"></div>
@@ -363,6 +316,31 @@ export default function UpdateProfile() {
               className="w-full p-2 border border-gray-300 rounded-lg"
               placeholder="32"
             ></input>
+          </div>
+        </div>
+
+        <div className="bg-gray-100 my-8 py-1 w-full"></div>
+
+        {/* Style Preferences */}
+        <div className="mb-8">
+          <h3 className="font-medium mb-3">Style Preferences</h3>
+          <div className="bg-gray-200 py-px mb-4"></div>
+          <div className="grid grid-cols-2 gap-3">
+            {styles.map((style) => (
+              <div key={style} className="flex items-center gap-2">
+                <Checkbox
+                  checked={stylePreferences.includes(style)}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setStylePreferences([...stylePreferences, style]);
+                    } else {
+                      setStylePreferences(stylePreferences.filter(s => s !== style));
+                    }
+                  }}
+                />
+                <label className="block text-md text-gray-600">{style}</label>
+              </div>
+            ))}
           </div>
         </div>
 

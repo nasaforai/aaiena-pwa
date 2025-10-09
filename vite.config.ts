@@ -7,14 +7,17 @@ import { VitePWA } from "vite-plugin-pwa";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "0.0.0.0",
+    host: "::",
     port: 8080,
   },
   plugins: [
     react(),
     mode === "development" && componentTagger(),
-    mode === "production" && VitePWA({
+    VitePWA({
       registerType: "autoUpdate",
+      devOptions: {
+        enabled: true,
+      },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
         runtimeCaching: [
@@ -25,7 +28,7 @@ export default defineConfig(({ mode }) => ({
               cacheName: "google-fonts-cache",
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // <== 365 days
               },
             },
           },
@@ -76,23 +79,14 @@ export default defineConfig(({ mode }) => ({
         ],
       },
     }),
-  ].filter(Boolean),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
     dedupe: ["react", "react-dom"],
   },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-slot'],
-        },
-      },
-    },
-    chunkSizeWarningLimit: 1000,
-    sourcemap: false,
+  optimizeDeps: {
+    include: ["react", "react-dom"],
   },
 }));
