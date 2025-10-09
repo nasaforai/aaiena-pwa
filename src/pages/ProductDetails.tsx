@@ -51,6 +51,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function ProductDetails() {
   const navigate = useNavigate();
@@ -71,6 +80,7 @@ export default function ProductDetails() {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isRoomDialogOpen, setIsRoomDialogOpen] = useState(false);
   const [isVirtualDialogOpen, setIsVirtualDialogOpen] = useState(false);
+  const [showComingSoonDialog, setShowComingSoonDialog] = useState(false);
 
   // Fetch product data
   const { data: product, isLoading } = useProduct(productId || "");
@@ -251,19 +261,7 @@ export default function ProductDetails() {
   };
 
   const handleTryVirtually = () => {
-    if (isLoggedIn) {
-      if (hasMeasurements) {
-        navigate("/try-virtually");
-      } else {
-        navigate("/measurement-profile");
-      }
-    } else {
-      if (isMobile) {
-        navigate(`/sign-up?${createSearchParams({ back: "product-details" })}`);
-      } else {
-        navigate("/qr-code?back=sign-in");
-      }
-    }
+    setShowComingSoonDialog(true);
   };
 
   const handleJoinRoom = () => {
@@ -689,7 +687,7 @@ export default function ProductDetails() {
             variant="outline"
             className="w-full py-6 rounded-xl font-medium border-gray-500"
             onClick={() => {
-              navigate("/try-virtually");
+              setShowComingSoonDialog(true);
             }}
           >
             Try Another
@@ -749,6 +747,22 @@ export default function ProductDetails() {
         isVirtualDialogOpen={isVirtualDialogOpen}
         onClose={() => setIsRoomDialogOpen(false)}
       />
+
+      <AlertDialog open={showComingSoonDialog} onOpenChange={setShowComingSoonDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Coming Soon</AlertDialogTitle>
+            <AlertDialogDescription>
+              Virtual try-on feature will be available soon. Stay tuned!
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowComingSoonDialog(false)}>
+              Got it
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <BottomNavigation />
     </div>

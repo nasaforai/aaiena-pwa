@@ -34,6 +34,15 @@ import { useBrand } from "@/contexts/BrandContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import BottomNavigation from "@/components/BottomNavigation";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function Store() {
   const navigate = useNavigate();
@@ -45,6 +54,7 @@ export default function Store() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedParentCategory, setSelectedParentCategory] = useState<string | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
+  const [showComingSoonDialog, setShowComingSoonDialog] = useState(false);
   const isMobile = useIsMobile();
 
   // Fetch brand-aware data from Supabase
@@ -106,11 +116,7 @@ export default function Store() {
   };
 
   const handleTry = () => {
-    if (isAuthenticated) {
-      navigate("/try-virtually");
-    } else {
-      navigate("/qr-code?back=sign-in");
-    }
+    setShowComingSoonDialog(true);
   };
 
   const handleCategoryClick = (category: any) => {
@@ -451,6 +457,22 @@ export default function Store() {
           </>
         )}
       </div>
+
+      <AlertDialog open={showComingSoonDialog} onOpenChange={setShowComingSoonDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Coming Soon</AlertDialogTitle>
+            <AlertDialogDescription>
+              Virtual try-on feature will be available soon. Stay tuned!
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowComingSoonDialog(false)}>
+              Got it
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Bottom Navigation */}
       <BottomNavigation />
