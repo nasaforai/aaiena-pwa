@@ -28,6 +28,7 @@ export default function UpdateProfile() {
   const [waist, setWaist] = useState("");
   const [pantsSize, setPantsSize] = useState("");
   const [fullName, setFullName] = useState("");
+  const [bodyType, setBodyType] = useState("");
   const [stylePreferences, setStylePreferences] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "size-guide" | "style-rating">("profile");
@@ -43,6 +44,7 @@ export default function UpdateProfile() {
       setWaist(profile.waist?.toString() || "");
       setPantsSize(profile.pants_size?.toString() || "");
       setFullName(profile.full_name || user?.email || "");
+      setBodyType(profile.body_type || "");
       setStylePreferences(profile.style_preferences || []);
     }
   }, [profile, user]);
@@ -63,6 +65,7 @@ export default function UpdateProfile() {
         waist: waist ? parseFloat(waist) : null,
         pants_size: pantsSize ? parseFloat(pantsSize) : null,
         shirt_size: selectedShirtSize,
+        body_type: bodyType || null,
         style_preferences: stylePreferences,
       };
 
@@ -218,58 +221,84 @@ export default function UpdateProfile() {
 
         {/* Body Measurements */}
         <div className="mb-6">
-          <h3 className="font-medium mb-3">Body Measurement (cm)</h3>
+          <h3 className="font-medium mb-3">Body Measurement</h3>
           <div className="bg-gray-200 py-px mb-4"></div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Height (cm)</label>
-              <input
-                value={height}
-                type="number"
-                step="0.1"
-                inputMode="decimal"
-                onChange={(e) => setHeight(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg"
-                placeholder="177"
-              ></input>
+          
+          {/* For Male Gender */}
+          {selectedGender === "Male" && (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Height (cm)</label>
+                <input
+                  value={height}
+                  type="number"
+                  step="0.1"
+                  inputMode="decimal"
+                  onChange={(e) => setHeight(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-lg"
+                  placeholder="177"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Weight (kg)</label>
+                <input
+                  value={weight}
+                  type="number"
+                  step="0.1"
+                  inputMode="decimal"
+                  onChange={(e) => setWeight(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-lg"
+                  placeholder="60"
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Weight (kg)</label>
-              <input
-                value={weight}
-                type="number"
-                step="0.1"
-                inputMode="decimal"
-                onChange={(e) => setWeight(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg"
-                placeholder="60"
-              ></input>
+          )}
+
+          {/* For Female Gender */}
+          {selectedGender === "Female" && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Height (cm)</label>
+                  <input
+                    value={height}
+                    type="number"
+                    step="0.1"
+                    inputMode="decimal"
+                    onChange={(e) => setHeight(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-lg"
+                    placeholder="165"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Weight (kg)</label>
+                  <input
+                    value={weight}
+                    type="number"
+                    step="0.1"
+                    inputMode="decimal"
+                    onChange={(e) => setWeight(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-lg"
+                    placeholder="55"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Body Type</label>
+                <Select value={bodyType} onValueChange={setBodyType}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select body type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="rectangle">Rectangle</SelectItem>
+                    <SelectItem value="triangle">Triangle</SelectItem>
+                    <SelectItem value="inverted">Inverted</SelectItem>
+                    <SelectItem value="diamond">Diamond</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Chest (cm)</label>
-              <input
-                value={chest}
-                type="number"
-                step="0.1"
-                inputMode="decimal"
-                onChange={(e) => setChest(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg"
-                placeholder="96"
-              ></input>
-            </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Waist (cm)</label>
-              <input
-                value={waist}
-                type="number"
-                step="0.1"
-                inputMode="decimal"
-                onChange={(e) => setWaist(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg"
-                placeholder="81"
-              ></input>
-            </div>
-          </div>
+          )}
         </div>
 
         <div className="bg-gray-100 my-8 py-1 w-full"></div>

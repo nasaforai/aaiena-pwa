@@ -466,6 +466,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          body_type: string | null
           chest: number | null
           chest_inches: number | null
           created_at: string
@@ -487,6 +488,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          body_type?: string | null
           chest?: number | null
           chest_inches?: number | null
           created_at?: string
@@ -508,6 +510,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          body_type?: string | null
           chest?: number | null
           chest_inches?: number | null
           created_at?: string

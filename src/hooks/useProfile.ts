@@ -14,6 +14,7 @@ interface Profile {
   waist: number | null; // Now supports decimals
   pants_size: number | null; // Now supports decimals
   shirt_size: string | null;
+  body_type: string | null;
   style_preferences: string[] | null;
   photos: string[] | null;
   chest_inches: number | null;
