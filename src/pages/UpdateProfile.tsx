@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Camera, Clock } from "lucide-react";
+import { ArrowLeft, Camera, Clock, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import BottomNavigation from "@/components/BottomNavigation";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Select,
   SelectContent,
@@ -37,6 +38,10 @@ export default function UpdateProfile() {
   const [stylePreferences, setStylePreferences] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "size-guide" | "style-rating">("profile");
+  const [frontImage, setFrontImage] = useState<string | null>(null);
+  const [sideImage, setSideImage] = useState<string | null>(null);
+  const [uploadingFront, setUploadingFront] = useState(false);
+  const [uploadingSide, setUploadingSide] = useState(false);
 
   // Load profile data when available
   useEffect(() => {
@@ -51,11 +56,63 @@ export default function UpdateProfile() {
       setFullName(profile.full_name || user?.email || "");
       setBodyType(profile.body_type || "");
       setStylePreferences(profile.style_preferences || []);
+      
+      // Load existing images
+      if (profile.photos && profile.photos.length > 0) {
+        setFrontImage(profile.photos[0] || null);
+        setSideImage(profile.photos[1] || null);
+      }
     }
   }, [profile, user]);
 
   const handleBack = () => {
     navigateBack("/profile");
+  };
+
+  const handleImageUpload = async (
+    file: File, 
+    imageType: 'front' | 'side'
+  ) => {
+    const setUploading = imageType === 'front' ? setUploadingFront : setUploadingSide;
+    const setImageUrl = imageType === 'front' ? setFrontImage : setSideImage;
+    
+    try {
+      setUploading(true);
+      
+      // Create unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user?.id}/${imageType}-${Date.now()}.${fileExt}`;
+      
+      // Upload to Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+      
+      if (error) throw error;
+      
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+      
+      setImageUrl(publicUrl);
+      
+      toast({
+        title: "Success",
+        description: `${imageType === 'front' ? 'Front' : 'Side'} image uploaded successfully!`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `Failed to upload ${imageType} image`,
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSave = async () => {
@@ -72,6 +129,7 @@ export default function UpdateProfile() {
         shirt_size: selectedShirtSize,
         body_type: bodyType || null,
         style_preferences: stylePreferences,
+        photos: [frontImage, sideImage].filter(Boolean) as string[],
       };
 
       const { error } = await updateProfile(updates);
@@ -278,6 +336,100 @@ export default function UpdateProfile() {
               </Select>
             </div>
           )}
+        </div>
+
+        <div className="bg-gray-100 my-8 py-1 w-full"></div>
+
+        {/* Body Photos Section */}
+        <div className="mb-6">
+          <h3 className="font-medium mb-3">Body Photos</h3>
+          <div className="bg-gray-200 py-px mb-4"></div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            {/* Front Image */}
+            <div>
+              <label className="block text-sm text-gray-600 mb-2">Front Image</label>
+              <div className="relative">
+                {frontImage ? (
+                  <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-gray-300">
+                    <img 
+                      src={frontImage} 
+                      alt="Front view" 
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      onClick={() => setFrontImage(null)}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <Camera className="w-8 h-8 text-gray-400 mb-2" />
+                    <span className="text-sm text-gray-500">Upload Front</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleImageUpload(file, 'front');
+                      }}
+                      disabled={uploadingFront}
+                    />
+                  </label>
+                )}
+                {uploadingFront && (
+                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
+                    <span className="text-white">Uploading...</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Side Image */}
+            <div>
+              <label className="block text-sm text-gray-600 mb-2">Side Image</label>
+              <div className="relative">
+                {sideImage ? (
+                  <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-gray-300">
+                    <img 
+                      src={sideImage} 
+                      alt="Side view" 
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      onClick={() => setSideImage(null)}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <Camera className="w-8 h-8 text-gray-400 mb-2" />
+                    <span className="text-sm text-gray-500">Upload Side</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleImageUpload(file, 'side');
+                      }}
+                      disabled={uploadingSide}
+                    />
+                  </label>
+                )}
+                {uploadingSide && (
+                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
+                    <span className="text-white">Uploading...</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="bg-gray-100 my-8 py-1 w-full"></div>
