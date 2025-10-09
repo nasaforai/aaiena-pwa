@@ -244,29 +244,6 @@ export default function UpdateProfile() {
         {/* Profile Tab Content */}
         {activeTab === "profile" && (
           <>
-        {/* Profile Image */}
-        <div className="text-center mb-6">
-          <div className="relative inline-block">
-            <Avatar className="w-28 h-28 mx-auto">
-              <AvatarImage src={profile?.avatar_url || ''} alt={displayName} />
-              <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
-            </Avatar>
-            <div className="absolute bottom-0 right-0 w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-300">
-              <Camera className="w-5 h-5 text-black" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="text-center font-bold text-lg border-b-2 border-transparent hover:border-gray-300 focus:border-purple-600 focus:outline-none px-2"
-              placeholder="Enter your name"
-            />
-          </div>
-        </div>
-
-        <div className="bg-gray-100 my-8 py-1 w-full"></div>
 
         {/* Gender */}
         <div className="mb-10">
