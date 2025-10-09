@@ -159,6 +159,44 @@ export type Database = {
         }
         Relationships: []
       }
+      cart_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: number
+          quantity: number
+          size: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: number
+          quantity?: number
+          size: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: number
+          quantity?: number
+          size?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           brand_id: string | null
@@ -428,6 +466,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          body_type: string | null
           chest: number | null
           chest_inches: number | null
           created_at: string
@@ -449,6 +488,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          body_type?: string | null
           chest?: number | null
           chest_inches?: number | null
           created_at?: string
@@ -470,6 +510,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          body_type?: string | null
           chest?: number | null
           chest_inches?: number | null
           created_at?: string
