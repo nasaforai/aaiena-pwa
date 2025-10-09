@@ -359,25 +359,14 @@ export default function Store() {
 
             {/* Product Carousels */}
             <div className="space-y-6">
-              {/* Trending Now Carousel */}
-              {trendingProducts.length > 0 && (
-                <div>
-                  <h3 className="font-bold text-lg mb-3">Trending Now</h3>
-                  <Carousel className="w-full">
-                    <CarouselContent className="-ml-2 md:-ml-4">
-                      {trendingProducts.map((product) => (
-                        <CarouselItem key={product.product_id} className="pl-2 md:pl-4 basis-1/2">
-                          <ProductCard
-                            product={product}
-                            handleProductClick={handleProductClick}
-                          />
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    <CarouselDots />
-                  </Carousel>
-                </div>
-              )}
+              {/* What's New Section */}
+              <div className="bg-gradient-to-r from-pink-400 to-red-500 rounded-2xl px-6 py-10 text-white text-center">
+                <p className="my-4 text-md">SEE ALL LATEST</p>
+                <h3 className="font-medium text-3xl mb-4">WHAT'S NEW!</h3>
+                <button className="bg-white text-black px-10 py-2 rounded-xl text-sm font-medium">
+                  See All
+                </button>
+              </div>
 
               {/* Recently Tried Carousel - showing new products as fallback */}
               {newProducts.length > 0 && (
@@ -418,15 +407,26 @@ export default function Store() {
                   </Carousel>
                 </div>
               )}
-            </div>
 
-            {/* What's New Section */}
-            <div className="mt-6 bg-gradient-to-r from-pink-400 to-red-500 rounded-2xl px-6 py-10 text-white text-center">
-              <p className="my-4 text-md">SEE ALL LATEST</p>
-              <h3 className="font-medium text-3xl mb-4">WHAT'S NEW!</h3>
-              <button className="bg-white text-black px-10 py-2 rounded-xl text-sm font-medium">
-                See All
-              </button>
+              {/* Trending Now Carousel */}
+              {trendingProducts.length > 0 && (
+                <div>
+                  <h3 className="font-bold text-lg mb-3">Trending Now</h3>
+                  <Carousel className="w-full">
+                    <CarouselContent className="-ml-2 md:-ml-4">
+                      {trendingProducts.map((product) => (
+                        <CarouselItem key={product.product_id} className="pl-2 md:pl-4 basis-1/2">
+                          <ProductCard
+                            product={product}
+                            handleProductClick={handleProductClick}
+                          />
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselDots />
+                  </Carousel>
+                </div>
+              )}
             </div>
 
             {/* In Offer Carousel */}
