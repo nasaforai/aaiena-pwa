@@ -12,7 +12,11 @@ const getDeviceType = (): DeviceType => {
   const isKiosk = window.location.search.includes('kiosk=true') || 
                  localStorage.getItem('deviceType') === 'kiosk';
   
-  if (isKiosk) return 'kiosk';
+  if (isKiosk) {
+    // Persist kiosk type to localStorage
+    localStorage.setItem('deviceType', 'kiosk');
+    return 'kiosk';
+  }
   if (isMobile) return 'mobile';
   return 'desktop';
 };
@@ -26,7 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   
   // Enhanced state management
-  const [deviceType] = useState<DeviceType>(getDeviceType);
+  const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType);
   const [fromKiosk, setFromKiosk] = useState<boolean>(() => 
     Boolean(localStorage.getItem('fromKiosk')) || window.location.search.includes('session_id=')
   );
@@ -67,6 +71,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setHasProfile(false);
     }
   };
+
+  // Listen for deviceType changes in localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const newDeviceType = getDeviceType();
+      setDeviceType(newDeviceType);
+    };
+
+    // Listen for storage events from other tabs/windows
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check periodically for same-tab changes
+    const interval = setInterval(handleStorageChange, 500);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
 
   useEffect(() => {
     // Set up auth state listener
@@ -194,6 +217,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('hasMeasurements');
       localStorage.removeItem('fromKiosk');
+      localStorage.removeItem('deviceType');
       localStorage.removeItem('cart');
       localStorage.removeItem('wishlist');
       
@@ -203,6 +227,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setHasMeasurements(false);
       setCartItems([]);
       setWishlistItems([]);
+      setDeviceType(getDeviceType());
     }
     return { error };
   };
