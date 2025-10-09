@@ -23,6 +23,9 @@ import Wishlist from "./pages/Wishlist";
 import Profile from "./pages/Profile";
 import Welcome from "./pages/Welcome";
 import SignupOptions from "./pages/SignupOptions";
+// Critical pages - direct import to avoid module loading issues
+import ProductDetails from "./pages/ProductDetails";
+import UpdateProfile from "./pages/UpdateProfile";
 
 // Lazy load other pages
 const Index = React.lazy(() => import("./pages/Index"));
@@ -36,9 +39,7 @@ const MeasurementProfile = React.lazy(() => import("./pages/MeasurementProfile")
 const DeviceConnected = React.lazy(() => import("./pages/DeviceConnected"));
 const OrderSuccess = React.lazy(() => import("./pages/OrderSuccess"));
 const PhotoSource = React.lazy(() => import("./pages/PhotoSource"));
-const UpdateProfile = React.lazy(() => import("./pages/UpdateProfile"));
 const ImageGuide = React.lazy(() => import("./pages/ImageGuide"));
-const ProductDetails = React.lazy(() => import("./pages/ProductDetails"));
 const QRCode = React.lazy(() => import("./pages/QRCode"));
 const FashionLane = React.lazy(() => import("./pages/FashionLane"));
 const Payment = React.lazy(() => import("./pages/Payment"));
