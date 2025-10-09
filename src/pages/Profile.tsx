@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, User, Settings, ShoppingBag, LogOut, Camera, Home, Heart, ChevronDown, ChevronUp, Eye, EyeOff, Smartphone } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -30,7 +30,6 @@ export default function Profile() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showMobileSwitchDialog, setShowMobileSwitchDialog] = useState(false);
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
@@ -59,70 +58,6 @@ export default function Profile() {
     setIsSigningOut(false);
   };
 
-  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !user) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: "Error",
-        description: "Please select an image file.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "Error",
-        description: "Image size must be less than 5MB.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsUploadingAvatar(true);
-
-    try {
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${user.id}/avatar.${fileExt}`;
-
-      // Upload to Supabase storage
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-
-      // Update profile with new avatar URL
-      const { error: updateError } = await updateProfile({ avatar_url: publicUrl });
-
-      if (updateError) throw new Error(updateError);
-
-      toast({
-        title: "Success",
-        description: "Profile picture updated successfully.",
-      });
-    } catch (error) {
-      console.error('Avatar upload error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to upload profile picture. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploadingAvatar(false);
-      // Reset file input
-      event.target.value = '';
-    }
-  };
 
   const handlePasswordChange = async () => {
     if (!passwordForm.currentPassword) {
@@ -229,54 +164,64 @@ export default function Profile() {
   }
 
   const displayName = profile?.full_name || user?.email || 'User';
-  const initials = displayName
-    .split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
 
   return (
     <div className="bg-white flex lg:max-w-sm w-full flex-col mx-auto min-h-screen">
       <Topbar handleBack={() => navigate("/store")} showBack={true} />
 
       <div className="flex-1 p-4">
-        {/* Profile Header */}
+        {/* Profile Header with Body Photos */}
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="flex flex-col items-center text-center">
-              <div className="relative mb-4">
-                <Avatar className="w-20 h-20">
-                  <AvatarImage src={profile?.avatar_url || ''} alt={displayName} />
-                  <AvatarFallback className="text-xl">{initials}</AvatarFallback>
-                </Avatar>
-                {/* Show camera icon only on mobile/desktop, hide on kiosk */}
-                {!isKiosk && (
-                  <>
-                    <input
-                      type="file"
-                      id="avatar-upload"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleAvatarUpload}
-                      disabled={isUploadingAvatar}
-                    />
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full"
-                      onClick={() => document.getElementById('avatar-upload')?.click()}
-                      disabled={isUploadingAvatar}
-                    >
-                      <Camera className="w-3 h-3" />
-                    </Button>
-                  </>
-                )}
+              <h2 className="text-xl font-semibold mb-1">{displayName}</h2>
+              <p className="text-sm text-muted-foreground mb-4">{user?.email}</p>
+              
+              {/* Body Photos Grid */}
+              <div className="w-full mb-4">
+                <h3 className="text-sm font-medium text-foreground mb-3">Body Photos</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Front Photo */}
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-2">Front</label>
+                    {profile?.photos?.[0] ? (
+                      <div className="w-full h-48 rounded-lg overflow-hidden border-2 border-border">
+                        <img 
+                          src={profile.photos[0]} 
+                          alt="Front view" 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-48 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center bg-muted">
+                        <Camera className="w-8 h-8 text-muted-foreground mb-2" />
+                        <span className="text-xs text-muted-foreground">No photo</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Side Photo */}
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-2">Side</label>
+                    {profile?.photos?.[1] ? (
+                      <div className="w-full h-48 rounded-lg overflow-hidden border-2 border-border">
+                        <img 
+                          src={profile.photos[1]} 
+                          alt="Side view" 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-48 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center bg-muted">
+                        <Camera className="w-8 h-8 text-muted-foreground mb-2" />
+                        <span className="text-xs text-muted-foreground">No photo</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
               
-              <h2 className="text-xl font-semibold mb-1">{displayName}</h2>
-              <p className="text-sm text-gray-600 mb-3">{user?.email}</p>
-              
+              {/* Edit Profile Button */}
               <Button
                 variant="outline"
                 size="sm"
