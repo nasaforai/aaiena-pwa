@@ -494,14 +494,10 @@ export default function ProductDetails() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Camera className="w-5 h-5 text-purple-600" />
-              Complete Your Profile
+              Complete Your Profile for Size Recommendation
             </DialogTitle>
             <DialogDescription>
-              {missingPhotos.front && missingPhotos.side 
-                ? "To get personalized size recommendations, please upload both front and side view photos."
-                : missingPhotos.front 
-                ? "To get personalized size recommendations, please upload a front view photo."
-                : "To get personalized size recommendations, please upload a side view photo."}
+              Please upload your front and side view photos to get accurate size recommendations.
             </DialogDescription>
           </DialogHeader>
           
