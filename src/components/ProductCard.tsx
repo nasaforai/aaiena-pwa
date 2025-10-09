@@ -1,6 +1,7 @@
 import { ShoppingBag } from "lucide-react";
 import { Product } from "@/hooks/useProducts";
 import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 const ProductCard = ({
   product,
@@ -9,6 +10,9 @@ const ProductCard = ({
   product: Product;
   handleProductClick: (productId: string) => void;
 }) => {
+  const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     
@@ -49,9 +53,18 @@ const ProductCard = ({
   return (
     <div>
       <div className="h-48 rounded-2xl bg-gray-200 relative overflow-hidden">
+        {imageLoading && (
+          <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+        )}
         <img
-          src={product.image_url}
+          src={imageError ? "/placeholder.svg" : product.image_url}
           alt={product.name}
+          onLoad={() => setImageLoading(false)}
+          onError={(e) => {
+            console.warn(`Failed to load image for ${product.name}:`, product.image_url);
+            setImageError(true);
+            setImageLoading(false);
+          }}
           className="absolute left-0 top-0 w-full h-full object-cover"
         />
         <button
