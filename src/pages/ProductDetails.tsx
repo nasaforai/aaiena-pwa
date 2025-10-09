@@ -13,6 +13,8 @@ import {
   UserPen,
   Ruler,
   Camera,
+  Check,
+  X,
 } from "lucide-react";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import { useNavigation } from "@/hooks/useNavigation";
@@ -81,6 +83,7 @@ export default function ProductDetails() {
   const [isRoomDialogOpen, setIsRoomDialogOpen] = useState(false);
   const [isVirtualDialogOpen, setIsVirtualDialogOpen] = useState(false);
   const [showComingSoonDialog, setShowComingSoonDialog] = useState(false);
+  const [missingPhotos, setMissingPhotos] = useState({ front: false, side: false });
 
   // Fetch product data
   const { data: product, isLoading } = useProduct(productId || "");
@@ -330,6 +333,11 @@ export default function ProductDetails() {
     const hasSidePhoto = profile?.photos?.[1];
     
     if (!hasFrontPhoto || !hasSidePhoto) {
+      // Track which photos are missing
+      setMissingPhotos({
+        front: !hasFrontPhoto,
+        side: !hasSidePhoto
+      });
       // Show dialog prompting to complete profile
       setPhotoCheckDialogOpen(true);
     } else {
@@ -489,21 +497,37 @@ export default function ProductDetails() {
               Complete Your Profile
             </DialogTitle>
             <DialogDescription>
-              To get personalized size recommendations, we need your body photos.
+              {missingPhotos.front && missingPhotos.side 
+                ? "To get personalized size recommendations, please upload both front and side view photos."
+                : missingPhotos.front 
+                ? "To get personalized size recommendations, please upload a front view photo."
+                : "To get personalized size recommendations, please upload a side view photo."}
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4">
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 mb-2">What we need:</h4>
-              <ul className="text-sm text-gray-600 space-y-1">
+              <h4 className="font-medium text-gray-900 mb-3">Photo Status:</h4>
+              <ul className="text-sm space-y-2">
                 <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-purple-600 rounded-full" />
-                  Front view photo
+                  {missingPhotos.front ? (
+                    <X className="w-4 h-4 text-red-500" />
+                  ) : (
+                    <Check className="w-4 h-4 text-green-500" />
+                  )}
+                  <span className={missingPhotos.front ? "text-red-600 font-medium" : "text-green-600"}>
+                    Front view photo {missingPhotos.front ? "(Missing)" : "(Uploaded)"}
+                  </span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-purple-600 rounded-full" />
-                  Side view photo
+                  {missingPhotos.side ? (
+                    <X className="w-4 h-4 text-red-500" />
+                  ) : (
+                    <Check className="w-4 h-4 text-green-500" />
+                  )}
+                  <span className={missingPhotos.side ? "text-red-600 font-medium" : "text-green-600"}>
+                    Side view photo {missingPhotos.side ? "(Missing)" : "(Uploaded)"}
+                  </span>
                 </li>
               </ul>
             </div>
