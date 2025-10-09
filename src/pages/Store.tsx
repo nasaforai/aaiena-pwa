@@ -410,7 +410,7 @@ export default function Store() {
 
               {/* Trending Now Carousel */}
               {trendingProducts.length > 0 && (
-                <div>
+                <div className="mb-8">
                   <h3 className="font-bold text-lg mb-3">Trending Now</h3>
                   <Carousel className="w-full">
                     <CarouselContent className="-ml-2 md:-ml-4">
