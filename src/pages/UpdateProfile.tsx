@@ -244,6 +244,20 @@ export default function UpdateProfile() {
         {/* Profile Tab Content */}
         {activeTab === "profile" && (
           <>
+        {/* Name Section */}
+        <div className="mb-6">
+          <h3 className="font-medium mb-3">Name</h3>
+          <div className="bg-gray-200 py-px mb-4"></div>
+          <input
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-lg"
+            placeholder="Enter your full name"
+          />
+        </div>
+
+        <div className="bg-gray-100 my-8 py-1 w-full"></div>
 
         {/* Gender */}
         <div className="mb-10">
