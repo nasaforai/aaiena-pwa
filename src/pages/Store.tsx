@@ -412,7 +412,7 @@ export default function Store() {
 
             {/* In Offer Carousel */}
             {offerProducts.length > 0 && (
-              <div className="mt-6 mb-6">
+              <div className="mt-8 mb-6">
                 <h3 className="font-bold text-lg mb-3">In Offer</h3>
                 <Carousel className="w-full">
                   <CarouselContent className="-ml-2 md:-ml-4">
@@ -432,7 +432,7 @@ export default function Store() {
 
             {/* Trending Now Carousel */}
             {trendingProducts.length > 0 && (
-              <div className="mb-20">
+              <div className="mt-8 mb-20">
                 <h3 className="font-bold text-lg mb-3">Trending Now</h3>
                 <Carousel className="w-full">
                   <CarouselContent className="-ml-2 md:-ml-4">
