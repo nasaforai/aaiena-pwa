@@ -12,6 +12,7 @@ import {
   UsersRound,
   UserPen,
   Ruler,
+  Camera,
 } from "lucide-react";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import { useNavigation } from "@/hooks/useNavigation";
@@ -42,6 +43,14 @@ import {
 } from "@/components/ui/accordion";
 import { RoomJoinDialog } from "@/components/RoomJoinDialog";
 import BottomNavigation from "@/components/BottomNavigation";
+import { useProfile } from "@/hooks/useProfile";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function ProductDetails() {
   const navigate = useNavigate();
@@ -54,6 +63,7 @@ export default function ProductDetails() {
   const [selectedColor, setSelectedColor] = useState("white");
   const [quantity, setQuantity] = useState(1);
   const [sizeChartOpen, setSizeChartOpen] = useState(false);
+  const [photoCheckDialogOpen, setPhotoCheckDialogOpen] = useState(false);
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
   const hasMeasurements = localStorage.getItem("hasMeasurements") === "true";
   const isMobile = useIsMobile();
@@ -68,6 +78,7 @@ export default function ProductDetails() {
   const { data: sizeChart, isLoading: sizeChartLoading } = useProductSizeChart(productId);
   const sizeRecommendation = useSizeRecommendation(sizeChart || null);
   const { data: productVariants, isLoading: variantsLoading } = useProductVariants(productId || "");
+  const { profile } = useProfile();
   
   // Check if product is in wishlist on mount and when product changes
   useEffect(() => {
@@ -305,6 +316,33 @@ export default function ProductDetails() {
     }
   };
 
+  const handleMySizeClick = () => {
+    // Check if user is logged in
+    if (!isLoggedIn) {
+      if (isMobile) {
+        navigate(`/sign-up?${createSearchParams({ back: "product-details" })}`);
+      } else {
+        navigate("/qr-code?back=product-details");
+      }
+      return;
+    }
+
+    // Check if photos exist (front and side)
+    const hasFrontPhoto = profile?.photos?.[0];
+    const hasSidePhoto = profile?.photos?.[1];
+    
+    if (!hasFrontPhoto || !hasSidePhoto) {
+      // Show dialog prompting to complete profile
+      setPhotoCheckDialogOpen(true);
+    } else {
+      // Photos exist, show success message
+      toast({
+        title: "Profile Complete!",
+        description: "Your size recommendation is based on your uploaded photos.",
+      });
+    }
+  };
+
   const colors = product?.colors || [];
   const sizes = productVariants?.map(v => v.size).filter(Boolean) || [];
 
@@ -429,8 +467,74 @@ export default function ProductDetails() {
               ))}
             </div>
           </div>
+
+          {/* My Size Button */}
+          <div className="mt-4">
+            <Button
+              onClick={handleMySizeClick}
+              variant="outline"
+              className="w-full py-2 rounded-lg border-purple-300 text-purple-600 hover:bg-purple-50 hover:text-purple-700 font-medium"
+            >
+              <Ruler className="w-4 h-4 mr-2" />
+              My Size
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* Profile Completion Dialog */}
+      <Dialog open={photoCheckDialogOpen} onOpenChange={setPhotoCheckDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Camera className="w-5 h-5 text-purple-600" />
+              Complete Your Profile
+            </DialogTitle>
+            <DialogDescription>
+              To get personalized size recommendations, we need your body photos.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-2">What we need:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-purple-600 rounded-full" />
+                  Front view photo
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-purple-600 rounded-full" />
+                  Side view photo
+                </li>
+              </ul>
+            </div>
+            
+            <p className="text-xs text-gray-500 text-center">
+              These photos help us provide accurate size recommendations tailored to your body type.
+            </p>
+            
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setPhotoCheckDialogOpen(false)}
+                className="flex-1"
+              >
+                Maybe Later
+              </Button>
+              <Button
+                onClick={() => {
+                  setPhotoCheckDialogOpen(false);
+                  navigate('/update-profile');
+                }}
+                className="flex-1 bg-purple-600 hover:bg-purple-700"
+              >
+                Complete Profile
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Quantity Selection */}
       <div className="px-4 mb-4">
