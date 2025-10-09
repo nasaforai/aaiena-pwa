@@ -41,7 +41,7 @@ const PhotoSource = React.lazy(() => import("./pages/PhotoSource"));
 const UpdateProfile = React.lazy(() => import("./pages/UpdateProfile"));
 const ImageGuide = React.lazy(() => import("./pages/ImageGuide"));
 const ProductDetails = React.lazy(() => import("./pages/ProductDetails"));
-const QRCode = React.lazy(() => import("./pages/QRCode"));
+
 const FashionLane = React.lazy(() => import("./pages/FashionLane"));
 const Payment = React.lazy(() => import("./pages/Payment"));
 const Checkout = React.lazy(() => import("./pages/Checkout"));
@@ -144,7 +144,7 @@ const App = () => {
                  <Route path="/brand/:brandSlug" element={<Store />} />
                  <Route path="/category/:categoryId" element={<CategoryProducts />} />
                  <Route path="/brand-admin" element={<ProtectedRoute><BrandAdmin /></ProtectedRoute>} />
-                 <Route path="/qr-code" element={<QRCode />} />
+                 
                 <Route path="/fashion-lane" element={<FashionLane />} />
                 <Route path="/product-details" element={<ProductDetails />} />
                 <Route path="/qr-scan-virtual" element={<QRScanVirtual />} />

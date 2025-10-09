@@ -258,7 +258,7 @@ export default function ProductDetails() {
       if (isMobile) {
         navigate(`/sign-up?${createSearchParams({ back: "product-details" })}`);
       } else {
-        navigate("/qr-code?back=product-details");
+        navigate("/signup-options");
       }
     }
   };
@@ -277,7 +277,7 @@ export default function ProductDetails() {
       if (isMobile) {
         navigate(`/sign-up?${createSearchParams({ back: "product-details" })}`);
       } else {
-        navigate("/qr-code?back=product-details");
+        navigate("/signup-options");
       }
       return;
     }
@@ -323,7 +323,7 @@ export default function ProductDetails() {
       if (isMobile) {
         navigate(`/sign-up?${createSearchParams({ back: "product-details" })}`);
       } else {
-        navigate("/qr-code?back=product-details");
+        navigate("/signup-options");
       }
       return;
     }

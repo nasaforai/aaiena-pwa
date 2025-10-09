@@ -130,7 +130,6 @@ export class NavigationManager {
       '/signin',
       '/signup',
       '/signup-options',
-      '/qr-code',
       '/device-connect-flow'
     ];
     

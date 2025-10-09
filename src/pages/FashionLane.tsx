@@ -11,15 +11,10 @@ export default function FashionLane() {
   const handleContinue = () => {
     if (selectedOption === 1) {
       // Scan The Product - go to QR scan screen
-      navigate(
-        `/qr-code?${createSearchParams({
-          back: "fashion-lane",
-          to: "product-scan",
-        })}`
-      );
+      navigate("/qr-scan-product");
     } else if (selectedOption === 2) {
       // Try On Virtually - go to QR scan screen
-      navigate(`/qr-code?${createSearchParams({ back: "fashion-lane" })}`);
+      navigate("/qr-scan-virtual");
     } else if (selectedOption === 3) {
       navigate("/store");
     }

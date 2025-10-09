@@ -226,7 +226,7 @@ export default function Store() {
               <button
                 className="w-full mt-2 bg-purple-100 text-black py-3 rounded-xl text-md font-medium"
                 onClick={() => {
-                  navigate(`/qr-code?${createSearchParams({ back: "store" })}`);
+                  navigate("/signup-options");
                 }}
               >
                 Log In To See Full Preview →

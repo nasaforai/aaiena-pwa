@@ -96,7 +96,7 @@ export default function SignIn() {
   }
 
   const handleBack = () => {
-    navigateBack(backRoute ? `/${backRoute}` : "/qr-code");
+    navigateBack(backRoute ? `/${backRoute}` : "/waiting-room");
   };
 
   const handleLogin = async () => {

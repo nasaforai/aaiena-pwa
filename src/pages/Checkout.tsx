@@ -50,7 +50,7 @@ export default function Checkout() {
     if (isMobile) {
       navigate("/payment");
     } else {
-      navigate("/qr-code?back=checkout");
+      navigate("/signup-options");
     }
   };
 

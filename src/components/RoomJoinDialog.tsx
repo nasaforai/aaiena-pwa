@@ -67,7 +67,7 @@ export const RoomJoinDialog: React.FC<RoomJoinDialogProps> = ({
     if (isMobile) {
       navigate("/try-virtually");
     } else {
-      navigate("/qr-code");
+      navigate("/signup-options");
     }
   };
 
