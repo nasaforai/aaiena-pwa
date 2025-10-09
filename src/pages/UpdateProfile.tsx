@@ -17,7 +17,7 @@ export default function UpdateProfile() {
   const navigate = useNavigate();
   const { navigateBack } = useNavigation();
   const { user } = useAuth();
-  const { profile, loading, updateProfile } = useProfile();
+  const { profile, loading, updateProfile, createProfile } = useProfile();
   const { toast } = useToast();
   
   const [selectedGender, setSelectedGender] = useState("Male");
@@ -56,7 +56,7 @@ export default function UpdateProfile() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const updates = {
+      const profileData = {
         full_name: fullName,
         gender: selectedGender,
         height: height ? parseFloat(height) : null,
@@ -68,7 +68,10 @@ export default function UpdateProfile() {
         body_type: bodyType || null,
       };
 
-      const { error } = await updateProfile(updates);
+      // Check if profile exists - if not, create it; otherwise, update it
+      const { error } = profile 
+        ? await updateProfile(profileData)
+        : await createProfile(profileData);
 
       if (error) {
         toast({
@@ -79,14 +82,14 @@ export default function UpdateProfile() {
       } else {
         toast({
           title: "Success",
-          description: "Profile updated successfully!",
+          description: profile ? "Profile updated successfully!" : "Profile created successfully!",
         });
         navigate("/profile");
       }
     } catch (err) {
       toast({
         title: "Error",
-        description: "Failed to update profile.",
+        description: "Failed to save profile.",
         variant: "destructive",
       });
     } finally {
