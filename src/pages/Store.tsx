@@ -429,28 +429,6 @@ export default function Store() {
               </button>
             </div>
 
-            {/* Trending Now Section - Random 4 Products */}
-            {allProducts.length > 0 && (
-              <div className="mt-6">
-                <h3 className="font-bold text-lg mb-3">Trending Now</h3>
-                <Carousel className="w-full">
-                  <CarouselContent className="-ml-2 md:-ml-4">
-                    {allProducts
-                      .sort(() => Math.random() - 0.5)
-                      .slice(0, 4)
-                      .map((product) => (
-                        <CarouselItem key={product.product_id} className="pl-2 md:pl-4 basis-1/2">
-                          <ProductCard
-                            product={product}
-                            handleProductClick={handleProductClick}
-                          />
-                        </CarouselItem>
-                      ))}
-                  </CarouselContent>
-                  <CarouselDots />
-                </Carousel>
-              </div>
-            )}
 
             {/* In Offer Carousel */}
             {offerProducts.length > 0 && (
