@@ -436,7 +436,6 @@ export default function Store() {
                 <Carousel className="w-full">
                   <CarouselContent className="-ml-2 md:-ml-4">
                     {allProducts
-                      .sort(() => Math.random() - 0.5)
                       .slice(0, 4)
                       .map((product) => (
                         <CarouselItem key={product.product_id} className="pl-2 md:pl-4 basis-1/2">
