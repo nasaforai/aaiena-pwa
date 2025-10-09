@@ -38,45 +38,44 @@ export const KioskInactivityWarning = ({
 
   return (
     <AlertDialog open={open}>
-      <AlertDialogContent className="w-[calc(100vw-2rem)] max-w-sm sm:max-w-md p-4 sm:p-6 rounded-lg max-h-[85vh] overflow-y-auto">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-center text-lg sm:text-xl leading-tight break-words">
-            Automatic Logout Warning
+      <AlertDialogContent className="w-[calc(100vw-2rem)] max-w-md p-6 sm:p-8 rounded-xl">
+        <AlertDialogHeader className="space-y-6">
+          <AlertDialogTitle className="text-center text-xl sm:text-2xl font-semibold">
+            Still There?
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-center space-y-3 sm:space-y-4 break-words">
-            <div className="text-base sm:text-lg">
-              The kiosk will automatically log you out in{' '}
-              <span className="font-bold text-destructive">
-                {remainingSeconds} seconds
-              </span>
+          <AlertDialogDescription className="text-center space-y-6">
+            <div className="space-y-2">
+              <div className="text-3xl sm:text-4xl font-bold text-foreground">
+                {remainingSeconds}s
+              </div>
+              <Progress value={progress} className="w-full h-2" />
             </div>
-            <Progress value={progress} className="w-full h-2 sm:h-3" />
-            <div className="text-sm text-muted-foreground">
-              This helps keep your account secure on shared devices.
-            </div>
+            <p className="text-base text-muted-foreground leading-relaxed">
+              Auto-logout in progress to keep your account secure
+            </p>
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="w-full flex-col gap-2 sm:flex-row sm:gap-3">
-          <AlertDialogCancel 
-            onClick={onSignOut}
-            className="w-full sm:w-auto text-sm sm:text-base whitespace-normal min-w-0"
+        <AlertDialogFooter className="flex-col gap-3 mt-6">
+          <AlertDialogAction 
+            onClick={onKeepLoggedIn}
+            className="w-full text-base py-6"
           >
-            Sign me out
-          </AlertDialogCancel>
+            Keep me logged in
+          </AlertDialogAction>
           <Button
             variant="outline"
             onClick={onSwitchToMobile}
-            className="w-full sm:w-auto text-sm sm:text-base whitespace-normal min-w-0"
+            className="w-full text-base py-6"
           >
             <Smartphone className="w-4 h-4 mr-2" />
             Switch to Mobile
           </Button>
-          <AlertDialogAction 
-            onClick={onKeepLoggedIn}
-            className="w-full sm:w-auto text-sm sm:text-base whitespace-normal min-w-0"
+          <AlertDialogCancel 
+            onClick={onSignOut}
+            className="w-full text-base py-6"
           >
-            Keep me logged in
-          </AlertDialogAction>
+            Sign out now
+          </AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
