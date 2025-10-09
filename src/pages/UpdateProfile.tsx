@@ -295,31 +295,6 @@ export default function UpdateProfile() {
           </div>
         </div>
 
-        <div className="bg-gray-100 my-8 py-1 w-full"></div>
-
-        {/* Style Preferences */}
-        <div className="mb-8">
-          <h3 className="font-medium mb-3">Style Preferences</h3>
-          <div className="bg-gray-200 py-px mb-4"></div>
-          <div className="grid grid-cols-2 gap-3">
-            {styles.map((style) => (
-              <div key={style} className="flex items-center gap-2">
-                <Checkbox
-                  checked={stylePreferences.includes(style)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setStylePreferences([...stylePreferences, style]);
-                    } else {
-                      setStylePreferences(stylePreferences.filter(s => s !== style));
-                    }
-                  }}
-                />
-                <label className="block text-md text-gray-600">{style}</label>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Save Button */}
         <Button
           onClick={handleSave}
