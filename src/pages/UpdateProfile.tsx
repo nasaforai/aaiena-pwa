@@ -259,78 +259,6 @@ export default function UpdateProfile() {
 
         <div className="bg-gray-100 my-8 py-1 w-full"></div>
 
-        {/* Gender */}
-        <div className="mb-10">
-          <h3 className="font-medium mb-3">Gender</h3>
-          <div className="flex space-x-3">
-            {["Male", "Female"].map((gender) => (
-              <button
-                key={gender}
-                onClick={() => setSelectedGender(gender)}
-                className={`px-10 py-2 rounded-xl font-medium ${
-                  selectedGender === gender
-                    ? "bg-gray-900 text-white"
-                    : "border border-gray-200 text-gray-700"
-                }`}
-              >
-                {gender}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Body Measurements */}
-        <div className="mb-6">
-          <h3 className="font-medium mb-3">Body Measurement (cm)</h3>
-          <div className="bg-gray-200 py-px mb-4"></div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Height (cm)</label>
-              <input
-                value={height}
-                type="number"
-                step="0.1"
-                inputMode="decimal"
-                onChange={(e) => setHeight(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg"
-                placeholder="177"
-              ></input>
-            </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Weight (kg)</label>
-              <input
-                value={weight}
-                type="number"
-                step="0.1"
-                inputMode="decimal"
-                onChange={(e) => setWeight(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg"
-                placeholder="60"
-              ></input>
-            </div>
-          </div>
-          
-          {/* Body Type - Only for Female */}
-          {selectedGender === "Female" && (
-            <div className="mt-4">
-              <label className="block text-sm text-gray-600 mb-2">Body Type</label>
-              <Select value={bodyType} onValueChange={setBodyType}>
-                <SelectTrigger className="w-full bg-white border-gray-300 rounded-lg">
-                  <SelectValue placeholder="Select body type" />
-                </SelectTrigger>
-                <SelectContent className="bg-white z-50">
-                  <SelectItem value="rectangle">Rectangle</SelectItem>
-                  <SelectItem value="triangle">Triangle</SelectItem>
-                  <SelectItem value="inverted">Inverted Triangle</SelectItem>
-                  <SelectItem value="diamond">Diamond</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-        </div>
-
-        <div className="bg-gray-100 my-8 py-1 w-full"></div>
-
         {/* Body Photos Section */}
         <div className="mb-6">
           <h3 className="font-medium mb-3">Body Photos</h3>
@@ -421,6 +349,78 @@ export default function UpdateProfile() {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="bg-gray-100 my-8 py-1 w-full"></div>
+
+        {/* Gender */}
+        <div className="mb-10">
+          <h3 className="font-medium mb-3">Gender</h3>
+          <div className="flex space-x-3">
+            {["Male", "Female"].map((gender) => (
+              <button
+                key={gender}
+                onClick={() => setSelectedGender(gender)}
+                className={`px-10 py-2 rounded-xl font-medium ${
+                  selectedGender === gender
+                    ? "bg-gray-900 text-white"
+                    : "border border-gray-200 text-gray-700"
+                }`}
+              >
+                {gender}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Body Measurements */}
+        <div className="mb-6">
+          <h3 className="font-medium mb-3">Body Measurement (cm)</h3>
+          <div className="bg-gray-200 py-px mb-4"></div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Height (cm)</label>
+              <input
+                value={height}
+                type="number"
+                step="0.1"
+                inputMode="decimal"
+                onChange={(e) => setHeight(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+                placeholder="177"
+              ></input>
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Weight (kg)</label>
+              <input
+                value={weight}
+                type="number"
+                step="0.1"
+                inputMode="decimal"
+                onChange={(e) => setWeight(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+                placeholder="60"
+              ></input>
+            </div>
+          </div>
+          
+          {/* Body Type - Only for Female */}
+          {selectedGender === "Female" && (
+            <div className="mt-4">
+              <label className="block text-sm text-gray-600 mb-2">Body Type</label>
+              <Select value={bodyType} onValueChange={setBodyType}>
+                <SelectTrigger className="w-full bg-white border-gray-300 rounded-lg">
+                  <SelectValue placeholder="Select body type" />
+                </SelectTrigger>
+                <SelectContent className="bg-white z-50">
+                  <SelectItem value="rectangle">Rectangle</SelectItem>
+                  <SelectItem value="triangle">Triangle</SelectItem>
+                  <SelectItem value="inverted">Inverted Triangle</SelectItem>
+                  <SelectItem value="diamond">Diamond</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
 
         <div className="bg-gray-100 my-8 py-1 w-full"></div>
