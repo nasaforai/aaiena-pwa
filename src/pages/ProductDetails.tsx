@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import { useNavigation } from "@/hooks/useNavigation";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import Topbar from "@/components/ui/topbar";
 import {
@@ -75,10 +76,8 @@ export default function ProductDetails() {
   const [quantity, setQuantity] = useState(1);
   const [sizeChartOpen, setSizeChartOpen] = useState(false);
   const [photoCheckDialogOpen, setPhotoCheckDialogOpen] = useState(false);
-  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-  const hasMeasurements = localStorage.getItem("hasMeasurements") === "true";
+  const { isAuthenticated, user, hasMeasurements, fromKiosk } = useAuth();
   const isMobile = useIsMobile();
-  const fromKiosk = localStorage.getItem("fromKiosk") === "true";
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isRoomDialogOpen, setIsRoomDialogOpen] = useState(false);
   const [isVirtualDialogOpen, setIsVirtualDialogOpen] = useState(false);
@@ -252,7 +251,7 @@ export default function ProductDetails() {
   };
 
   const handleBuyNow = () => {
-    if (isLoggedIn) {
+    if (isAuthenticated) {
       handleBuyNowAndAddToCart();
     } else {
       if (isMobile) {
@@ -273,7 +272,7 @@ export default function ProductDetails() {
 
   const handleAddToWishlist = () => {
     // Check authentication first
-    if (!isLoggedIn) {
+    if (!isAuthenticated) {
       if (isMobile) {
         navigate(`/sign-up?${createSearchParams({ back: "product-details" })}`);
       } else {
@@ -319,7 +318,7 @@ export default function ProductDetails() {
 
   const handleMySizeClick = () => {
     // Check if user is logged in
-    if (!isLoggedIn) {
+    if (!isAuthenticated) {
       if (isMobile) {
         navigate(`/sign-up?${createSearchParams({ back: "product-details" })}`);
       } else {
@@ -378,7 +377,7 @@ export default function ProductDetails() {
           />
         </button>
 
-        {isLoggedIn && product && (
+        {isAuthenticated && product && (
           <div className="absolute left-0 bottom-0 w-full p-3">
             <div className="bg-white/80 flex items-center justify-between p-4 rounded-xl">
               <div>
@@ -576,7 +575,7 @@ export default function ProductDetails() {
       </div>
 
       {/* Recommendation Section */}
-      {isLoggedIn && hasMeasurements && (
+      {isAuthenticated && hasMeasurements && (
         <div className="px-4 mb-4">
           <div className="flex items-center space-x-2 mb-3">
             <span className="font-medium text-gray-900">Recommendation</span>
@@ -586,7 +585,7 @@ export default function ProductDetails() {
           </div>
 
           {/* Size Chart */}
-          {isLoggedIn && (
+          {isAuthenticated && (
             <div className="bg-gradient-to-t from-[#F1E8FF] to-[#EBE1FD] rounded-2xl p-6 mb-4">
               <h3 className="font-semibold text-gray-900 mb-1 text-2xl flex justify-between">
                 <span> My Size</span>
@@ -701,7 +700,7 @@ export default function ProductDetails() {
       </Accordion>
 
       {/* Try Another Button */}
-      {isLoggedIn && (
+      {isAuthenticated && (
         <div className="px-4 mb-6">
           <Button
             variant="outline"
