@@ -30,13 +30,6 @@ export default function SignIn() {
   const { toast } = useToast();
   const { updateDeviceSession } = useDeviceSession();
 
-  // Persist device type if kiosk=true in URL
-  useEffect(() => {
-    if (window.location.search.includes('kiosk=true')) {
-      localStorage.setItem('deviceType', 'kiosk');
-    }
-  }, []);
-
   // Handle authenticated users with session_id or switch_session_id
   useEffect(() => {
     if (!loading && isAuthenticated && user) {
