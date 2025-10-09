@@ -180,48 +180,107 @@ export default function UpdateProfile() {
       setCameraLoading(true);
       setCurrentCaptureType(captureType);
       
-      console.log('Requesting camera access...');
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          facingMode: isKiosk ? 'environment' : 'user',
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        } 
-      });
+      // Check for camera support
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera not supported on this device');
+      }
       
-      console.log('Camera stream received');
+      console.log('Opening camera modal...');
+      // Show camera modal FIRST so videoRef gets mounted
+      setShowCamera(true);
+      
+      // Wait for the modal to mount and videoRef to be available
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      
+      console.log('Requesting camera access...');
+      
+      // Try multiple constraint configurations with fallbacks
+      let stream: MediaStream | null = null;
+      const constraintOptions = [
+        // Try environment camera first for kiosk (back camera)
+        { video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } },
+        // Fallback to user camera (front camera)
+        { video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } } },
+        // Fallback to basic video
+        { video: true }
+      ];
+      
+      for (const constraints of constraintOptions) {
+        try {
+          console.log('Trying constraints:', constraints);
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
+          console.log('Camera stream received with constraints:', constraints);
+          break;
+        } catch (err) {
+          console.log('Failed with constraints:', constraints, err);
+          if (constraints === constraintOptions[constraintOptions.length - 1]) {
+            throw err;
+          }
+        }
+      }
+      
+      if (!stream) {
+        throw new Error('Unable to access camera');
+      }
+      
       setCameraStream(stream);
       
       // Wait for video element to be ready
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        
-        // Wait for video metadata to load
-        await new Promise((resolve) => {
-          if (videoRef.current) {
-            videoRef.current.onloadedmetadata = () => {
-              console.log('Video metadata loaded');
-              resolve(true);
-            };
-          }
-        });
-        
-        // Try to play and handle any errors
-        try {
-          await videoRef.current.play();
-          console.log('Video playing successfully');
-          // Only show camera AFTER video starts playing
-          setShowCamera(true);
-        } catch (playError) {
-          console.error('Video play error:', playError);
-          throw new Error('Failed to start video playback');
+      if (!videoRef.current) {
+        throw new Error('Video element not available');
+      }
+      
+      videoRef.current.srcObject = stream;
+      
+      // Wait for video metadata to load
+      await new Promise<void>((resolve, reject) => {
+        if (!videoRef.current) {
+          reject(new Error('Video element lost'));
+          return;
         }
+        
+        const timeout = setTimeout(() => {
+          reject(new Error('Video metadata load timeout'));
+        }, 10000);
+        
+        videoRef.current.onloadedmetadata = () => {
+          clearTimeout(timeout);
+          console.log('Video metadata loaded');
+          resolve();
+        };
+      });
+      
+      // Try to play and handle any errors
+      try {
+        if (!videoRef.current) {
+          throw new Error('Video element lost');
+        }
+        await videoRef.current.play();
+        console.log('Video playing successfully');
+      } catch (playError) {
+        console.error('Video play error:', playError);
+        throw new Error('Failed to start video playback');
       }
     } catch (error) {
       console.error("Camera access error:", error);
+      
+      let errorMessage = "Unable to access camera. Please check permissions.";
+      if (error instanceof Error) {
+        if (error.message.includes('Permission denied') || error.name === 'NotAllowedError') {
+          errorMessage = "Camera permission denied. Please allow camera access.";
+        } else if (error.message.includes('not found') || error.name === 'NotFoundError') {
+          errorMessage = "No camera found on this device.";
+        } else if (error.message.includes('in use') || error.name === 'NotReadableError') {
+          errorMessage = "Camera is already in use by another application.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
         title: "Camera Error",
-        description: error instanceof Error ? error.message : "Unable to access camera. Please check permissions.",
+        description: errorMessage,
         variant: "destructive",
       });
       
@@ -230,6 +289,7 @@ export default function UpdateProfile() {
         cameraStream.getTracks().forEach(track => track.stop());
         setCameraStream(null);
       }
+      setShowCamera(false);
     } finally {
       setCameraLoading(false);
     }
@@ -275,6 +335,7 @@ export default function UpdateProfile() {
     }
     setShowCamera(false);
     setCurrentCaptureType(null);
+    setCameraLoading(false);
   };
 
   // Cleanup camera on unmount
@@ -410,10 +471,17 @@ export default function UpdateProfile() {
                     {isKiosk ? (
                       <button
                         onClick={() => startCamera('front')}
-                        className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50"
+                        disabled={cameraLoading}
+                        className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg ${
+                          cameraLoading 
+                            ? 'border-gray-200 cursor-not-allowed bg-gray-50 opacity-50' 
+                            : 'border-gray-300 cursor-pointer hover:bg-gray-50'
+                        }`}
                       >
-                        <Camera className="w-8 h-8 text-gray-400 mb-2" />
-                        <span className="text-sm text-gray-500">Take Photo</span>
+                        <Camera className={`w-8 h-8 mb-2 ${cameraLoading ? 'text-gray-300' : 'text-gray-400'}`} />
+                        <span className={`text-sm ${cameraLoading ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {cameraLoading ? 'Starting camera...' : 'Take Photo'}
+                        </span>
                       </button>
                     ) : (
                       <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
@@ -684,19 +752,31 @@ export default function UpdateProfile() {
 
           {/* Camera View */}
           <div className="flex-1 relative flex items-center justify-center">
-      <video
-        ref={videoRef}
-        autoPlay
-        playsInline
-        muted
-        className="max-w-full max-h-full object-contain"
-        style={{ transform: 'scaleX(-1)' }}
-      />
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="max-w-full max-h-full object-contain"
+              style={{ transform: 'scaleX(-1)' }}
+            />
+            
+            {/* Loading Overlay */}
+            {cameraLoading && (
+              <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mb-4 mx-auto"></div>
+                  <p className="text-white text-lg">Starting camera...</p>
+                </div>
+              </div>
+            )}
             
             {/* Overlay Guide */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-64 h-96 border-2 border-white/50 rounded-lg"></div>
-            </div>
+            {!cameraLoading && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-64 h-96 border-2 border-white/50 rounded-lg"></div>
+              </div>
+            )}
           </div>
 
           {/* Instructions & Capture Button */}
@@ -708,9 +788,14 @@ export default function UpdateProfile() {
             </p>
             <button
               onClick={capturePhoto}
-              className="w-full bg-white text-black py-4 rounded-xl font-medium hover:bg-gray-100"
+              disabled={cameraLoading}
+              className={`w-full py-4 rounded-xl font-medium ${
+                cameraLoading 
+                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+                  : 'bg-white text-black hover:bg-gray-100'
+              }`}
             >
-              Capture Photo
+              {cameraLoading ? 'Initializing...' : 'Capture Photo'}
             </button>
           </div>
 
