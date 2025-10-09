@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Camera, Clock, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useNavigation } from "@/hooks/useNavigation";
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAuthState } from "@/hooks/useAuthState";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import BottomNavigation from "@/components/BottomNavigation";
@@ -23,6 +24,7 @@ export default function UpdateProfile() {
   const navigate = useNavigate();
   const { navigateBack } = useNavigation();
   const { user } = useAuth();
+  const { isKiosk } = useAuthState();
   const { profile, loading, updateProfile } = useProfile();
   const { toast } = useToast();
   
@@ -42,6 +44,13 @@ export default function UpdateProfile() {
   const [sideImage, setSideImage] = useState<string | null>(null);
   const [uploadingFront, setUploadingFront] = useState(false);
   const [uploadingSide, setUploadingSide] = useState(false);
+  
+  // Camera capture states
+  const [showCamera, setShowCamera] = useState(false);
+  const [currentCaptureType, setCurrentCaptureType] = useState<'front' | 'side' | null>(null);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Load profile data when available
   useEffect(() => {
@@ -164,6 +173,87 @@ export default function UpdateProfile() {
     );
   };
 
+  // Camera functions
+  const startCamera = async (captureType: 'front' | 'side') => {
+    try {
+      setCurrentCaptureType(captureType);
+      
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          facingMode: 'user',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        } 
+      });
+      
+      setCameraStream(stream);
+      setShowCamera(true);
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+    } catch (error) {
+      console.error("Camera access error:", error);
+      toast({
+        title: "Camera Error",
+        description: "Unable to access camera. Please check permissions.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const capturePhoto = async () => {
+    if (!videoRef.current || !canvasRef.current || !currentCaptureType) return;
+    
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+    
+    if (!context) return;
+    
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      
+      const file = new File([blob], `${currentCaptureType}-${Date.now()}.jpg`, { 
+        type: 'image/jpeg' 
+      });
+      
+      stopCamera();
+      
+      await handleImageUpload(file, currentCaptureType);
+      
+      if (currentCaptureType === 'front' && isKiosk) {
+        setTimeout(() => {
+          startCamera('side');
+        }, 500);
+      }
+    }, 'image/jpeg', 0.9);
+  };
+
+  const stopCamera = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+    }
+    setShowCamera(false);
+    setCurrentCaptureType(null);
+  };
+
+  // Cleanup camera on unmount
+  useEffect(() => {
+    return () => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [cameraStream]);
+
   const shirtSizes = ["XS", "S", "M", "L", "XL", "XXL"];
   const styles = [
     "Smart",
@@ -284,20 +374,32 @@ export default function UpdateProfile() {
                     </button>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-                    <Camera className="w-8 h-8 text-gray-400 mb-2" />
-                    <span className="text-sm text-gray-500">Upload Front</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleImageUpload(file, 'front');
-                      }}
-                      disabled={uploadingFront}
-                    />
-                  </label>
+                  <>
+                    {isKiosk ? (
+                      <button
+                        onClick={() => startCamera('front')}
+                        className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50"
+                      >
+                        <Camera className="w-8 h-8 text-gray-400 mb-2" />
+                        <span className="text-sm text-gray-500">Take Photo</span>
+                      </button>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <Camera className="w-8 h-8 text-gray-400 mb-2" />
+                        <span className="text-sm text-gray-500">Upload Front</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(file, 'front');
+                          }}
+                          disabled={uploadingFront}
+                        />
+                      </label>
+                    )}
+                  </>
                 )}
                 {uploadingFront && (
                   <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
@@ -326,20 +428,39 @@ export default function UpdateProfile() {
                     </button>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-                    <Camera className="w-8 h-8 text-gray-400 mb-2" />
-                    <span className="text-sm text-gray-500">Upload Side</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleImageUpload(file, 'side');
-                      }}
-                      disabled={uploadingSide}
-                    />
-                  </label>
+                  <>
+                    {isKiosk ? (
+                      <button
+                        onClick={() => startCamera('side')}
+                        disabled={!frontImage}
+                        className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg ${
+                          frontImage 
+                            ? 'border-gray-300 cursor-pointer hover:bg-gray-50' 
+                            : 'border-gray-200 cursor-not-allowed bg-gray-50'
+                        }`}
+                      >
+                        <Camera className={`w-8 h-8 mb-2 ${frontImage ? 'text-gray-400' : 'text-gray-300'}`} />
+                        <span className={`text-sm ${frontImage ? 'text-gray-500' : 'text-gray-400'}`}>
+                          {frontImage ? 'Take Photo' : 'Capture front first'}
+                        </span>
+                      </button>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <Camera className="w-8 h-8 text-gray-400 mb-2" />
+                        <span className="text-sm text-gray-500">Upload Side</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(file, 'side');
+                          }}
+                          disabled={uploadingSide}
+                        />
+                      </label>
+                    )}
+                  </>
                 )}
                 {uploadingSide && (
                   <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
@@ -511,6 +632,58 @@ export default function UpdateProfile() {
 
       {/* Bottom Navigation */}
       <BottomNavigation />
+
+      {/* Camera Modal for Kiosk */}
+      {showCamera && isKiosk && (
+        <div className="fixed inset-0 z-50 bg-black flex flex-col">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 bg-black/50">
+            <button
+              onClick={stopCamera}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
+            <h2 className="text-white font-medium">
+              {currentCaptureType === 'front' ? 'Capture Front Photo' : 'Capture Side Photo'}
+            </h2>
+            <div className="w-10"></div>
+          </div>
+
+          {/* Camera View */}
+          <div className="flex-1 relative flex items-center justify-center">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              className="max-w-full max-h-full object-contain"
+            />
+            
+            {/* Overlay Guide */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-64 h-96 border-2 border-white/50 rounded-lg"></div>
+            </div>
+          </div>
+
+          {/* Instructions & Capture Button */}
+          <div className="p-6 bg-black/50">
+            <p className="text-white text-center mb-4">
+              {currentCaptureType === 'front' 
+                ? 'Stand facing the camera with arms slightly away from your body' 
+                : 'Turn to your side and stand naturally'}
+            </p>
+            <button
+              onClick={capturePhoto}
+              className="w-full bg-white text-black py-4 rounded-xl font-medium hover:bg-gray-100"
+            >
+              Capture Photo
+            </button>
+          </div>
+
+          {/* Hidden canvas for photo capture */}
+          <canvas ref={canvasRef} className="hidden" />
+        </div>
+      )}
     </div>
   );
 }
