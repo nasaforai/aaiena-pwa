@@ -31,10 +31,11 @@ export default function UpdateProfile() {
   const [bodyType, setBodyType] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "size-guide" | "style-rating">("profile");
+  const [isProfileLoaded, setIsProfileLoaded] = useState(false);
 
-  // Load profile data when available
+  // Load profile data when available (only once)
   useEffect(() => {
-    if (profile) {
+    if (profile && !isProfileLoaded) {
       setSelectedGender(profile.gender || "Male");
       setSelectedShirtSize(profile.shirt_size || "XL");
       setHeight(profile.height?.toString() || "");
@@ -44,8 +45,9 @@ export default function UpdateProfile() {
       setPantsSize(profile.pants_size?.toString() || "");
       setFullName(profile.full_name || user?.email || "");
       setBodyType(profile.body_type || "");
+      setIsProfileLoaded(true);
     }
-  }, [profile, user]);
+  }, [profile, user, isProfileLoaded]);
 
   const handleBack = () => {
     navigateBack("/profile");
