@@ -296,9 +296,15 @@ export default function Profile() {
             <CardTitle className="text-base">Body Measurements</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {profile && (profile.height || profile.weight || profile.chest || profile.waist) ? (
+            {profile && (profile.height || profile.weight || profile.gender) ? (
               <>
                 <div className="grid grid-cols-2 gap-4 text-sm">
+                  {profile.gender && (
+                    <div>
+                      <span className="text-gray-600">Gender:</span>
+                      <span className="ml-2 font-medium">{profile.gender}</span>
+                    </div>
+                  )}
                   {profile.height && (
                     <div>
                       <span className="text-gray-600">Height:</span>
@@ -309,18 +315,6 @@ export default function Profile() {
                     <div>
                       <span className="text-gray-600">Weight:</span>
                       <span className="ml-2 font-medium">{profile.weight} kg</span>
-                    </div>
-                  )}
-                  {profile.chest && (
-                    <div>
-                      <span className="text-gray-600">Chest:</span>
-                      <span className="ml-2 font-medium">{profile.chest} cm</span>
-                    </div>
-                  )}
-                  {profile.waist && (
-                    <div>
-                      <span className="text-gray-600">Waist:</span>
-                      <span className="ml-2 font-medium">{profile.waist} cm</span>
                     </div>
                   )}
                 </div>
@@ -358,23 +352,6 @@ export default function Profile() {
           </CardContent>
         </Card>
 
-        {/* Style Preferences */}
-        {profile?.style_preferences && profile.style_preferences.length > 0 && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="text-base">Style Preferences</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {profile.style_preferences.map((style, index) => (
-                  <Badge key={index} variant="secondary">
-                    {style}
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Menu Options */}
         <div className="space-y-2 mb-6">
