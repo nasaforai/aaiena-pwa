@@ -10,6 +10,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import BottomNavigation from "@/components/BottomNavigation";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function UpdateProfile() {
   const navigate = useNavigate();
@@ -26,6 +33,7 @@ export default function UpdateProfile() {
   const [waist, setWaist] = useState("");
   const [pantsSize, setPantsSize] = useState("");
   const [fullName, setFullName] = useState("");
+  const [bodyType, setBodyType] = useState("");
   const [stylePreferences, setStylePreferences] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "size-guide" | "style-rating">("profile");
@@ -41,6 +49,7 @@ export default function UpdateProfile() {
       setWaist(profile.waist?.toString() || "");
       setPantsSize(profile.pants_size?.toString() || "");
       setFullName(profile.full_name || user?.email || "");
+      setBodyType(profile.body_type || "");
       setStylePreferences(profile.style_preferences || []);
     }
   }, [profile, user]);
@@ -61,6 +70,7 @@ export default function UpdateProfile() {
         waist: waist ? parseFloat(waist) : null,
         pants_size: pantsSize ? parseFloat(pantsSize) : null,
         shirt_size: selectedShirtSize,
+        body_type: bodyType || null,
         style_preferences: stylePreferences,
       };
 
@@ -250,6 +260,24 @@ export default function UpdateProfile() {
               ></input>
             </div>
           </div>
+          
+          {/* Body Type - Only for Female */}
+          {selectedGender === "Female" && (
+            <div className="mt-4">
+              <label className="block text-sm text-gray-600 mb-2">Body Type</label>
+              <Select value={bodyType} onValueChange={setBodyType}>
+                <SelectTrigger className="w-full bg-white border-gray-300 rounded-lg">
+                  <SelectValue placeholder="Select body type" />
+                </SelectTrigger>
+                <SelectContent className="bg-white z-50">
+                  <SelectItem value="rectangle">Rectangle</SelectItem>
+                  <SelectItem value="triangle">Triangle</SelectItem>
+                  <SelectItem value="inverted">Inverted Triangle</SelectItem>
+                  <SelectItem value="diamond">Diamond</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
 
         <div className="bg-gray-100 my-8 py-1 w-full"></div>

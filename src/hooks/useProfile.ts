@@ -14,6 +14,7 @@ interface Profile {
   waist: number | null; // Now supports decimals
   pants_size: number | null; // Now supports decimals
   shirt_size: string | null;
+  body_type: string | null;
   style_preferences: string[] | null;
   photos: string[] | null;
   chest_inches: number | null;
@@ -45,7 +46,7 @@ export function useProfile() {
 
       if (error) throw error;
       
-      setProfile(data);
+      setProfile(data as Profile | null);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch profile');
@@ -68,7 +69,7 @@ export function useProfile() {
 
       if (error) throw error;
       
-      setProfile(data);
+      setProfile(data as Profile);
       return { data, error: null };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update profile';
@@ -93,7 +94,7 @@ export function useProfile() {
 
       if (error) throw error;
       
-      setProfile(data);
+      setProfile(data as Profile);
       return { data, error: null };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create profile';
