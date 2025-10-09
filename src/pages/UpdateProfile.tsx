@@ -55,6 +55,28 @@ export default function UpdateProfile() {
 
   const handleSave = async () => {
     setIsSaving(true);
+    
+    // Log authentication state
+    console.log('[UpdateProfile] Save initiated:', {
+      hasUser: !!user,
+      userId: user?.id,
+      hasProfile: !!profile,
+      profileId: profile?.id,
+      operation: profile ? 'update' : 'create'
+    });
+
+    // Check authentication
+    if (!user) {
+      console.error('[UpdateProfile] No authenticated user found');
+      toast({
+        title: "Error",
+        description: "You must be logged in to save your profile.",
+        variant: "destructive",
+      });
+      setIsSaving(false);
+      return;
+    }
+
     try {
       const profileData = {
         full_name: fullName,
@@ -68,18 +90,24 @@ export default function UpdateProfile() {
         body_type: bodyType || null,
       };
 
+      console.log('[UpdateProfile] Profile data to save:', profileData);
+
       // Check if profile exists - if not, create it; otherwise, update it
       const { error } = profile 
         ? await updateProfile(profileData)
         : await createProfile(profileData);
 
+      console.log('[UpdateProfile] Operation result:', { error, hasError: !!error });
+
       if (error) {
+        console.error('[UpdateProfile] Save failed:', error);
         toast({
           title: "Error",
           description: error,
           variant: "destructive",
         });
       } else {
+        console.log('[UpdateProfile] Save successful');
         toast({
           title: "Success",
           description: profile ? "Profile updated successfully!" : "Profile created successfully!",
@@ -87,9 +115,16 @@ export default function UpdateProfile() {
         navigate("/profile");
       }
     } catch (err) {
+      console.error('[UpdateProfile] Unexpected error during save:', {
+        error: err,
+        message: err instanceof Error ? err.message : 'Unknown error',
+        stack: err instanceof Error ? err.stack : undefined
+      });
+      
+      const errorMessage = err instanceof Error ? err.message : "Failed to save profile.";
       toast({
         title: "Error",
-        description: "Failed to save profile.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

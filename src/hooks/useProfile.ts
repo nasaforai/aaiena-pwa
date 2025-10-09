@@ -57,7 +57,19 @@ export function useProfile() {
   };
 
   const updateProfile = async (updates: Partial<Profile>) => {
-    if (!user || !profile) return { error: 'No user or profile found' };
+    console.log('[useProfile] updateProfile called:', {
+      hasUser: !!user,
+      userId: user?.id,
+      hasProfile: !!profile,
+      profileId: profile?.id,
+      updates
+    });
+
+    if (!user || !profile) {
+      const errorMsg = 'No user or profile found';
+      console.error('[useProfile] updateProfile failed:', errorMsg);
+      return { error: errorMsg };
+    }
 
     try {
       const { data, error } = await supabase
@@ -67,37 +79,88 @@ export function useProfile() {
         .select()
         .single();
 
+      console.log('[useProfile] Supabase update response:', {
+        hasData: !!data,
+        hasError: !!error,
+        error: error,
+        errorDetails: error ? {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        } : null
+      });
+
       if (error) throw error;
       
       setProfile(data);
+      console.log('[useProfile] Profile updated successfully');
       return { data, error: null };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update profile';
+      console.error('[useProfile] updateProfile exception:', {
+        error: err,
+        message: errorMessage,
+        isSupabaseError: err && typeof err === 'object' && 'code' in err
+      });
       setError(errorMessage);
       return { error: errorMessage };
     }
   };
 
   const createProfile = async (profileData: Partial<Profile>) => {
-    if (!user) return { error: 'No user found' };
+    console.log('[useProfile] createProfile called:', {
+      hasUser: !!user,
+      userId: user?.id,
+      userEmail: user?.email,
+      profileData
+    });
+
+    if (!user) {
+      const errorMsg = 'No user found';
+      console.error('[useProfile] createProfile failed:', errorMsg);
+      return { error: errorMsg };
+    }
 
     try {
+      const insertData = {
+        user_id: user.id,
+        full_name: profileData.full_name || user.email || 'User',
+        ...profileData
+      };
+      
+      console.log('[useProfile] Inserting profile data:', insertData);
+
       const { data, error } = await supabase
         .from('profiles')
-        .insert({
-          user_id: user.id,
-          full_name: profileData.full_name || user.email || 'User',
-          ...profileData
-        })
+        .insert(insertData)
         .select()
         .single();
+
+      console.log('[useProfile] Supabase insert response:', {
+        hasData: !!data,
+        hasError: !!error,
+        error: error,
+        errorDetails: error ? {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        } : null
+      });
 
       if (error) throw error;
       
       setProfile(data);
+      console.log('[useProfile] Profile created successfully');
       return { data, error: null };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create profile';
+      console.error('[useProfile] createProfile exception:', {
+        error: err,
+        message: errorMessage,
+        isSupabaseError: err && typeof err === 'object' && 'code' in err
+      });
       setError(errorMessage);
       return { error: errorMessage };
     }
