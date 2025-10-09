@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
-interface Profile {
+export interface Profile {
   id: string;
   user_id: string;
   full_name: string | null;
