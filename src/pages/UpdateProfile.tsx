@@ -249,30 +249,6 @@ export default function UpdateProfile() {
                 placeholder="60"
               ></input>
             </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Chest (cm)</label>
-              <input
-                value={chest}
-                type="number"
-                step="0.1"
-                inputMode="decimal"
-                onChange={(e) => setChest(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg"
-                placeholder="96"
-              ></input>
-            </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Waist (cm)</label>
-              <input
-                value={waist}
-                type="number"
-                step="0.1"
-                inputMode="decimal"
-                onChange={(e) => setWaist(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg"
-                placeholder="81"
-              ></input>
-            </div>
           </div>
         </div>
 
