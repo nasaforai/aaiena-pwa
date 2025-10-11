@@ -699,21 +699,6 @@ export default function ProductDetails() {
         </AccordionItem>
       </Accordion>
 
-      {/* Try Another Button */}
-      {isAuthenticated && (
-        <div className="px-4 mb-6">
-          <Button
-            variant="outline"
-            className="w-full py-6 rounded-xl font-medium border-gray-500"
-            onClick={() => {
-              setShowComingSoonDialog(true);
-            }}
-          >
-            Try Another
-          </Button>
-        </div>
-      )}
-
       <div className="mb-48"></div>
 
       {/* Bottom Action */}
