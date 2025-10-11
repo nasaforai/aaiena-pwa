@@ -403,6 +403,15 @@ export default function ProductDetails() {
                 <span>Size Guide</span>
               </button>
             )}
+            <Button
+              onClick={handleMySizeClick}
+              variant="outline"
+              size="sm"
+              className="ml-auto py-1 px-3 rounded-lg border-purple-300 text-purple-600 hover:bg-purple-50 hover:text-purple-700 font-medium text-sm"
+            >
+              <Ruler className="w-3 h-3 mr-1" />
+              My Size
+            </Button>
           </div>
           <div className="flex space-x-3">
             {variantsLoading ? (
@@ -451,17 +460,6 @@ export default function ProductDetails() {
             </div>
           </div>
 
-          {/* My Size Button */}
-          <div className="mt-4">
-            <Button
-              onClick={handleMySizeClick}
-              variant="outline"
-              className="w-full py-2 rounded-lg border-purple-300 text-purple-600 hover:bg-purple-50 hover:text-purple-700 font-medium"
-            >
-              <Ruler className="w-4 h-4 mr-2" />
-              My Size
-            </Button>
-          </div>
         </div>
       </div>
 
