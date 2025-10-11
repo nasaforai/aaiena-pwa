@@ -101,6 +101,85 @@ function convertProfileToMeasurements(profile: any): UserMeasurements {
 }
 
 /**
+ * Try virtually with real image processing - uses user's photos from profile
+ */
+export async function tryVirtuallyWithImages(
+  profile: any,
+  category?: string,
+  sizeChart?: SizeChartMeasurement[]
+): Promise<RecommendationResponse> {
+  try {
+    // Check if user has photos in profile
+    if (!profile.photos || profile.photos.length < 2) {
+      throw new Error('User profile must have at least 2 photos (front and side view) for accurate measurements');
+    }
+
+    // Assume first photo is front view, second is side view
+    const frontImageUrl = profile.photos[0];
+    const sideImageUrl = profile.photos[1];
+
+    // Validate required profile data
+    if (!profile.height) {
+      throw new Error('User height is required for measurement extraction');
+    }
+
+    if (!profile.gender) {
+      throw new Error('User gender is required for measurement extraction');
+    }
+
+    const height = profile.height || 170;
+    const weight = profile.weight || null;
+    
+    // Convert gender to backend format (M/F)
+    let gender = 'M'; // default
+    if (profile.gender) {
+      const genderUpper = profile.gender.toUpperCase();
+      if (genderUpper === 'FEMALE' || genderUpper === 'F') {
+        gender = 'F';
+      } else if (genderUpper === 'MALE' || genderUpper === 'M') {
+        gender = 'M';
+      }
+    }
+
+    // Prepare request data as JSON body
+    const requestData = {
+      front_image_url: frontImageUrl,
+      side_image_url: sideImageUrl,
+      height: height,
+      weight: weight,
+      gender: gender,
+      preferred_size: null,
+      body_type: null
+    };
+
+    console.log('Sending try virtually request with images:', requestData);
+
+    const response = await fetch(`${API_BASE_URL}/try-virtually-with-image-urls`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      try {
+        const errorData = JSON.parse(errorText);
+        throw new Error(errorData.detail || 'Virtual try-on with images failed');
+      } catch {
+        throw new Error(`API request failed with status ${response.status}: ${errorText}`);
+      }
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+/**
  * Try virtually - specific endpoint for virtual try-on functionality
  */
 export async function tryVirtually(

@@ -28,7 +28,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useProducts, useProduct } from "@/hooks/useProducts";
 import { useProfile } from "@/hooks/useProfile";
 import { useProductSizeChart } from "@/hooks/useProductSizeChart";
-import { getSizeRecommendations, SizeRecommendation as ApiSizeRecommendation, checkApiHealth, tryVirtually } from "@/lib/sizingApi";
+import { getSizeRecommendations, SizeRecommendation as ApiSizeRecommendation, checkApiHealth, tryVirtually, tryVirtuallyWithImages } from "@/lib/sizingApi";
 import { useToast } from "@/hooks/use-toast";
 
 export default function TryVirtually() {
@@ -94,10 +94,10 @@ export default function TryVirtually() {
 
   const availableSizes = getAvailableSizes();
 
-  // Background API recommendations fetch (silent)
+  // Background API recommendations fetch (with real image processing when possible)
   useEffect(() => {
     const fetchRecommendations = async () => {
-      if (!profile || !hasMeasurements || !sizeChart) {
+      if (!profile || !hasMeasurements) {
         return;
       }
 
@@ -112,14 +112,52 @@ export default function TryVirtually() {
           return;
         }
 
-        // Convert size chart to API format
-        const apiSizeChart = convertSizeChartToApiFormat(sizeChart);
+        let response;
         
-        const response = await tryVirtually(
-          profile,
-          'T-shirt',
-          apiSizeChart
-        );
+        // Check if user has photos for real image processing
+        const hasPhotos = profile.photos && profile.photos.length >= 2;
+        const hasRequiredData = profile.height;
+        
+        if (hasPhotos && hasRequiredData && profile.gender) {
+          console.log('🎯 Using REAL image processing with U2Net + MediaPipe');
+          console.log('📸 Front photo:', profile.photos[0]);
+          console.log('📸 Side photo:', profile.photos[1]);
+          
+          // Show user that we're using their real photos
+          toast({
+            title: "🎯 AI Photo Analysis Active",
+            description: "Using your profile photos for real measurements via U2Net + MediaPipe!",
+          });
+          
+          // Convert size chart to API format
+          const apiSizeChart = convertSizeChartToApiFormat(sizeChart);
+          
+          // Use real image processing
+          response = await tryVirtuallyWithImages(
+            profile,
+            'T-shirt',
+            apiSizeChart
+          );
+          
+          console.log('✅ Got real measurements from images!');
+        } else {
+          console.log('📝 Using profile measurements (no photos or missing data)');
+          console.log('Missing:', {
+            photos: !hasPhotos,
+            height: !hasRequiredData,
+            gender: !profile.gender
+          });
+          
+          // Convert size chart to API format
+          const apiSizeChart = convertSizeChartToApiFormat(sizeChart);
+          
+          // Fallback to profile measurements
+          response = await tryVirtually(
+            profile,
+            'T-shirt',
+            apiSizeChart
+          );
+        }
         
         setApiRecommendations(response.recommendations);
         
@@ -131,6 +169,7 @@ export default function TryVirtually() {
           setSelectedSize(bestRecommendation.size);
         }
       } catch (error) {
+        console.error('Error getting recommendations:', error);
         // Silent fail - don't disrupt user experience
       } finally {
         setLoading(false);
