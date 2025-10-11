@@ -264,7 +264,7 @@ export default function ProductDetails() {
   };
 
   const handleTryVirtually = () => {
-    setShowComingSoonDialog(true);
+    navigate(`/try-virtually?id=${productId}`);
   };
 
   const handleJoinRoom = () => {
