@@ -42,6 +42,8 @@ export default function TryVirtually() {
   const [apiRecommendations, setApiRecommendations] = useState<ApiSizeRecommendation[]>([]);
   const [loading, setLoading] = useState(false);
   const [apiAvailable, setApiAvailable] = useState(false);
+  const [recommendationsFetched, setRecommendationsFetched] = useState(false);
+  const [hasRealResults, setHasRealResults] = useState(false);
   
   // Use actual Supabase auth state but fallback to localStorage for this simple UI
   const { data: allProducts = [] } = useProducts();
@@ -97,7 +99,18 @@ export default function TryVirtually() {
   // Background API recommendations fetch (with real image processing when possible)
   useEffect(() => {
     const fetchRecommendations = async () => {
-      if (!profile || !hasMeasurements) {
+      // Prevent multiple API calls - only run once per profile/product combination
+      if (!profile || !hasMeasurements || recommendationsFetched || loading) {
+        return;
+      }
+
+      // Create a cache key to prevent duplicate calls for the same data
+      const cacheKey = `${profile.id || 'unknown'}_${productId || 'default'}_${profile.photos?.length || 0}`;
+      const lastCacheKey = sessionStorage.getItem('tryVirtually_cacheKey');
+      
+      if (lastCacheKey === cacheKey) {
+        console.log('🔄 Using cached recommendations to prevent duplicate API calls');
+        setRecommendationsFetched(true);
         return;
       }
 
@@ -109,6 +122,7 @@ export default function TryVirtually() {
         setApiAvailable(isApiHealthy);
         
         if (!isApiHealthy) {
+          setRecommendationsFetched(true);
           return;
         }
 
@@ -140,6 +154,7 @@ export default function TryVirtually() {
           );
           
           console.log('✅ Got real measurements from images!');
+          setHasRealResults(true);
         } else {
           console.log('📝 Using profile measurements (no photos or missing data)');
           console.log('Missing:', {
@@ -157,6 +172,8 @@ export default function TryVirtually() {
             'T-shirt',
             apiSizeChart
           );
+          
+          setHasRealResults(false);
         }
         
         setApiRecommendations(response.recommendations);
@@ -168,8 +185,13 @@ export default function TryVirtually() {
           );
           setSelectedSize(bestRecommendation.size);
         }
+        
+        // Cache this successful result
+        sessionStorage.setItem('tryVirtually_cacheKey', cacheKey);
+        setRecommendationsFetched(true);
       } catch (error) {
         console.error('Error getting recommendations:', error);
+        setRecommendationsFetched(true);
         // Silent fail - don't disrupt user experience
       } finally {
         setLoading(false);
@@ -177,7 +199,7 @@ export default function TryVirtually() {
     };
 
     fetchRecommendations();
-  }, [profile, sizeChart, hasMeasurements]);
+  }, [profile, sizeChart, hasMeasurements, recommendationsFetched, loading, productId]);
 
   // Chart data for size visualization
   const sizeChartData = [
@@ -295,6 +317,13 @@ export default function TryVirtually() {
 
   // Get best fit from API recommendations or use default
   const getBestFit = () => {
+    if (loading && !recommendationsFetched) {
+      return {
+        size: "...",
+        description: "Analyzing your measurements..."
+      };
+    }
+    
     if (apiRecommendations.length > 0) {
       const best = apiRecommendations[0];
       return {
@@ -311,6 +340,13 @@ export default function TryVirtually() {
   };
 
   const getAlternateFit = () => {
+    if (loading && !recommendationsFetched) {
+      return {
+        size: "...",
+        description: "Finding alternative options..."
+      };
+    }
+    
     if (apiRecommendations.length > 1) {
       const alt = apiRecommendations[1];
       return {
@@ -493,31 +529,58 @@ export default function TryVirtually() {
 
               {/* Best Fit */}
               <div className="bg-purple-200 rounded-xl p-4 mb-4 mt-10">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-900">
-                    <span className="font-medium">Best Fit:</span>
-                    <span className="bg-orange-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
-                      {bestFit.size} Size
+                {loading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+                    <span className="ml-2 text-sm text-gray-600">
+                      {hasRealResults ? "Analyzing your photos with AI..." : "Getting your size recommendation..."}
                     </span>
-                  </span>
-                </div>
-                <p className="text-xs text-gray-600 mt-2">
-                  {bestFit.description}
-                </p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-900">
+                        <span className="font-medium">
+                          {hasRealResults ? "🎯 AI Analyzed Fit:" : "Best Fit:"}
+                        </span>
+                        <span className="bg-orange-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
+                          {bestFit.size} Size
+                        </span>
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-2">
+                      {bestFit.description}
+                    </p>
+                    {hasRealResults && (
+                      <p className="text-xs text-purple-600 mt-2 font-medium">
+                        ✨ Based on U2Net + MediaPipe analysis of your photos
+                      </p>
+                    )}
+                  </>
+                )}
               </div>
 
               <div className="bg-white rounded-xl p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-900">
-                    <span className="font-medium">Other Fit:</span>
-                    <span className="bg-purple-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
-                      {alternateFit.size} Size
-                    </span>
-                  </span>
-                </div>
-                <p className="text-xs text-gray-600 mt-2">
-                  {alternateFit.description}
-                </p>
+                {loading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+                    <span className="ml-2 text-sm text-gray-400">Loading alternative...</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-900">
+                        <span className="font-medium">Other Fit:</span>
+                        <span className="bg-purple-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
+                          {alternateFit.size} Size
+                        </span>
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-2">
+                      {alternateFit.description}
+                    </p>
+                  </>
+                )}
               </div>
 
               <p className="text-xs text-gray-500 mt-4 ml-2">
