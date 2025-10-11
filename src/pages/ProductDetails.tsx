@@ -377,28 +377,6 @@ export default function ProductDetails() {
           />
         </button>
 
-        {isAuthenticated && product && (
-          <div className="absolute left-0 bottom-0 w-full p-3">
-            <div className="bg-white/80 flex items-center justify-between p-4 rounded-xl">
-              <div>
-                <p className="text-sm max-w-40">
-                  {product.name}
-                </p>
-              </div>
-              <div className="flex flex-col justify-center">
-                <div className="text-xs flex flex-nowrap gap-1 items-center">
-                  <span className="text-lg">₹{product.price}</span>
-                </div>
-                <button
-                  className="bg-[#12002C] hover:bg-black/80 rounded-md text-white text-sm px-5 py-1"
-                  onClick={handleBuyNowAndAddToCart}
-                >
-                  Buy Now
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Product Info */}
