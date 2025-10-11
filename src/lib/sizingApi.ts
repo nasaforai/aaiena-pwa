@@ -35,10 +35,12 @@ export interface UserMeasurements {
 
 export interface SizeChartMeasurement {
   size_label: string;
-  chest_inches?: number | string;
-  waist_inches?: number | string;
-  shoulder_inches?: number | string;
-  hips_inches?: number | string;
+  chest_inches?: number;
+  waist_inches?: number;
+  shoulder_inches?: number;
+  hips_inches?: number;
+  length_inches?: number;
+  inseam_inches?: number;
 }
 
 export interface SizeRecommendation {
@@ -51,6 +53,7 @@ export interface SizeRecommendation {
 export interface RecommendationRequest {
   measurements: UserMeasurements;
   category?: string;
+  size_chart?: SizeChartMeasurement[];
 }
 
 export interface RecommendationResponse {
@@ -102,14 +105,16 @@ function convertProfileToMeasurements(profile: any): UserMeasurements {
  */
 export async function tryVirtually(
   profile: any,
-  category?: string
+  category?: string,
+  sizeChart?: SizeChartMeasurement[]
 ): Promise<RecommendationResponse> {
   try {
     const measurements = convertProfileToMeasurements(profile);
     
     const request: RecommendationRequest = {
       measurements,
-      category: category || 'T-shirt'
+      category: category || 'T-shirt',
+      size_chart: sizeChart
     };
 
     const response = await fetch(`${API_BASE_URL}/try-virtually`, {

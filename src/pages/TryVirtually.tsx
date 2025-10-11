@@ -43,47 +43,82 @@ export default function TryVirtually() {
   const [loading, setLoading] = useState(false);
   const [apiAvailable, setApiAvailable] = useState(false);
   
-  // Use actual Supabase auth state instead of localStorage
+  // Use actual Supabase auth state but fallback to localStorage for this simple UI
   const { data: allProducts = [] } = useProducts();
   const { data: product, isLoading: productLoading } = useProduct(productId || "");
   const { profile } = useProfile();
   const { data: sizeChart, isLoading: sizeChartLoading } = useProductSizeChart(productId);
   
   // Check real authentication state
-  const isLoggedIn = !!profile; // User is logged in if profile exists
+  const isLoggedIn = !!profile || localStorage.getItem("isLoggedIn") === "true";
   const hasMeasurements = !!(profile && (
     profile.chest_inches || 
     profile.waist_inches || 
     profile.shoulder_inches || 
     profile.hip_inches ||
     profile.height
-  )); // User has measurements if any measurement field exists
+  )) || localStorage.getItem("hasMeasurements") === "true";
   
   const isMobile = useIsMobile();
   const { toast } = useToast();
 
-  // Get size recommendations from API when component loads
+  // Convert size chart data to API format
+  const convertSizeChartToApiFormat = (sizeChart: any) => {
+    if (!sizeChart?.measurements) return undefined;
+    
+    return sizeChart.measurements.map((measurement: any) => ({
+      size_label: measurement.size_label,
+      chest_inches: measurement.chest_inches,
+      waist_inches: measurement.waist_inches,
+      shoulder_inches: measurement.shoulder_inches,
+      hips_inches: measurement.hips_inches,
+      length_inches: measurement.length_inches,
+      inseam_inches: measurement.inseam_inches,
+    }));
+  };
+
+  // Get available sizes - prioritize size chart, then product sizes, then default sizes
+  const getAvailableSizes = () => {
+    if (sizeChart?.measurements && sizeChart.measurements.length > 0) {
+      // Extract sizes from size chart and sort them in standard order
+      const sizeChartSizes = sizeChart.measurements.map(m => m.size_label);
+      const sizeOrder = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+      return sizeChartSizes.sort((a, b) => {
+        const aIndex = sizeOrder.indexOf(a);
+        const bIndex = sizeOrder.indexOf(b);
+        return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+      });
+    }
+    return product?.sizes || sizes;
+  };
+
+  const availableSizes = getAvailableSizes();
+
+  // Background API recommendations fetch (silent)
   useEffect(() => {
     const fetchRecommendations = async () => {
-      if (!profile || !isLoggedIn || !hasMeasurements) {
-        return;
-      }
-
-      setLoading(true);
-      
-      // Check if API is available
-      const isApiHealthy = await checkApiHealth();
-      setApiAvailable(isApiHealthy);
-      
-      if (!isApiHealthy) {
-        setLoading(false);
+      if (!profile || !hasMeasurements || !sizeChart) {
         return;
       }
 
       try {
+        setLoading(true);
+        
+        // Check if API is available
+        const isApiHealthy = await checkApiHealth();
+        setApiAvailable(isApiHealthy);
+        
+        if (!isApiHealthy) {
+          return;
+        }
+
+        // Convert size chart to API format
+        const apiSizeChart = convertSizeChartToApiFormat(sizeChart);
+        
         const response = await tryVirtually(
           profile,
-          'T-shirt' // Default category - could be dynamic based on product
+          'T-shirt',
+          apiSizeChart
         );
         
         setApiRecommendations(response.recommendations);
@@ -96,21 +131,16 @@ export default function TryVirtually() {
           setSelectedSize(bestRecommendation.size);
         }
       } catch (error) {
-        console.error('Failed to get size recommendations:', error);
-        toast({
-          title: "Recommendation Error",
-          description: "Failed to get size recommendations. Using default sizes.",
-          variant: "destructive",
-        });
+        // Silent fail - don't disrupt user experience
       } finally {
         setLoading(false);
       }
     };
 
     fetchRecommendations();
-  }, [profile, sizeChart, isLoggedIn, hasMeasurements, toast]);
+  }, [profile, sizeChart, hasMeasurements]);
 
-  // Chart data for size visualization - updated with API data if available
+  // Chart data for size visualization
   const sizeChartData = [
     { name: "Small", value: 25, fill: "#FFD188" },
     { name: "Medium", value: 50, fill: "#FF98D4" },
@@ -224,6 +254,42 @@ export default function TryVirtually() {
 
   const sizes = ["XS", "S", "M", "L", "XL"];
 
+  // Get best fit from API recommendations or use default
+  const getBestFit = () => {
+    if (apiRecommendations.length > 0) {
+      const best = apiRecommendations[0];
+      return {
+        size: best.size,
+        description: best.rating === 'Perfect' 
+          ? `We recommend ${best.size} as the perfect fit for you—it offers optimal comfort and style.`
+          : `We recommend ${best.size} as the best fit for you—it offers a comfortable and well-balanced look.`
+      };
+    }
+    return {
+      size: "Large",
+      description: "We recommend Large \"L\" as the best fit for you—it offers a comfortable and well-balanced look."
+    };
+  };
+
+  const getAlternateFit = () => {
+    if (apiRecommendations.length > 1) {
+      const alt = apiRecommendations[1];
+      return {
+        size: alt.size,
+        description: alt.rating === 'Tight' 
+          ? `${alt.size} could feel a bit snug. Great if you like tighter-fitting clothes.`
+          : `${alt.size} as an alternative fit option for you.`
+      };
+    }
+    return {
+      size: "Medium",
+      description: "Medium as the right fit for you—it could feel a bit snug. Great if you like tighter-fitting clothes."
+    };
+  };
+
+  const bestFit = getBestFit();
+  const alternateFit = getAlternateFit();
+
   return (
     <div className="bg-white flex lg:lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
       {/* Header */}
@@ -243,21 +309,20 @@ export default function TryVirtually() {
           <Heart className="w-5 h-5 text-gray-600" />
         </button>
 
-        {isLoggedIn && product && (
+        {isLoggedIn && (
           <div className="absolute left-0 bottom-0 w-full p-3">
             <div className="bg-white/80 flex items-center justify-between p-4 rounded-xl">
               <div>
                 <p className="text-sm max-w-40">
-                  {product.name}
+                  {product?.name || "Miss Chase Women's V-Neck Maxi Dress"}
                 </p>
               </div>
               <div className="flex flex-col justify-center">
                 <div className="text-xs flex flex-nowrap gap-1 items-center">
-                  {/* Show original price if on offer */}
-                  {product.is_on_offer && (
+                  {product?.is_on_offer && (
                     <span className="text-gray-400 line-through">₹{Math.round(product.price * 1.4)}</span>
                   )}
-                  <span className="text-lg">₹{product.price}</span>
+                  <span className="text-lg">₹{product?.price || 500}</span>
                   <span className="text-gray-400">50% off</span>
                 </div>
                 <button
@@ -283,7 +348,7 @@ export default function TryVirtually() {
           )}
           <span className="text-3xl font-semibold text-gray-900">₹{product?.price || 700}</span>
           {product?.is_on_offer && (
-            <span className="text-sm text-green-600 font-medium">30% OFF</span>
+            <span className="text-sm text-green-600 font-medium">50% OFF</span>
           )}
         </div>
       </div>
@@ -293,7 +358,7 @@ export default function TryVirtually() {
         <div className="px-4 mb-4">
           <span className="font-medium text-gray-900 mb-3 block">Sizes:</span>
           <div className="flex space-x-3">
-            {(product?.sizes || sizes).map((size) => (
+            {availableSizes.map((size) => (
               <button
                 key={size}
                 onClick={() => setSelectedSize(size)}
@@ -320,7 +385,7 @@ export default function TryVirtually() {
                     ? color === 'white' 
                       ? 'bg-white border-2 border-gray-300' 
                       : `bg-${color}-300`
-                    : color.bgClass
+                    : color.bg
                 } ${
                   selectedColor === (typeof color === 'string' ? color : color.name) ? "ring-2 ring-purple-500" : ""
                 }`}
@@ -350,23 +415,6 @@ export default function TryVirtually() {
               <p className="text-sm text-gray-600">
                 Tailored to match your exact measurements
               </p>
-
-              {/* API Status Notice */}
-              {!apiAvailable && isLoggedIn && hasMeasurements && (
-                <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-3 mt-3 mb-3">
-                  <p className="text-xs text-yellow-800">
-                    📡 Advanced sizing API not available. Using standard size recommendations.
-                  </p>
-                </div>
-              )}
-              
-              {apiAvailable && isLoggedIn && hasMeasurements && (
-                <div className="bg-green-100 border border-green-300 rounded-lg p-3 mt-3 mb-3">
-                  <p className="text-xs text-green-800">
-                    ✅ AI-powered size recommendations active
-                  </p>
-                </div>
-              )}
 
               {/* Radial Chart */}
               <div className="flex justify-center">
@@ -404,94 +452,34 @@ export default function TryVirtually() {
                 </div>
               </div>
 
-              {/* Loading State */}
-              {loading && (
-                <div className="bg-purple-100 rounded-xl p-4 mb-4 mt-10">
-                  <div className="flex items-center justify-center">
-                    <span className="text-gray-600">Getting your size recommendations...</span>
-                  </div>
+              {/* Best Fit */}
+              <div className="bg-purple-200 rounded-xl p-4 mb-4 mt-10">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-900">
+                    <span className="font-medium">Best Fit:</span>
+                    <span className="bg-orange-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
+                      {bestFit.size} Size
+                    </span>
+                  </span>
                 </div>
-              )}
+                <p className="text-xs text-gray-600 mt-2">
+                  {bestFit.description}
+                </p>
+              </div>
 
-              {/* Best Fit - API Results */}
-              {!loading && apiRecommendations.length > 0 && (
-                <>
-                  <div className="bg-purple-200 rounded-xl p-4 mb-4 mt-10">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-900">
-                        <span className="font-medium">Best Fit:</span>
-                        <span className="bg-orange-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
-                          {apiRecommendations[0]?.size || 'Large'} Size
-                        </span>
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-600 mt-2">
-                      {apiRecommendations[0]?.rating === 'Perfect' 
-                        ? `We recommend ${apiRecommendations[0]?.size} as the perfect fit for you—it offers optimal comfort and style.`
-                        : `We recommend ${apiRecommendations[0]?.size} as the best fit for you—it offers a comfortable and well-balanced look.`}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Confidence Score: {Math.round((apiRecommendations[0]?.score || 0) * 10)}%
-                    </p>
-                  </div>
-
-                  {apiRecommendations.length > 1 && (
-                    <div className="bg-white rounded-xl p-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-900">
-                          <span className="font-medium">Alternative Fit:</span>
-                          <span className="bg-purple-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
-                            {apiRecommendations[1]?.size} Size
-                          </span>
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-600 mt-2">
-                        {apiRecommendations[1]?.rating === 'Tight' 
-                          ? `${apiRecommendations[1]?.size} could feel a bit snug. Great if you like tighter-fitting clothes.`
-                          : `${apiRecommendations[1]?.size} as an alternative fit option for you.`}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Confidence Score: {Math.round((apiRecommendations[1]?.score || 0) * 10)}%
-                      </p>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* Fallback for no API data */}
-              {!loading && apiRecommendations.length === 0 && (
-                <>
-                  <div className="bg-purple-200 rounded-xl p-4 mb-4 mt-10">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-900">
-                        <span className="font-medium">Best Fit:</span>
-                        <span className="bg-orange-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
-                          Large Size
-                        </span>
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-600 mt-2">
-                      We recommend Large "L" as the best fit for you—it offers a
-                      comfortable and well-balanced look.
-                    </p>
-                  </div>
-
-                  <div className="bg-white rounded-xl p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-900">
-                        <span className="font-medium">Other Fit:</span>
-                        <span className="bg-purple-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
-                          Medium Size
-                        </span>
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-600 mt-2">
-                      Medium as the right fit for you—it could feel a bit snug.
-                      Great if you like tighter-fitting clothes.
-                    </p>
-                  </div>
-                </>
-              )}
+              <div className="bg-white rounded-xl p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-900">
+                    <span className="font-medium">Other Fit:</span>
+                    <span className="bg-purple-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
+                      {alternateFit.size} Size
+                    </span>
+                  </span>
+                </div>
+                <p className="text-xs text-gray-600 mt-2">
+                  {alternateFit.description}
+                </p>
+              </div>
 
               <p className="text-xs text-gray-500 mt-4 ml-2">
                 *95% users said true to size
@@ -644,13 +632,6 @@ export default function TryVirtually() {
             >
               Buy Now
             </Button>
-
-            {/* <Button
-              onClick={handleBuyNow}
-              className="flex-1 px-6 bg-gray-900 text-white py-3 rounded-lg font-medium"
-            >
-              Try Virtually
-            </Button> */}
           </div>
         </div>
       </div>
