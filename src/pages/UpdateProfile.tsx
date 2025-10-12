@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import BottomNavigation from "@/components/BottomNavigation";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Select,
   SelectContent,
@@ -25,6 +26,7 @@ export default function UpdateProfile() {
   const { navigateBack } = useNavigation();
   const { user } = useAuth();
   const { isKiosk } = useAuthState();
+  const isMobile = useIsMobile();
   const { profile, loading, updateProfile } = useProfile();
   const { toast } = useToast();
   
@@ -478,21 +480,23 @@ export default function UpdateProfile() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {/* Camera Button */}
-                    <button
-                      onClick={() => startCamera('front')}
-                      disabled={cameraLoading}
-                      className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg ${
-                        cameraLoading 
-                          ? 'border-gray-200 cursor-not-allowed bg-gray-50 opacity-50' 
-                          : 'border-gray-300 cursor-pointer hover:bg-gray-50'
-                      }`}
-                    >
-                      <Camera className={`w-6 h-6 mb-1 ${cameraLoading ? 'text-gray-300' : 'text-gray-400'}`} />
-                      <span className={`text-xs ${cameraLoading ? 'text-gray-400' : 'text-gray-500'}`}>
-                        {cameraLoading ? 'Starting camera...' : 'Take Photo'}
-                      </span>
-                    </button>
+                    {/* Camera Button - Hidden on Mobile */}
+                    {!isMobile && (
+                      <button
+                        onClick={() => startCamera('front')}
+                        disabled={cameraLoading}
+                        className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg ${
+                          cameraLoading 
+                            ? 'border-gray-200 cursor-not-allowed bg-gray-50 opacity-50' 
+                            : 'border-gray-300 cursor-pointer hover:bg-gray-50'
+                        }`}
+                      >
+                        <Camera className={`w-6 h-6 mb-1 ${cameraLoading ? 'text-gray-300' : 'text-gray-400'}`} />
+                        <span className={`text-xs ${cameraLoading ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {cameraLoading ? 'Starting camera...' : 'Take Photo'}
+                        </span>
+                      </button>
+                    )}
                     
                     {/* File Upload Button */}
                     <label className="flex flex-col items-center justify-center w-full h-14 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
@@ -541,21 +545,23 @@ export default function UpdateProfile() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {/* Camera Button */}
-                    <button
-                      onClick={() => startCamera('side')}
-                      disabled={cameraLoading}
-                      className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg ${
-                        cameraLoading 
-                          ? 'border-gray-200 cursor-not-allowed bg-gray-50 opacity-50' 
-                          : 'border-gray-300 cursor-pointer hover:bg-gray-50'
-                      }`}
-                    >
-                      <Camera className={`w-6 h-6 mb-1 ${cameraLoading ? 'text-gray-300' : 'text-gray-400'}`} />
-                      <span className={`text-xs ${cameraLoading ? 'text-gray-400' : 'text-gray-500'}`}>
-                        {cameraLoading ? 'Starting camera...' : 'Take Photo'}
-                      </span>
-                    </button>
+                    {/* Camera Button - Hidden on Mobile */}
+                    {!isMobile && (
+                      <button
+                        onClick={() => startCamera('side')}
+                        disabled={cameraLoading}
+                        className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg ${
+                          cameraLoading 
+                            ? 'border-gray-200 cursor-not-allowed bg-gray-50 opacity-50' 
+                            : 'border-gray-300 cursor-pointer hover:bg-gray-50'
+                        }`}
+                      >
+                        <Camera className={`w-6 h-6 mb-1 ${cameraLoading ? 'text-gray-300' : 'text-gray-400'}`} />
+                        <span className={`text-xs ${cameraLoading ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {cameraLoading ? 'Starting camera...' : 'Take Photo'}
+                        </span>
+                      </button>
+                    )}
                     
                     {/* File Upload Button */}
                     <label className="flex flex-col items-center justify-center w-full h-14 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
