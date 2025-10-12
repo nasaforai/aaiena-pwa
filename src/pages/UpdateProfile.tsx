@@ -498,23 +498,25 @@ export default function UpdateProfile() {
                       </button>
                     )}
                     
-                    {/* File Upload Button */}
-                    <label className="flex flex-col items-center justify-center w-full h-14 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
-                      <div className="flex items-center space-x-2">
-                        <Upload className="w-4 h-4 text-gray-400" />
-                        <span className="text-xs text-gray-500">Choose from folder</span>
-                      </div>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handleImageUpload(file, 'front');
-                        }}
-                        disabled={uploadingFront}
-                      />
-                    </label>
+                    {/* File Upload Button - Hidden on Kiosk */}
+                    {!isKiosk && (
+                      <label className="flex flex-col items-center justify-center w-full h-14 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
+                        <div className="flex items-center space-x-2">
+                          <Upload className="w-4 h-4 text-gray-400" />
+                          <span className="text-xs text-gray-500">Choose from folder</span>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(file, 'front');
+                          }}
+                          disabled={uploadingFront}
+                        />
+                      </label>
+                    )}
                   </div>
                 )}
                 {uploadingFront && (
@@ -563,23 +565,25 @@ export default function UpdateProfile() {
                       </button>
                     )}
                     
-                    {/* File Upload Button */}
-                    <label className="flex flex-col items-center justify-center w-full h-14 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
-                      <div className="flex items-center space-x-2">
-                        <Upload className="w-4 h-4 text-gray-400" />
-                        <span className="text-xs text-gray-500">Choose from folder</span>
-                      </div>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handleImageUpload(file, 'side');
-                        }}
-                        disabled={uploadingSide}
-                      />
-                    </label>
+                    {/* File Upload Button - Hidden on Kiosk */}
+                    {!isKiosk && (
+                      <label className="flex flex-col items-center justify-center w-full h-14 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
+                        <div className="flex items-center space-x-2">
+                          <Upload className="w-4 h-4 text-gray-400" />
+                          <span className="text-xs text-gray-500">Choose from folder</span>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(file, 'side');
+                          }}
+                          disabled={uploadingSide}
+                        />
+                      </label>
+                    )}
                   </div>
                 )}
                 {uploadingSide && (
