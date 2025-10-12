@@ -385,7 +385,7 @@ export default function ProductDetails() {
           {product?.name || "Loading..."}
         </h1>
         <div className="flex items-center space-x-2 mb-4">
-          {product && <span className="text-3xl font-semibold text-gray-900">₹{product.price}</span>}
+          {product && <span className="text-3xl font-semibold text-gray-900">${product.price}</span>}
         </div>
       </div>
 

@@ -108,7 +108,7 @@ export default function Payment() {
                   onClick={handlePayment}
                   className="w-full bg-gray-900 text-white py-6 rounded-xl font-medium mb-4"
                 >
-                  Pay ₹ {getTotal() - 100}
+                  Pay $ {getTotal() - 100}
                 </Button>
               )}
 
@@ -224,12 +224,12 @@ export default function Payment() {
         <div className="space-y-2 mb-4">
           <div className="flex justify-between">
             <span className="text-gray-600">Bag Total</span>
-            <span className="font-medium">₹{getTotal()}</span>
+            <span className="font-medium">${getTotal()}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Discount</span>
             <span className="font-medium text-gray-400">
-              -₹{getDiscountTotal()}
+              -${getDiscountTotal()}
             </span>
           </div>
           <div className="text-xs text-gray-500">&lt;COUPON&gt; applied</div>
@@ -237,7 +237,7 @@ export default function Payment() {
             <span className="text-gray-600">Packaging</span>
             <div>
               <span className="text-xs text-gray-400 line-through mr-1">
-                ₹50
+                $50
               </span>
               <span className="font-medium"> Free</span>
             </div>
@@ -246,7 +246,7 @@ export default function Payment() {
             <div className="flex justify-between">
               <span className="font-semibold text-gray-900">TOTAL</span>
               <span className="font-semibold text-gray-900">
-                ₹{getTotal() - 100}
+                ${getTotal() - 100}
               </span>
             </div>
           </div>
@@ -254,7 +254,7 @@ export default function Payment() {
 
         <div className="bg-blue-50 p-3 rounded-lg mb-4">
           <p className="text-sm text-center text-gray-800">
-            You're saving ₹{getDiscountTotal() + 100} on this order!
+            You're saving ${getDiscountTotal() + 100} on this order!
           </p>
         </div>
       </div>
