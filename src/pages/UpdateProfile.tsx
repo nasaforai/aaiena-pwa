@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Camera, Clock, X, Upload, User } from "lucide-react";
+import { ArrowLeft, Camera, Clock, X, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
@@ -479,54 +479,44 @@ export default function UpdateProfile() {
                     </button>
                   </div>
                 ) : (
-                  <div className="relative w-full h-64 rounded-xl overflow-hidden border-2 border-border bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 hover:shadow-lg transition-all duration-300">
-                    {/* Avatar Placeholder */}
-                    <div className="flex flex-col items-center justify-center h-full p-4">
-                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center mb-3">
-                        <User className="w-12 h-12 text-primary" strokeWidth={1.5} />
-                      </div>
-                      <h4 className="text-sm font-semibold text-foreground mb-1">Front View</h4>
-                      <p className="text-xs text-muted-foreground text-center mb-4">Stand facing forward</p>
-                      
-                      {/* Action Buttons */}
-                      <div className="space-y-2 w-full">
-                        {/* Camera Button - Hidden on Mobile */}
-                        {!isMobile && (
-                          <button
-                            onClick={() => startCamera('front')}
-                            disabled={cameraLoading}
-                            className={`flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg transition-all ${
-                              cameraLoading 
-                                ? 'bg-muted cursor-not-allowed opacity-50' 
-                                : 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm'
-                            }`}
-                          >
-                            <Camera className="w-4 h-4" />
-                            <span className="text-sm font-medium">
-                              {cameraLoading ? 'Starting...' : 'Take Photo'}
-                            </span>
-                          </button>
-                        )}
-                        
-                        {/* File Upload Button - Hidden on Kiosk */}
-                        {!isKiosk && (
-                          <label className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg border-2 border-dashed border-input bg-background hover:bg-accent hover:border-primary cursor-pointer transition-all">
-                            <Upload className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-sm text-muted-foreground">Choose from folder</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) handleImageUpload(file, 'front');
-                              }}
-                              disabled={uploadingFront}
-                            />
-                          </label>
-                        )}
-                      </div>
-                    </div>
+                  <div className="space-y-2">
+                    {/* Camera Button - Hidden on Mobile */}
+                    {!isMobile && (
+                      <button
+                        onClick={() => startCamera('front')}
+                        disabled={cameraLoading}
+                        className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg ${
+                          cameraLoading 
+                            ? 'border-gray-200 cursor-not-allowed bg-gray-50 opacity-50' 
+                            : 'border-gray-300 cursor-pointer hover:bg-gray-50'
+                        }`}
+                      >
+                        <Camera className={`w-6 h-6 mb-1 ${cameraLoading ? 'text-gray-300' : 'text-gray-400'}`} />
+                        <span className={`text-xs ${cameraLoading ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {cameraLoading ? 'Starting camera...' : 'Take Photo'}
+                        </span>
+                      </button>
+                    )}
+                    
+                    {/* File Upload Button - Hidden on Kiosk */}
+                    {!isKiosk && (
+                      <label className="flex flex-col items-center justify-center w-full h-14 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
+                        <div className="flex items-center space-x-2">
+                          <Upload className="w-4 h-4 text-gray-400" />
+                          <span className="text-xs text-gray-500">Choose from folder</span>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(file, 'front');
+                          }}
+                          disabled={uploadingFront}
+                        />
+                      </label>
+                    )}
                   </div>
                 )}
                 {uploadingFront && (
@@ -556,54 +546,44 @@ export default function UpdateProfile() {
                     </button>
                   </div>
                 ) : (
-                  <div className="relative w-full h-64 rounded-xl overflow-hidden border-2 border-border bg-gradient-to-br from-secondary/5 via-accent/5 to-primary/5 hover:shadow-lg transition-all duration-300">
-                    {/* Avatar Placeholder */}
-                    <div className="flex flex-col items-center justify-center h-full p-4">
-                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center mb-3">
-                        <User className="w-12 h-12 text-secondary -rotate-90" strokeWidth={1.5} />
-                      </div>
-                      <h4 className="text-sm font-semibold text-foreground mb-1">Side View</h4>
-                      <p className="text-xs text-muted-foreground text-center mb-4">Turn to side profile</p>
-                      
-                      {/* Action Buttons */}
-                      <div className="space-y-2 w-full">
-                        {/* Camera Button - Hidden on Mobile */}
-                        {!isMobile && (
-                          <button
-                            onClick={() => startCamera('side')}
-                            disabled={cameraLoading}
-                            className={`flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg transition-all ${
-                              cameraLoading 
-                                ? 'bg-muted cursor-not-allowed opacity-50' 
-                                : 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm'
-                            }`}
-                          >
-                            <Camera className="w-4 h-4" />
-                            <span className="text-sm font-medium">
-                              {cameraLoading ? 'Starting...' : 'Take Photo'}
-                            </span>
-                          </button>
-                        )}
-                        
-                        {/* File Upload Button - Hidden on Kiosk */}
-                        {!isKiosk && (
-                          <label className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg border-2 border-dashed border-input bg-background hover:bg-accent hover:border-primary cursor-pointer transition-all">
-                            <Upload className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-sm text-muted-foreground">Choose from folder</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) handleImageUpload(file, 'side');
-                              }}
-                              disabled={uploadingSide}
-                            />
-                          </label>
-                        )}
-                      </div>
-                    </div>
+                  <div className="space-y-2">
+                    {/* Camera Button - Hidden on Mobile */}
+                    {!isMobile && (
+                      <button
+                        onClick={() => startCamera('side')}
+                        disabled={cameraLoading}
+                        className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg ${
+                          cameraLoading 
+                            ? 'border-gray-200 cursor-not-allowed bg-gray-50 opacity-50' 
+                            : 'border-gray-300 cursor-pointer hover:bg-gray-50'
+                        }`}
+                      >
+                        <Camera className={`w-6 h-6 mb-1 ${cameraLoading ? 'text-gray-300' : 'text-gray-400'}`} />
+                        <span className={`text-xs ${cameraLoading ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {cameraLoading ? 'Starting camera...' : 'Take Photo'}
+                        </span>
+                      </button>
+                    )}
+                    
+                    {/* File Upload Button - Hidden on Kiosk */}
+                    {!isKiosk && (
+                      <label className="flex flex-col items-center justify-center w-full h-14 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
+                        <div className="flex items-center space-x-2">
+                          <Upload className="w-4 h-4 text-gray-400" />
+                          <span className="text-xs text-gray-500">Choose from folder</span>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(file, 'side');
+                          }}
+                          disabled={uploadingSide}
+                        />
+                      </label>
+                    )}
                   </div>
                 )}
                 {uploadingSide && (
