@@ -409,7 +409,7 @@ export default function ProductDetails() {
               size="sm"
               className="ml-auto py-1 px-3 rounded-lg border-purple-300 text-purple-600 hover:bg-purple-50 hover:text-purple-700 font-medium text-sm"
             >
-              <Ruler className="w-3 h-3 mr-1" />
+              <UserPen className="w-3 h-3 mr-1" />
               My Size
             </Button>
           </div>
