@@ -747,8 +747,8 @@ export default function UpdateProfile() {
       {/* Bottom Navigation */}
       <BottomNavigation />
 
-      {/* Camera Modal for Kiosk */}
-      {showCamera && isKiosk && (
+      {/* Camera Modal */}
+      {showCamera && (
         <div className="fixed inset-0 z-50 bg-black flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-4 bg-black/50">
