@@ -44,21 +44,16 @@ export default function Welcome() {
 
       {/* Welcome Content */}
       <div className="flex-1 flex flex-col items-center justify-center space-y-8">
-        {/* Fashion Video */}
+        {/* Fashion Model/Animation */}
         <div className="relative mb-8">
-          <div className="w-64 h-80 md:w-80 md:h-[400px] lg:w-96 lg:h-[500px] relative">
+          <div className="w-48 h-64 relative">
             <div className="absolute inset-0 bg-gradient-to-b from-purple-400/20 via-pink-400/15 to-purple-600/20 rounded-3xl blur-xl"></div>
-            <video 
-              className="relative z-10 w-full h-full object-cover rounded-3xl"
-              autoPlay
-              loop
-              muted
-              playsInline
-              aria-label="Welcome video showcasing virtual try-on"
-            >
-              <source src="/videos/virtual-screen.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
+            <img 
+              src="/images/shopping.png" 
+              alt="Fashion Model" 
+              className="relative z-10 w-full h-full object-contain animate-bounce"
+              style={{ animationDuration: '3s' }}
+            />
           </div>
           {/* Floating Elements */}
           <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-400/40 rounded-full animate-ping"></div>
