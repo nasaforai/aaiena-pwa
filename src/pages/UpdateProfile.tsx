@@ -189,9 +189,19 @@ export default function UpdateProfile() {
       // Show camera modal FIRST so videoRef gets mounted
       setShowCamera(true);
       
-      // Wait for the modal to mount and videoRef to be available
-      await new Promise(resolve => requestAnimationFrame(resolve));
-      await new Promise(resolve => requestAnimationFrame(resolve));
+      // Wait for the video element to be mounted in the DOM
+      const waitForVideoElement = async (maxWaitMs = 5000) => {
+        const startTime = Date.now();
+        while (!videoRef.current) {
+          if (Date.now() - startTime > maxWaitMs) {
+            throw new Error('Timeout waiting for video element to mount');
+          }
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        console.log(`Video element became available after ${Date.now() - startTime}ms`);
+      };
+
+      await waitForVideoElement();
       
       console.log('Requesting camera access...');
       
