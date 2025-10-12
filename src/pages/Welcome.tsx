@@ -67,7 +67,7 @@ export default function Welcome() {
           <div className="w-full max-w-xs mx-auto">
             <Button
               onClick={handleBrowseStore}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-4 text-lg font-semibold rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105"
+              className="w-full bg-transparent border-2 border-white text-white hover:bg-white/20 py-4 text-lg font-semibold rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105"
             >
               Browse the Store
             </Button>
