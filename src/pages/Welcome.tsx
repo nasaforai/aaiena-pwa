@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
@@ -8,6 +8,7 @@ export default function Welcome() {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { currentBrand } = useBrand();
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     // Simulate loading time for smooth transition
@@ -17,6 +18,43 @@ export default function Welcome() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    // Programmatically play video after component mounts
+    const playVideo = async () => {
+      if (videoRef.current) {
+        try {
+          await videoRef.current.play();
+        } catch (error) {
+          console.log('Autoplay failed, retrying...', error);
+          // Retry after a short delay
+          setTimeout(async () => {
+            try {
+              await videoRef.current?.play();
+            } catch (retryError) {
+              console.log('Video autoplay blocked:', retryError);
+            }
+          }, 500);
+        }
+      }
+    };
+
+    // Play video when page becomes visible
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && videoRef.current) {
+        videoRef.current.play().catch(() => {});
+      }
+    };
+
+    if (!isLoading) {
+      playVideo();
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+    }
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isLoading]);
 
   const handleBrowseStore = () => {
     navigate('/store');
@@ -37,11 +75,15 @@ export default function Welcome() {
     <div className="relative flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen font-roboto">
       {/* Background Video */}
       <video
+        ref={videoRef}
         className="absolute inset-0 w-full h-full object-cover z-0"
         autoPlay
         loop
         muted
         playsInline
+        webkit-playsinline="true"
+        x5-playsinline="true"
+        preload="auto"
       >
         <source src="/videos/virtual-screen.mp4" type="video/mp4" />
       </video>
