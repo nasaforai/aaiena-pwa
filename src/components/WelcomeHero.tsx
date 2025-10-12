@@ -1,6 +1,6 @@
-
 import React from 'react';
 import { ActionButton } from './ActionButton';
+import logoImage from '@/assets/kil.png';
 
 interface WelcomeHeroProps {
   title?: string;
@@ -31,6 +31,11 @@ export const WelcomeHero: React.FC<WelcomeHeroProps> = ({
           className="aspect-[1.99] object-contain max-w-[30vw]"
         />
       </section>
+      <img
+        src={logoImage}
+        alt="Company logo"
+        className="my-6 h-12 object-contain"
+      />
       <ActionButton onClick={handleButtonClick}>
         {buttonText}
       </ActionButton>
