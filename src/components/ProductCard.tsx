@@ -86,7 +86,7 @@ const ProductCard = ({
       <div className="px-2 pt-1">
         <p className="text-xs">{product.name}</p>
         <div className="text-xs flex gap-1 items-center">
-          <span className="text-lg">₹{product.price}</span>
+          <span className="text-lg">${product.price}</span>
         </div>
       </div>
     </div>

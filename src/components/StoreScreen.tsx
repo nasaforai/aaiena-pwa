@@ -131,7 +131,7 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({
                     >
                       View Details
                     </button>
-                    <p className="font-semibold">₹500 ₹1000</p>
+                    <p className="font-semibold">$500 $1000</p>
                   </div>
                 </div>
               ))}
@@ -154,7 +154,7 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({
                     >
                       View Details
                     </button>
-                    <p className="font-semibold">₹500 ₹1000</p>
+                    <p className="font-semibold">$500 $1000</p>
                   </div>
                 </div>
               ))}
@@ -177,7 +177,7 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({
                     >
                       View Details
                     </button>
-                    <p className="font-semibold">₹500 ₹1000</p>
+                    <p className="font-semibold">$500 $1000</p>
                   </div>
                 </div>
               ))}
@@ -210,7 +210,7 @@ export const StoreScreen: React.FC<StoreScreenProps> = ({
                   >
                     View Details
                   </button>
-                  <p className="font-semibold">₹500 ₹1000</p>
+                  <p className="font-semibold">$500 $1000</p>
                 </div>
               </div>
             ))}

@@ -86,7 +86,7 @@ export default function Wishlist() {
                   </p>
                   <div className="flex items-center space-x-2 mb-3">
                     <span className="font-semibold text-gray-900">
-                      ₹{item.price}
+                      ${item.price}
                     </span>
                   </div>
                   <Button
