@@ -59,9 +59,12 @@ export default function Welcome() {
         )}
 
         {/* Welcome Content */}
-        <div className="flex-1 flex flex-col items-center justify-center space-y-8">
+        <div className="flex-1"></div>
+
+        {/* Bottom Content */}
+        <div className="space-y-4 pb-8">
           {/* Call to Action Button */}
-          <div className="pt-6 w-full max-w-xs">
+          <div className="w-full max-w-xs mx-auto">
             <Button
               onClick={handleBrowseStore}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-4 text-lg font-semibold rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105"
@@ -71,7 +74,7 @@ export default function Welcome() {
           </div>
 
           {/* Hint Text */}
-          <div className="pt-2">
+          <div>
             <p className="text-sm text-white/80 text-center drop-shadow-md">
               Touch to continue your fashion journey
             </p>
