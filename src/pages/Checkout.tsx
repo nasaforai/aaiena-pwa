@@ -88,9 +88,9 @@ export default function Checkout() {
                 <div className="flex-1">
                   <p className="text-sm text-gray-600">Size : {item.size}</p>
                   <div className="text-gray-900">
-                    <span>${item.price}</span>
+                    <span>₹{item.price}</span>
                     <span className="text-gray-500 line-through text-xs ml-1">
-                      ${item.originalPrice}
+                      ₹{item.originalPrice}
                     </span>
                     <span className="text-gray-500 text-xs ml-1">15% OFF</span>
                   </div>
@@ -124,12 +124,12 @@ export default function Checkout() {
         <div className="space-y-2 mb-4">
           <div className="flex justify-between">
             <span className="text-gray-600">Bag Total</span>
-            <span className="font-medium">${getTotal()}</span>
+            <span className="font-medium">₹{getTotal()}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Discount</span>
             <span className="font-medium text-gray-400">
-              -${getDiscountTotal()}
+              -₹{getDiscountTotal()}
             </span>
           </div>
           <div className="text-xs text-gray-500">&lt;COUPON&gt; applied</div>
@@ -137,7 +137,7 @@ export default function Checkout() {
             <span className="text-gray-600">Packaging</span>
             <div>
               <span className="text-xs text-gray-400 line-through mr-1">
-                $50
+                ₹50
               </span>
               <span className="font-medium"> Free</span>
             </div>
@@ -146,7 +146,7 @@ export default function Checkout() {
             <div className="flex justify-between">
               <span className="font-semibold text-gray-900">TOTAL</span>
               <span className="font-semibold text-gray-900">
-                ${getTotal() - 100}
+                ₹{getTotal() - 100}
               </span>
             </div>
           </div>
@@ -154,7 +154,7 @@ export default function Checkout() {
 
         <div className="bg-blue-50 p-3 rounded-lg mb-4">
           <p className="text-sm text-center text-gray-800">
-            You're saving ${getDiscountTotal() + 100} on this order!
+            You're saving ₹{getDiscountTotal() + 100} on this order!
           </p>
         </div>
       </div>
@@ -165,7 +165,7 @@ export default function Checkout() {
           <div>
             <h3 className="font-semibold">Add Coupon</h3>
             <p className="text-sm opacity-90">
-              Save $400 on your first order
+              Save rs.400 on your first order
             </p>
           </div>
           <button className="text-white">

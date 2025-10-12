@@ -55,7 +55,7 @@ export default function ProductFoundDialog({
             {/* Price */}
             <div className="flex items-center justify-center gap-2">
               <span className="text-xl font-bold text-primary">
-                ${product.price}
+                ₹{product.price}
               </span>
             </div>
           </div>

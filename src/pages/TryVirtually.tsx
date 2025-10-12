@@ -395,9 +395,9 @@ export default function TryVirtually() {
               <div className="flex flex-col justify-center">
                 <div className="text-xs flex flex-nowrap gap-1 items-center">
                   {product?.is_on_offer && (
-                    <span className="text-gray-400 line-through">${Math.round(product.price * 1.4)}</span>
+                    <span className="text-gray-400 line-through">₹{Math.round(product.price * 1.4)}</span>
                   )}
-                  <span className="text-lg">${product?.price || 500}</span>
+                  <span className="text-lg">₹{product?.price || 500}</span>
                   <span className="text-gray-400">50% off</span>
                 </div>
                 <button
@@ -419,9 +419,9 @@ export default function TryVirtually() {
         </h1>
         <div className="flex items-center space-x-2 mb-4">
           {product?.is_on_offer && (
-            <span className="text-md text-gray-500 line-through">${Math.round((product.price || 700) * 1.4)}</span>
+            <span className="text-md text-gray-500 line-through">₹{Math.round((product.price || 700) * 1.4)}</span>
           )}
-          <span className="text-3xl font-semibold text-gray-900">${product?.price || 700}</span>
+          <span className="text-3xl font-semibold text-gray-900">₹{product?.price || 700}</span>
           {product?.is_on_offer && (
             <span className="text-sm text-green-600 font-medium">50% OFF</span>
           )}

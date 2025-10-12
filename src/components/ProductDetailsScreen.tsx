@@ -51,7 +51,7 @@ export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
           Drop-Shoulder Cotton Tee | Relaxed Fit, All-Day Comfort.
         </h1>
         <div className="flex items-center space-x-2 mb-4">
-          <span className="text-2xl font-bold text-gray-900">$700</span>
+          <span className="text-2xl font-bold text-gray-900">₹700</span>
         </div>
       </div>
 
@@ -115,7 +115,7 @@ export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
               <div className="h-32 bg-gray-200"></div>
               <div className="p-2">
                 <p className="text-xs text-gray-600">View Details</p>
-                <p className="text-sm font-semibold">$500 $700</p>
+                <p className="text-sm font-semibold">₹500 ₹700</p>
               </div>
             </div>
           ))}
@@ -143,7 +143,7 @@ export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
               <div className="h-40 bg-gray-200"></div>
               <div className="p-3">
                 <p className="text-sm text-gray-600">View Details</p>
-                <p className="font-semibold">$500 $700</p>
+                <p className="font-semibold">₹500 ₹700</p>
               </div>
             </div>
           ))}
