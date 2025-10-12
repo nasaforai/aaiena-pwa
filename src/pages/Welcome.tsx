@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { useBrand } from '@/contexts/BrandContext';
+import aaienaLogo from '@/assets/aaiena-logo.png';
 
 export default function Welcome() {
   const [isLoading, setIsLoading] = useState(true);
@@ -99,6 +100,15 @@ export default function Welcome() {
 
         {/* Bottom Content */}
         <div className="space-y-4 pb-8">
+          {/* Logo */}
+          <div className="w-full flex justify-center mb-6">
+            <img 
+              src={aaienaLogo} 
+              alt="Aaiena - A Unit of Saygent Group" 
+              className="h-16 object-contain drop-shadow-lg"
+            />
+          </div>
+
           {/* Call to Action Button */}
           <div className="w-full max-w-xs mx-auto">
             <Button
