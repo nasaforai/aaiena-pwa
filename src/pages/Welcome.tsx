@@ -51,12 +51,6 @@ export default function Welcome() {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen px-6 py-8">
-        {/* Brand Logo */}
-        {currentBrand?.logo_url && (
-          <div className="flex justify-center mb-8">
-            <img src={currentBrand.logo_url} alt={`${currentBrand.name} logo`} height={54} width={82} className="object-contain drop-shadow-lg" />
-          </div>
-        )}
 
         {/* Welcome Content */}
         <div className="flex-1"></div>
