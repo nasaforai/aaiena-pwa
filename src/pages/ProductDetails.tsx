@@ -39,6 +39,11 @@ import { useSizeRecommendation } from "@/hooks/useSizeRecommendation";
 import { SizeChartDialog } from "@/components/SizeChartDialog";
 import { useProductVariants } from "@/hooks/useProductVariants";
 import {
+  getMySizeRecommendation,
+  SizeRecommendation as ApiSizeRecommendation,
+  SizeChartMeasurement,
+} from "@/lib/sizingApi";
+import {
   Accordion,
   AccordionContent,
   AccordionItem,
@@ -83,6 +88,8 @@ export default function ProductDetails() {
   const [isVirtualDialogOpen, setIsVirtualDialogOpen] = useState(false);
   const [showComingSoonDialog, setShowComingSoonDialog] = useState(false);
   const [missingPhotos, setMissingPhotos] = useState({ front: false, side: false });
+  const [mySizeRecs, setMySizeRecs] = useState<ApiSizeRecommendation[] | null>(null);
+  const [mySizeLoading, setMySizeLoading] = useState(false);
 
   // Fetch product data
   const { data: product, isLoading } = useProduct(productId || "");
@@ -100,6 +107,20 @@ export default function ProductDetails() {
       setIsInWishlist(exists);
     }
   }, [product]);
+
+  const convertSizeChartToApiFormat = (sizeChart: any): SizeChartMeasurement[] | undefined => {
+    if (!sizeChart?.measurements) return undefined;
+    
+    return sizeChart.measurements.map((measurement: any) => ({
+      size_label: measurement.size_label,
+      chest_inches: measurement.chest_inches,
+      waist_inches: measurement.waist_inches,
+      shoulder_inches: measurement.shoulder_inches,
+      hips_inches: measurement.hips_inches,
+      length_inches: measurement.length_inches,
+      inseam_inches: measurement.inseam_inches,
+    }));
+  };
 
   // Chart data for size visualization
   const sizeChartData = [
@@ -263,7 +284,7 @@ export default function ProductDetails() {
   };
 
   const handleTryVirtually = () => {
-    navigate(`/try-virtually?id=${productId}`);
+    setShowComingSoonDialog(true);
   };
 
   const handleJoinRoom = () => {
@@ -316,7 +337,7 @@ export default function ProductDetails() {
     }
   };
 
-  const handleMySizeClick = () => {
+  const handleMySizeClick = async () => {
     // Check if user is logged in
     if (!isAuthenticated) {
       if (isMobile) {
@@ -327,24 +348,67 @@ export default function ProductDetails() {
       return;
     }
 
+    // Check for profile to exist
+    if (!profile) {
+      toast({
+        title: "Profile not found",
+        description: "Please create a profile to get size recommendations.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Check if photos exist (front and side)
     const hasFrontPhoto = profile?.photos?.[0];
     const hasSidePhoto = profile?.photos?.[1];
-    
+
     if (!hasFrontPhoto || !hasSidePhoto) {
       // Track which photos are missing
       setMissingPhotos({
         front: !hasFrontPhoto,
-        side: !hasSidePhoto
+        side: !hasSidePhoto,
       });
       // Show dialog prompting to complete profile
       setPhotoCheckDialogOpen(true);
-    } else {
-      // Photos exist, show success message
-      toast({
-        title: "Profile Complete!",
-        description: "Your size recommendation is based on your uploaded photos.",
+      // Do not proceed if photos are missing
+      return;
+    }
+
+    setMySizeLoading(true);
+    setMySizeRecs(null);
+    try {
+        toast({
+        title: "Analyzing your photos...",
+        description: "This may take a moment. Our AI is working on your size recommendation.",
       });
+      const apiSizeChart = convertSizeChartToApiFormat(sizeChart);
+      const category = product?.category?.name || "T-shirt";
+      const result = await getMySizeRecommendation(profile, category, apiSizeChart);
+      setMySizeRecs(result.recommendations);
+
+      if (result.recommendations.length > 0) {
+        const bestSize = result.recommendations[0].size;
+        setSelectedSize(bestSize);
+        toast({
+          title: "We found your size!",
+          description: `We recommend size ${bestSize} for you.`,
+        });
+      } else {
+        toast({
+          title: "Could not determine size",
+          description: "We couldn't find a suitable size recommendation.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error getting 'My Size' recommendation:", error);
+      toast({
+        title: "Error",
+        description: "Failed to get size recommendation.",
+        variant: "destructive",
+      });
+    } finally {
+      setMySizeLoading(false);
     }
   };
 
@@ -551,7 +615,7 @@ export default function ProductDetails() {
       </div>
 
       {/* Recommendation Section */}
-      {isAuthenticated && hasMeasurements && (
+      {isAuthenticated && (
         <div className="px-4 mb-4">
           <div className="flex items-center space-x-2 mb-3">
             <span className="font-medium text-gray-900">Recommendation</span>
@@ -560,8 +624,6 @@ export default function ProductDetails() {
             </div>
           </div>
 
-          {/* Size Chart */}
-          {isAuthenticated && (
             <div className="bg-gradient-to-t from-[#F1E8FF] to-[#EBE1FD] rounded-2xl p-6 mb-4">
               <h3 className="font-semibold text-gray-900 mb-1 text-2xl flex justify-between">
                 <span> My Size</span>
@@ -571,6 +633,54 @@ export default function ProductDetails() {
                 Tailored to match your exact measurements
               </p>
 
+              {mySizeLoading ? (
+                <div className="flex items-center justify-center py-10">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                  <span className="ml-3 text-gray-600">Finding your best fit...</span>
+                </div>
+              ) : mySizeRecs ? (
+                <>
+                  {/* Best Fit */}
+                  {mySizeRecs[0] && (
+                    <div className="bg-purple-200 rounded-xl p-4 mb-4 mt-10">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-900">
+                          <span className="font-medium">Best Fit:</span>
+                          <span className="bg-orange-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
+                            {mySizeRecs[0].size}
+                          </span>
+                          <span className="ml-2 text-xs text-gray-600">
+                            ({mySizeRecs[0].score}% match)
+                          </span>
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600 mt-2">
+                        {mySizeRecs[0].rating}
+                      </p>
+                    </div>
+                  )}
+
+                  {mySizeRecs[1] && (
+                    <div className="bg-white rounded-xl p-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-900">
+                          <span className="font-medium">Other Fit:</span>
+                          <span className="bg-purple-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
+                            {mySizeRecs[1].size}
+                          </span>
+                          <span className="ml-2 text-xs text-gray-600">
+                            ({mySizeRecs[1].score}% match)
+                          </span>
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600 mt-2">
+                        {mySizeRecs[1].rating}
+                      </p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
               {/* Radial Chart */}
               <div className="flex justify-center">
                 <div className="w-72 h-72">
@@ -606,45 +716,9 @@ export default function ProductDetails() {
                   <div className="text-gray-800 text-lg">(S)</div>
                 </div>
               </div>
-
-              {/* Best Fit */}
-              {sizeRecommendation.bestFit && (
-                <div className="bg-purple-200 rounded-xl p-4 mb-4 mt-10">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-900">
-                      <span className="font-medium">Best Fit:</span>
-                      <span className="bg-orange-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
-                        {sizeRecommendation.bestFit.size}
-                      </span>
-                      <span className="ml-2 text-xs text-gray-600">
-                        ({sizeRecommendation.bestFit.matchPercentage}% match)
-                      </span>
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-600 mt-2">
-                    {sizeRecommendation.bestFit.reason}
-                  </p>
-                </div>
+                </>
               )}
 
-              {sizeRecommendation.alternateFit && (
-                <div className="bg-white rounded-xl p-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-900">
-                      <span className="font-medium">Other Fit:</span>
-                      <span className="bg-purple-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
-                        {sizeRecommendation.alternateFit.size}
-                      </span>
-                      <span className="ml-2 text-xs text-gray-600">
-                        ({sizeRecommendation.alternateFit.matchPercentage}% match)
-                      </span>
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-600 mt-2">
-                    {sizeRecommendation.alternateFit.reason}
-                  </p>
-                </div>
-              )}
 
               <p className="text-xs text-gray-500 mt-4 ml-2">
                 *95% users said true to size
@@ -657,7 +731,6 @@ export default function ProductDetails() {
                 Try Now
               </Button>
             </div>
-          )}
         </div>
       )}
 

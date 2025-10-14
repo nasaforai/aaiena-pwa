@@ -119,7 +119,7 @@ export async function tryVirtuallyWithImages(
     const sideImageUrl = profile.photos[1];
 
     // Validate required profile data
-    if (!profile.height) {
+    if (!profile.height && !profile.height_cm) {
       throw new Error('User height is required for measurement extraction');
     }
 
@@ -127,8 +127,8 @@ export async function tryVirtuallyWithImages(
       throw new Error('User gender is required for measurement extraction');
     }
 
-    const height = profile.height || 170;
-    const weight = profile.weight || null;
+    const heightValue = profile.height_cm || profile.height || 170;
+    const weightValue = profile.weight || null;
     
     // Convert gender to backend format (M/F)
     let gender = 'M'; // default
@@ -145,8 +145,8 @@ export async function tryVirtuallyWithImages(
     const requestData = {
       front_image_url: frontImageUrl,
       side_image_url: sideImageUrl,
-      height: height,
-      weight: weight,
+      height_cm: heightValue,
+      weight_kg: weightValue,
       gender: gender,
       preferred_size: null,
       body_type: null
@@ -347,6 +347,32 @@ export async function getStoredMeasurements(): Promise<UserMeasurements> {
     return await response.json();
   } catch (error) {
     console.error('Error getting stored measurements:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get size recommendation for "My Size" feature.
+ * Decides whether to use image-based processing or measurement-based processing.
+ */
+export async function getMySizeRecommendation(
+  profile: any,
+  category?: string,
+  sizeChart?: SizeChartMeasurement[]
+): Promise<RecommendationResponse> {
+  try {
+    const hasPhotos = profile.photos && profile.photos.length >= 2;
+    const hasRequiredData = profile.height && profile.gender;
+
+    if (hasPhotos && hasRequiredData) {
+      console.log('🎯 Using REAL image processing for My Size recommendation');
+      return await tryVirtuallyWithImages(profile, category, sizeChart);
+    } else {
+      console.log('📝 Using profile measurements for My Size recommendation (or missing data)');
+      return await tryVirtually(profile, category, sizeChart);
+    }
+  } catch (error) {
+    console.error('Error getting My Size recommendation:', error);
     throw error;
   }
 }
