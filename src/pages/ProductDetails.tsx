@@ -15,6 +15,7 @@ import {
   Camera,
   Check,
   X,
+  Loader2,
 } from "lucide-react";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import { useNavigation } from "@/hooks/useNavigation";
@@ -40,7 +41,9 @@ import { SizeChartDialog } from "@/components/SizeChartDialog";
 import { useProductVariants } from "@/hooks/useProductVariants";
 import {
   getMySizeRecommendation,
+  getSizeRecommendations,
   SizeRecommendation as ApiSizeRecommendation,
+  RecommendationResponse,
   SizeChartMeasurement,
 } from "@/lib/sizingApi";
 import {
@@ -68,6 +71,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { MeasurementResultsDialog } from "@/components/MeasurementResultsDialog";
 
 export default function ProductDetails() {
   const navigate = useNavigate();
@@ -88,8 +92,18 @@ export default function ProductDetails() {
   const [isVirtualDialogOpen, setIsVirtualDialogOpen] = useState(false);
   const [showComingSoonDialog, setShowComingSoonDialog] = useState(false);
   const [missingPhotos, setMissingPhotos] = useState({ front: false, side: false });
-  const [mySizeRecs, setMySizeRecs] = useState<ApiSizeRecommendation[] | null>(null);
+  const [mySizeRecs, setMySizeRecs] = useState<RecommendationResponse | null>(null);
   const [mySizeLoading, setMySizeLoading] = useState(false);
+  const [measurementResultsOpen, setMeasurementResultsOpen] = useState(false);
+  
+  // Debug - force modal open for testing
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     console.log("Forcing modal open");
+  //     setMeasurementResultsOpen(true);
+  //   }, 2000);
+  // }, []);
+  const [isSavingMeasurements, setIsSavingMeasurements] = useState(false);
 
   // Fetch product data
   const { data: product, isLoading } = useProduct(productId || "");
@@ -97,7 +111,7 @@ export default function ProductDetails() {
   const { data: sizeChart, isLoading: sizeChartLoading } = useProductSizeChart(productId);
   const sizeRecommendation = useSizeRecommendation(sizeChart || null);
   const { data: productVariants, isLoading: variantsLoading } = useProductVariants(productId || "");
-  const { profile } = useProfile();
+  const { profile, updateProfile } = useProfile();
   
   // Check if product is in wishlist on mount and when product changes
   useEffect(() => {
@@ -337,68 +351,84 @@ export default function ProductDetails() {
     }
   };
 
-  const handleMySizeClick = async () => {
+  const handleCompareSizeClick = async () => {
     // Check if user is logged in
     if (!isAuthenticated) {
-      if (isMobile) {
-        navigate(`/sign-up?${createSearchParams({ back: "product-details" })}`);
-      } else {
-        navigate("/signup-options");
-      }
+      navigate(isMobile ? `/sign-up?${createSearchParams({ back: "product-details" })}` : "/signup-options");
       return;
     }
 
-    // Check for profile to exist
+    // Check if profile exists
     if (!profile) {
       toast({
         title: "Profile not found",
-        description: "Please create a profile to get size recommendations.",
+        description: "Please complete your profile to use this feature.",
         variant: "destructive",
       });
       return;
     }
 
-    // Check if photos exist (front and side)
-    const hasFrontPhoto = profile?.photos?.[0];
-    const hasSidePhoto = profile?.photos?.[1];
+    // Check for saved measurements
+    const hasSavedMeasurements = profile.chest_inches && profile.waist_inches;
 
-    if (!hasFrontPhoto || !hasSidePhoto) {
-      // Track which photos are missing
-      setMissingPhotos({
-        front: !hasFrontPhoto,
-        side: !hasSidePhoto,
-      });
-      // Show dialog prompting to complete profile
-      setPhotoCheckDialogOpen(true);
-      // Do not proceed if photos are missing
+    if (!hasSavedMeasurements) {
+      // If no measurements, check for photos to offer calculation
+      const hasPhotos = profile.photos && profile.photos.length >= 2;
+      setMissingPhotos({ front: !profile.photos?.[0], side: !profile.photos?.[1] });
+      setPhotoCheckDialogOpen(true); // This dialog now serves to prompt user to complete profile
       return;
     }
 
+    // Show loading state
     setMySizeLoading(true);
     setMySizeRecs(null);
+
     try {
-        toast({
-        title: "Analyzing your photos...",
-        description: "This may take a moment. Our AI is working on your size recommendation.",
-      });
       const apiSizeChart = convertSizeChartToApiFormat(sizeChart);
       const category = product?.category?.name || "T-shirt";
-      const result = await getMySizeRecommendation(profile, category, apiSizeChart);
-      setMySizeRecs(result.recommendations);
+      
+      // Use the faster getSizeRecommendations API with saved measurements
+      const result = await getSizeRecommendations(profile, apiSizeChart, category);
+      
+      // Debug log the API response
+      console.log("API Response:", JSON.stringify(result, null, 2));
+      
+      // IMPORTANT: Create a direct reference to measurements to avoid null issues
+      // First log the raw measurements from API
+      console.log("Raw API measurements:", result.measurements);
+      
+      // Create a new object with explicitly converted number values
+      const measurementsData = {
+        height: Number(result.measurements.height),
+        chest: Number(result.measurements.chest),
+        waist: Number(result.measurements.waist),
+        Butt: Number(result.measurements.Butt),
+        shoulder_width: Number(result.measurements.shoulder_width),
+        neck: Number(result.measurements.neck),
+        inseam: Number(result.measurements.inseam),
+        body_length: Number(result.measurements.body_length)
+      };
+      
+      // Log the extracted and converted measurements
+      console.log("Extracted measurements (after Number conversion):", measurementsData);
+      
+      // Store the results with guaranteed measurements
+      setMySizeRecs({
+        ...result,
+        measurements: measurementsData
+      });
 
-      if (result.recommendations.length > 0) {
-        const bestSize = result.recommendations[0].size;
-        setSelectedSize(bestSize);
-        toast({
-          title: "We found your size!",
-          description: `We recommend size ${bestSize} for you.`,
-        });
-      } else {
-        toast({
-          title: "Could not determine size",
-          description: "We couldn't find a suitable size recommendation.",
-          variant: "destructive",
-        });
+      // Open the measurement results dialog - only showing measurements, not recommendations
+      console.log("Opening measurement results dialog with measurements only");
+      setMeasurementResultsOpen(true);
+
+      // If we have recommendations, pre-select the best size
+      if (result.recommendations && result.recommendations.length > 0) {
+        const bestSize = result.recommended_size;
+        if (bestSize) {
+          setSelectedSize(bestSize);
+          console.log("Setting selected size to:", bestSize);
+        }
       }
     } catch (error) {
       console.error("Error getting 'My Size' recommendation:", error);
@@ -409,6 +439,71 @@ export default function ProductDetails() {
       });
     } finally {
       setMySizeLoading(false);
+    }
+  };
+  
+  // Handle saving measurements from the modal
+  const handleSaveMeasurements = async () => {
+    if (!profile || !mySizeRecs || !mySizeRecs.measurements) {
+      console.error("Missing profile or measurements data");
+      toast({
+        title: "Error",
+        description: "No measurements data available to save.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSavingMeasurements(true);
+    
+    try {
+      const measurements = mySizeRecs.measurements;
+      
+      // Log the measurements being saved
+      console.log("Saving measurements to profile:", measurements);
+      
+      // Convert all values to numbers to ensure they're valid
+      const chest = Number(measurements.chest);
+      const waist = Number(measurements.waist);
+      const butt = Number(measurements.Butt);
+      const shoulder = Number(measurements.shoulder_width);
+      const neck = Number(measurements.neck);
+      const inseam = Number(measurements.inseam);
+      const bodyLength = Number(measurements.body_length);
+      const height = Number(measurements.height);
+      
+      // Update profile with measurements from API response - use isNaN check to avoid invalid values
+      const { error } = await updateProfile({
+        chest_inches: !isNaN(chest) ? chest : null,
+        waist_inches: !isNaN(waist) ? waist : null,
+        hip_inches: !isNaN(butt) ? butt : null,
+        shoulder_inches: !isNaN(shoulder) ? shoulder : null,
+        neck_inches: !isNaN(neck) ? neck : null,
+        inseam_inches: !isNaN(inseam) ? inseam : null,
+        body_length_inches: !isNaN(bodyLength) ? bodyLength : null,
+        height: !isNaN(height) ? height : null,
+      });
+      
+      if (error) {
+        throw new Error(error);
+      }
+      
+      toast({
+        title: "Success!",
+        description: "Your measurements have been saved to your profile.",
+      });
+      
+      // Close the modal
+      setMeasurementResultsOpen(false);
+    } catch (error) {
+      console.error("Error saving measurements:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save measurements to your profile.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingMeasurements(false);
     }
   };
 
@@ -468,13 +563,13 @@ export default function ProductDetails() {
               </button>
             )}
             <Button
-              onClick={handleMySizeClick}
+              onClick={handleCompareSizeClick}
               variant="outline"
               size="sm"
               className="ml-auto py-1 px-3 rounded-lg border-purple-300 text-purple-600 hover:bg-purple-50 hover:text-purple-700 font-medium text-sm"
             >
               <UserPen className="w-3 h-3 mr-1" />
-              My Size
+              Compare Your Size
             </Button>
           </div>
           <div className="flex space-x-3">
@@ -536,13 +631,13 @@ export default function ProductDetails() {
               Complete Your Profile for Size Recommendation
             </DialogTitle>
             <DialogDescription>
-              Please upload your front and side view photos to get accurate size recommendations.
+              To get your recommended size, first calculate your measurements from your profile page using your photos.
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4">
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 mb-3">Photo Status:</h4>
+              <h4 className="font-medium text-gray-900 mb-3">Profile Status:</h4>
               <ul className="text-sm space-y-2">
                 <li className="flex items-center gap-2">
                   {missingPhotos.front ? (
@@ -564,11 +659,21 @@ export default function ProductDetails() {
                     Side view photo {missingPhotos.side ? "(Missing)" : "(Uploaded)"}
                   </span>
                 </li>
+                <li className="flex items-center gap-2">
+                  {profile?.chest_inches ? (
+                    <Check className="w-4 h-4 text-green-500" />
+                  ) : (
+                    <X className="w-4 h-4 text-red-500" />
+                  )}
+                  <span className={profile?.chest_inches ? "text-green-600" : "text-red-600 font-medium"}>
+                    AI Measurements {profile?.chest_inches ? "(Calculated)" : "(Not Calculated)"}
+                  </span>
+                </li>
               </ul>
             </div>
             
             <p className="text-xs text-gray-500 text-center">
-              These photos help us provide accurate size recommendations tailored to your body type.
+              Please go to your profile, upload your photos, and use the "Calculate My Size with AI" feature.
             </p>
             
             <div className="flex gap-2">
@@ -624,113 +729,73 @@ export default function ProductDetails() {
             </div>
           </div>
 
-            <div className="bg-gradient-to-t from-[#F1E8FF] to-[#EBE1FD] rounded-2xl p-6 mb-4">
-              <h3 className="font-semibold text-gray-900 mb-1 text-2xl flex justify-between">
-                <span> My Size</span>
-                <UserPen />
-              </h3>
-              <p className="text-sm text-gray-600">
-                Tailored to match your exact measurements
-              </p>
+          <div className="bg-gradient-to-t from-[#F1E8FF] to-[#EBE1FD] rounded-2xl p-6 mb-4">
+            <h3 className="font-semibold text-gray-900 mb-1 text-2xl flex justify-between">
+              <span>My Size</span>
+              <UserPen />
+            </h3>
+            <p className="text-sm text-gray-600">
+              Tailored to match your exact measurements
+            </p>
 
-              {mySizeLoading ? (
-                <div className="flex items-center justify-center py-10">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                  <span className="ml-3 text-gray-600">Finding your best fit...</span>
-                </div>
-              ) : mySizeRecs ? (
-                <>
-                  {/* Best Fit */}
-                  {mySizeRecs[0] && (
-                    <div className="bg-purple-200 rounded-xl p-4 mb-4 mt-10">
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-900">
-                          <span className="font-medium">Best Fit:</span>
-                          <span className="bg-orange-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
-                            {mySizeRecs[0].size}
-                          </span>
-                          <span className="ml-2 text-xs text-gray-600">
-                            ({mySizeRecs[0].score}% match)
-                          </span>
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-600 mt-2">
-                        {mySizeRecs[0].rating}
-                      </p>
-                    </div>
-                  )}
-
-                  {mySizeRecs[1] && (
-                    <div className="bg-white rounded-xl p-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-900">
-                          <span className="font-medium">Other Fit:</span>
-                          <span className="bg-purple-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
-                            {mySizeRecs[1].size}
-                          </span>
-                          <span className="ml-2 text-xs text-gray-600">
-                            ({mySizeRecs[1].score}% match)
-                          </span>
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-600 mt-2">
-                        {mySizeRecs[1].rating}
-                      </p>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <>
-              {/* Radial Chart */}
-              <div className="flex justify-center">
-                <div className="w-72 h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadialBarChart
-                      cx="50%"
-                      cy="50%"
-                      innerRadius="20%"
-                      outerRadius="80%"
-                      data={sizeChartData}
-                    >
-                      <RadialBar dataKey="value" cornerRadius={4} />
-                    </RadialBarChart>
-                  </ResponsiveContainer>
+            {mySizeLoading ? (
+              <div className="flex flex-col items-center justify-center py-10 space-y-4">
+                <Loader2 className="w-12 h-12 text-purple-600 animate-spin" />
+                <div className="text-center">
+                  <p className="text-gray-700 font-medium">Finding your best fit...</p>
+                  <p className="text-xs text-gray-500 mt-1">Analyzing your measurements with AI</p>
                 </div>
               </div>
-
-              {/* Size Options */}
-              <div className="flex justify-between text-left mb-4">
-                <div className="text-xs">
-                  <div className="w-6 h-6 rounded-md mb-1 bg-[#9BC7FD]"></div>
-                  <div className="text-sm">Large size</div>
-                  <div className="text-gray-800 text-lg">(XL,XXL)</div>
+            ) : (
+              <>
+                <div className="flex justify-center">
+                  <div className="w-72 h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadialBarChart
+                        cx="50%"
+                        cy="50%"
+                        innerRadius="20%"
+                        outerRadius="80%"
+                        data={sizeChartData}
+                      >
+                        <RadialBar dataKey="value" cornerRadius={4} />
+                      </RadialBarChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
-                <div className="text-xs">
-                  <div className="w-6 h-6 rounded-md mb-1 bg-[#FF98D4]"></div>
-                  <div className="text-sm">Medium size</div>
-                  <div className="text-gray-800 text-lg">(M)</div>
+
+                {/* Size Options */}
+                <div className="flex justify-between text-left mb-4">
+                  <div className="text-xs">
+                    <div className="w-6 h-6 rounded-md mb-1 bg-[#9BC7FD]"></div>
+                    <div className="text-sm">Large size</div>
+                    <div className="text-gray-800 text-lg">(XL,XXL)</div>
+                  </div>
+                  <div className="text-xs">
+                    <div className="w-6 h-6 rounded-md mb-1 bg-[#FF98D4]"></div>
+                    <div className="text-sm">Medium size</div>
+                    <div className="text-gray-800 text-lg">(M)</div>
+                  </div>
+                  <div className="text-xs">
+                    <div className="w-6 h-6 rounded-md mb-1 bg-[#FFD188]"></div>
+                    <div className="text-sm">Small size</div>
+                    <div className="text-gray-800 text-lg">(S)</div>
+                  </div>
                 </div>
-                <div className="text-xs">
-                  <div className="w-6 h-6 rounded-md mb-1 bg-[#FFD188]"></div>
-                  <div className="text-sm">Small size</div>
-                  <div className="text-gray-800 text-lg">(S)</div>
-                </div>
-              </div>
-                </>
-              )}
 
+                <p className="text-xs text-gray-500 mt-4 ml-2">
+                  *95% users said true to size
+                </p>
 
-              <p className="text-xs text-gray-500 mt-4 ml-2">
-                *95% users said true to size
-              </p>
-
-              <Button
-                onClick={handleTryVirtually}
-                className="w-full bg-gray-900 text-white py-6 rounded-xl font-medium mt-6 mb-4"
-              >
-                Try Now
-              </Button>
-            </div>
+                <Button
+                  onClick={handleCompareSizeClick}
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white py-6 rounded-xl font-medium mt-6 mb-4"
+                >
+                  Find My Size
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       )}
 
@@ -818,6 +883,21 @@ export default function ProductDetails() {
       </AlertDialog>
 
       <BottomNavigation />
+      
+      {/* Measurement Results Dialog - Only showing measurements */}
+      <MeasurementResultsDialog
+        isOpen={measurementResultsOpen}
+        onClose={() => {
+          console.log("Dialog closed by user");
+          setMeasurementResultsOpen(false);
+        }}
+        onSave={handleSaveMeasurements}
+        measurements={mySizeRecs || null}
+        isSaving={isSavingMeasurements}
+        recommendedSize={null}
+        fitScore={null}
+        alternativeSizes={null}
+      />
     </div>
   );
 }

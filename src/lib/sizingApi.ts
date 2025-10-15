@@ -57,8 +57,10 @@ export interface RecommendationRequest {
 }
 
 export interface RecommendationResponse {
-  categories: string[];
-  products: Record<string, string[]>;
+  recommended_size: string;
+  fit_score: number;
+  alternative_sizes: Record<string, number>;
+  measurements: UserMeasurements;
   recommendations: SizeRecommendation[];
 }
 
@@ -102,12 +104,11 @@ function convertProfileToMeasurements(profile: any): UserMeasurements {
 
 /**
  * Try virtually with real image processing - uses user's photos from profile
+ * This function should now only be used for extracting measurements.
  */
-export async function tryVirtuallyWithImages(
-  profile: any,
-  category?: string,
-  sizeChart?: SizeChartMeasurement[]
-): Promise<RecommendationResponse> {
+export async function extractMeasurementsFromUrls(
+  profile: any
+): Promise<UserMeasurements> {
   try {
     // Check if user has photos in profile
     if (!profile.photos || profile.photos.length < 2) {
@@ -173,7 +174,11 @@ export async function tryVirtuallyWithImages(
     }
 
     const result = await response.json();
-    return result;
+
+    // The backend now returns the measurements directly.
+    // If it's nested under a key, this needs adjustment.
+    // Assuming the root object is the measurements.
+    return result as UserMeasurements;
   } catch (error) {
     throw error;
   }
@@ -353,7 +358,8 @@ export async function getStoredMeasurements(): Promise<UserMeasurements> {
 
 /**
  * Get size recommendation for "My Size" feature.
- * Decides whether to use image-based processing or measurement-based processing.
+ * This function is now deprecated in favor of the new two-step flow.
+ * Kept for reference or potential fallback logic.
  */
 export async function getMySizeRecommendation(
   profile: any,
@@ -366,7 +372,10 @@ export async function getMySizeRecommendation(
 
     if (hasPhotos && hasRequiredData) {
       console.log('🎯 Using REAL image processing for My Size recommendation');
-      return await tryVirtuallyWithImages(profile, category, sizeChart);
+      // This is the old flow, we are moving away from it.
+      // For now, it might still return a recommendation response, but the goal is to separate concerns.
+      // return await tryVirtuallyWithImages(profile, category, sizeChart);
+      throw new Error("tryVirtuallyWithImages is deprecated");
     } else {
       console.log('📝 Using profile measurements for My Size recommendation (or missing data)');
       return await tryVirtually(profile, category, sizeChart);

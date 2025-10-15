@@ -20,6 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { extractMeasurementsFromUrls, UserMeasurements } from "@/lib/sizingApi";
+import { MeasurementResultsDialog } from "@/components/MeasurementResultsDialog";
 
 export default function UpdateProfile() {
   const navigate = useNavigate();
@@ -38,6 +40,11 @@ export default function UpdateProfile() {
   const [waist, setWaist] = useState("");
   const [pantsSize, setPantsSize] = useState("");
   const [fullName, setFullName] = useState("");
+  const [hip, setHip] = useState("");
+  const [shoulder, setShoulder] = useState("");
+  const [neck, setNeck] = useState("");
+  const [inseam, setInseam] = useState("");
+  const [bodyLength, setBodyLength] = useState("");
   const [bodyType, setBodyType] = useState("");
   const [stylePreferences, setStylePreferences] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -46,6 +53,9 @@ export default function UpdateProfile() {
   const [sideImage, setSideImage] = useState<string | null>(null);
   const [uploadingFront, setUploadingFront] = useState(false);
   const [uploadingSide, setUploadingSide] = useState(false);
+  const [isCalculatingSize, setIsCalculatingSize] = useState(false);
+  const [resultsModalOpen, setResultsModalOpen] = useState(false);
+  const [calculatedMeasurements, setCalculatedMeasurements] = useState<UserMeasurements | null>(null);
   
   // Camera capture states
   const [showCamera, setShowCamera] = useState(false);
@@ -62,8 +72,7 @@ export default function UpdateProfile() {
       setSelectedShirtSize(profile.shirt_size || "XL");
       setHeight(profile.height?.toString() || "");
       setWeight(profile.weight?.toString() || "");
-      setChest(profile.chest?.toString() || "");
-      setWaist(profile.waist?.toString() || "");
+      // Fields like chest/waist are now shown in the modal, not as inputs
       setPantsSize(profile.pants_size?.toString() || "");
       setFullName(profile.full_name || user?.email || "");
       setBodyType(profile.body_type || "");
@@ -76,6 +85,64 @@ export default function UpdateProfile() {
       }
     }
   }, [profile, user]);
+
+  const handleCalculateSize = async () => {
+    if (!profile) {
+      toast({ title: "Error", description: "Profile not loaded yet.", variant: "destructive" });
+      return;
+    }
+    if (!frontImage || !sideImage) {
+      toast({ title: "Error", description: "Please upload both front and side photos.", variant: "destructive" });
+      return;
+    }
+
+    setIsCalculatingSize(true);
+    toast({ title: "AI Size Calculation", description: "Analyzing your photos to extract measurements. This may take a moment." });
+
+    try {
+      const measurements = await extractMeasurementsFromUrls(profile);
+      setCalculatedMeasurements(measurements);
+      setResultsModalOpen(true);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+      toast({
+        title: "Calculation Failed",
+        description: `Could not extract measurements: ${errorMessage}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsCalculatingSize(false);
+    }
+  };
+
+  const handleSaveFromModal = async () => {
+    if (!calculatedMeasurements) return;
+
+    setIsSaving(true);
+    try {
+      const updates = {
+        chest_inches: calculatedMeasurements.chest,
+        waist_inches: calculatedMeasurements.waist,
+        hip_inches: calculatedMeasurements.Butt,
+        shoulder_inches: calculatedMeasurements.shoulder_width,
+        neck_inches: calculatedMeasurements.neck,
+        inseam_inches: calculatedMeasurements.inseam,
+        body_length_inches: calculatedMeasurements.body_length,
+        height: profile?.height || calculatedMeasurements.height,
+      };
+
+      const { error } = await updateProfile(updates);
+      if (error) throw new Error(error);
+
+      toast({ title: "Success!", description: "Your new measurements have been saved." });
+      setResultsModalOpen(false);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to save measurements.";
+      toast({ title: "Save Failed", description: errorMessage, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleBack = () => {
     navigateBack("/profile");
@@ -135,8 +202,6 @@ export default function UpdateProfile() {
         gender: selectedGender,
         height: height ? parseFloat(height) : null,
         weight: weight ? parseFloat(weight) : null,
-        chest: chest ? parseFloat(chest) : null,
-        waist: waist ? parseFloat(waist) : null,
         pants_size: pantsSize ? parseFloat(pantsSize) : null,
         shirt_size: selectedShirtSize,
         body_type: bodyType || null,
@@ -596,6 +661,14 @@ export default function UpdateProfile() {
           </div>
         </div>
 
+        <Button
+          onClick={handleCalculateSize}
+          disabled={!frontImage || !sideImage || isCalculatingSize}
+          className="w-full bg-purple-600 text-white py-4 rounded-xl font-medium hover:bg-purple-700 disabled:bg-gray-300 mb-6"
+        >
+          {isCalculatingSize ? "Calculating..." : "Calculate My Size with AI"}
+        </Button>
+
         <div className="bg-gray-100 my-8 py-1 w-full"></div>
 
         {/* Gender */}
@@ -646,6 +719,34 @@ export default function UpdateProfile() {
                 className="w-full p-2 border border-gray-300 rounded-lg"
                 placeholder="60"
               ></input>
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Chest (in)</label>
+              <input value={chest} onChange={(e) => setChest(e.target.value)} type="number" className="w-full p-2 border border-gray-300 rounded-lg" placeholder="38" />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Waist (in)</label>
+              <input value={waist} onChange={(e) => setWaist(e.target.value)} type="number" className="w-full p-2 border border-gray-300 rounded-lg" placeholder="32" />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Hip (in)</label>
+              <input value={hip} onChange={(e) => setHip(e.target.value)} type="number" className="w-full p-2 border border-gray-300 rounded-lg" placeholder="40" />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Shoulder (in)</label>
+              <input value={shoulder} onChange={(e) => setShoulder(e.target.value)} type="number" className="w-full p-2 border border-gray-300 rounded-lg" placeholder="18" />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Neck (in)</label>
+              <input value={neck} onChange={(e) => setNeck(e.target.value)} type="number" className="w-full p-2 border border-gray-300 rounded-lg" placeholder="15.5" />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Inseam (in)</label>
+              <input value={inseam} onChange={(e) => setInseam(e.target.value)} type="number" className="w-full p-2 border border-gray-300 rounded-lg" placeholder="32" />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Body Length (in)</label>
+              <input value={bodyLength} onChange={(e) => setBodyLength(e.target.value)} type="number" className="w-full p-2 border border-gray-300 rounded-lg" placeholder="25" />
             </div>
           </div>
           
@@ -756,6 +857,14 @@ export default function UpdateProfile() {
 
       {/* Bottom Navigation */}
       <BottomNavigation />
+
+      <MeasurementResultsDialog
+        isOpen={resultsModalOpen}
+        onClose={() => setResultsModalOpen(false)}
+        onSave={handleSaveFromModal}
+        measurements={calculatedMeasurements}
+        isSaving={isSaving}
+      />
 
       {/* Camera Modal */}
       {showCamera && (

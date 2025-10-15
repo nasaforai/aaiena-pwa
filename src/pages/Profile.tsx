@@ -235,6 +235,54 @@ export default function Profile() {
           </CardContent>
         </Card>
 
+        {/* AI Sizing Card */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center justify-between">
+              <span>AI Body Measurements</span>
+              <Badge 
+                className={profile?.chest_inches ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}
+              >
+                {profile?.chest_inches ? "Calculated" : "Needs Calculation"}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {profile?.chest_inches ? (
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-600">Chest:</span>
+                  <span className="ml-2 font-medium">{profile.chest_inches}"</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Waist:</span>
+                  <span className="ml-2 font-medium">{profile.waist_inches}"</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Hip:</span>
+                  <span className="ml-2 font-medium">{profile.hip_inches}"</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Shoulder:</span>
+                  <span className="ml-2 font-medium">{profile.shoulder_inches}"</span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-4">
+                <p className="text-sm text-muted-foreground mb-4 text-center">
+                  Get precise body measurements using our AI. Upload your photos and let us do the rest!
+                </p>
+                <Button
+                  onClick={() => navigate('/update-profile')}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  Calculate My Size with AI
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Body Measurements */}
         <Card className="mb-6">
           <CardHeader>
