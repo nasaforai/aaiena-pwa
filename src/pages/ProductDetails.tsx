@@ -758,19 +758,19 @@ export default function ProductDetails() {
                     {/* Recommended Size Overlay */}
                     {mySizeRecs && (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="bg-white bg-opacity-80 rounded-full w-32 h-32 flex flex-col items-center justify-center shadow-lg">
-                          <div className="text-xs text-gray-500">Recommended</div>
+                        <div className="bg-white bg-opacity-90 rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-lg">
+                          <div className="text-xs text-gray-500">Best Fit</div>
                           <div className="text-3xl font-bold text-purple-700">
                             {mySizeRecs.recommended_size || "M"}
                           </div>
+                          <div className="text-xs text-center text-gray-600 mt-1 max-w-[90%]">
+                            {mySizeRecs.fit_score >= 8 ? "Perfect fit for your body shape" : 
+                             mySizeRecs.fit_score >= 6 ? "Comfortable and well-balanced look" : 
+                             mySizeRecs.fit_score >= 4 ? "Decent fit with minor adjustments" : 
+                             "May require alterations"}
+                          </div>
                           {mySizeRecs.fit_score && (
                             <div className="mt-1">
-                              <div className="text-xs text-gray-600 text-center mb-1">
-                                {mySizeRecs.fit_score >= 8 ? "Perfect Fit" : 
-                                 mySizeRecs.fit_score >= 6 ? "Good Fit" : 
-                                 mySizeRecs.fit_score >= 4 ? "Average Fit" : 
-                                 "Poor Fit"}
-                              </div>
                               <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
                                 <div 
                                   className={`h-full ${
@@ -792,51 +792,85 @@ export default function ProductDetails() {
                 </div>
 
                 {/* Size Options */}
-                <div className="flex justify-between text-left mb-4">
-                  <div className={`text-xs ${mySizeRecs?.recommended_size === "XL" || mySizeRecs?.recommended_size === "XXL" ? "ring-2 ring-purple-500 rounded-md p-1" : ""}`}>
-                    <div className="w-6 h-6 rounded-md mb-1 bg-[#9BC7FD]"></div>
-                    <div className="text-sm">Large size</div>
-                    <div className="text-gray-800 text-lg">(XL,XXL)</div>
-                  </div>
-                  <div className={`text-xs ${mySizeRecs?.recommended_size === "M" ? "ring-2 ring-purple-500 rounded-md p-1" : ""}`}>
-                    <div className="w-6 h-6 rounded-md mb-1 bg-[#FF98D4]"></div>
-                    <div className="text-sm">Medium size</div>
-                    <div className="text-gray-800 text-lg">(M)</div>
-                  </div>
-                  <div className={`text-xs ${mySizeRecs?.recommended_size === "S" ? "ring-2 ring-purple-500 rounded-md p-1" : ""}`}>
-                    <div className="w-6 h-6 rounded-md mb-1 bg-[#FFD188]"></div>
-                    <div className="text-sm">Small size</div>
-                    <div className="text-gray-800 text-lg">(S)</div>
+                <div className="mt-6">
+                  <div className="text-sm font-medium text-gray-700 mb-3">Size Categories</div>
+                  <div className="flex justify-between text-left mb-4">
+                    <div className={`text-xs ${mySizeRecs?.recommended_size === "XL" || mySizeRecs?.recommended_size === "XXL" ? "ring-2 ring-purple-500 rounded-md p-2" : "p-1"}`}>
+                      <div className="w-6 h-6 rounded-md mb-1 bg-[#9BC7FD]"></div>
+                      <div className="text-sm font-medium">Large size</div>
+                      <div className="text-gray-800 text-lg">(XL,XXL)</div>
+                      {(mySizeRecs?.recommended_size === "XL" || mySizeRecs?.recommended_size === "XXL") && (
+                        <div className="text-xs text-purple-600 mt-1">Recommended</div>
+                      )}
+                    </div>
+                    <div className={`text-xs ${mySizeRecs?.recommended_size === "M" ? "ring-2 ring-purple-500 rounded-md p-2" : "p-1"}`}>
+                      <div className="w-6 h-6 rounded-md mb-1 bg-[#FF98D4]"></div>
+                      <div className="text-sm font-medium">Medium size</div>
+                      <div className="text-gray-800 text-lg">(M)</div>
+                      {mySizeRecs?.recommended_size === "M" && (
+                        <div className="text-xs text-purple-600 mt-1">Recommended</div>
+                      )}
+                    </div>
+                    <div className={`text-xs ${mySizeRecs?.recommended_size === "S" ? "ring-2 ring-purple-500 rounded-md p-2" : "p-1"}`}>
+                      <div className="w-6 h-6 rounded-md mb-1 bg-[#FFD188]"></div>
+                      <div className="text-sm font-medium">Small size</div>
+                      <div className="text-gray-800 text-lg">(S)</div>
+                      {mySizeRecs?.recommended_size === "S" && (
+                        <div className="text-xs text-purple-600 mt-1">Recommended</div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
                 {/* Alternative Sizes */}
                 {mySizeRecs?.alternative_sizes && Object.keys(mySizeRecs.alternative_sizes).length > 0 && (
-                  <div className="mt-4 mb-4">
-                    <div className="text-sm font-medium text-gray-700 mb-2">Alternative Sizes</div>
-                    <div className="flex gap-2 overflow-x-auto pb-2">
+                  <div className="mt-6 mb-4">
+                    <div className="text-sm font-medium text-gray-700 mb-3">Other Fit Options</div>
+                    <div className="space-y-4">
                       {Object.entries(mySizeRecs.alternative_sizes).map(([size, score]) => {
                         const scoreNum = typeof score === 'number' ? score : Number(score);
+                        let fitDescription = "";
+                        
+                        if (scoreNum >= 8) {
+                          fitDescription = "Also an excellent fit for your body shape";
+                        } else if (scoreNum >= 6) {
+                          fitDescription = "Good alternative—provides a comfortable fit";
+                        } else if (scoreNum >= 4) {
+                          fitDescription = "Could feel a bit snug. Good if you prefer tighter-fitting clothes";
+                        } else if (scoreNum >= 2) {
+                          fitDescription = "May feel either too tight or too loose depending on your preference";
+                        } else {
+                          fitDescription = "Not recommended for your body shape";
+                        }
+                        
                         return (
                           <div 
                             key={size}
-                            className="flex-shrink-0 border rounded-lg p-2 text-center cursor-pointer transition-all hover:border-purple-300"
+                            className="border rounded-lg p-3 cursor-pointer transition-all hover:border-purple-300 hover:bg-purple-50"
                             onClick={() => setSelectedSize(size)}
                           >
-                            <div className="text-lg font-bold">{size}</div>
-                            <div className="w-full h-1 rounded-full overflow-hidden bg-gray-200 my-1">
-                              <div 
-                                className={
-                                  scoreNum >= 8 ? "bg-green-500" : 
-                                  scoreNum >= 6 ? "bg-green-400" : 
-                                  scoreNum >= 4 ? "bg-yellow-400" : 
-                                  scoreNum >= 2 ? "bg-orange-400" : 
-                                  "bg-red-500"
-                                }
-                                style={{ width: `${Math.min(100, scoreNum * 10)}%`, height: '100%' }}
-                              />
+                            <div className="flex items-center justify-between mb-2">
+                              <div>
+                                <div className="text-sm font-medium text-gray-500">Alternative Fit</div>
+                                <div className="text-lg font-bold text-gray-900">{size} Size</div>
+                              </div>
+                              <div className="flex flex-col items-end">
+                                <div className="w-16 h-1.5 rounded-full overflow-hidden bg-gray-200">
+                                  <div 
+                                    className={
+                                      scoreNum >= 8 ? "bg-green-500" : 
+                                      scoreNum >= 6 ? "bg-green-400" : 
+                                      scoreNum >= 4 ? "bg-yellow-400" : 
+                                      scoreNum >= 2 ? "bg-orange-400" : 
+                                      "bg-red-500"
+                                    }
+                                    style={{ width: `${Math.min(100, scoreNum * 10)}%`, height: '100%' }}
+                                  />
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1">{scoreNum.toFixed(1)}</div>
+                              </div>
                             </div>
-                            <div className="text-xs text-gray-500">{scoreNum.toFixed(1)}</div>
+                            <p className="text-xs text-gray-600">{fitDescription}</p>
                           </div>
                         );
                       })}
