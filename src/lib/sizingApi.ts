@@ -28,9 +28,36 @@ export interface UserMeasurements {
   chest: number;
   waist: number;
   Butt: number;
-  shoulder_width?: number;
-  body_length?: number;
-  inseam?: number;
+  weight: number;  // Required field
+  hip: number;     // Required field
+  shoulder: number; // Required field
+  inseam: number;   // Required field (no longer optional)
+  body_length: number; // Required field (no longer optional)
+  body_type: string; // Required field
+  gender: string;   // Required field (no longer optional)
+  // Support for nested measurements in API response
+  measurements?: {
+    height: number;
+    neck: number;
+    chest: number;
+    waist: number;
+    Butt: number;
+    weight: number;  // Required field
+    hip: number;     // Required field
+    shoulder: number; // Required field
+    inseam: number;   // Required field
+    body_length: number; // Required field
+    body_type: string; // Required field
+    gender: string;   // Required field
+  };
+  // Other API response fields
+  categories?: string[];
+  products?: Record<string, string[]>;
+  recommendations?: any[];
+  recommended_size?: string | null;
+  fit_score?: number | null;
+  alternative_sizes?: Record<string, number>;
+  message?: string;
 }
 
 export interface SizeChartMeasurement {
@@ -88,17 +115,45 @@ export interface ProcessImageResponse {
  * Convert frontend profile data to backend UserMeasurements format
  */
 function convertProfileToMeasurements(profile: any): UserMeasurements {
+  // Get gender from profile, default to 'M' if not available
+  let gender = 'M'; // default
+  if (profile.gender) {
+    const genderUpper = profile.gender.toUpperCase();
+    if (genderUpper === 'FEMALE' || genderUpper === 'F') {
+      gender = 'F';
+    } else if (genderUpper === 'MALE' || genderUpper === 'M') {
+      gender = 'M';
+    }
+  }
+
+  // Default body type based on gender
+  const defaultBodyType = gender === 'F' ? 'hourglass' : 'athletic';
+
   const measurements = {
+    // Basic measurements with defaults
     height: profile.height_cm || profile.height || 170, // Default height if not available
+    weight: profile.weight || 70, // Default weight
     neck: profile.neck_inches || profile.neck || 15,
     chest: profile.chest_inches || profile.chest || 38,
     waist: profile.waist_inches || profile.waist || 32,
+    
+    // Butt/hip measurements
     Butt: profile.hip_inches || profile.Butt || profile.hips || 40,
-    shoulder_width: profile.shoulder_inches || profile.shoulder_width,
-    body_length: profile.body_length,
-    inseam: profile.inseam
+    hip: profile.hip_inches || profile.Butt || profile.hips || 40, // Same as Butt for consistency
+    
+    // Shoulder measurements
+    shoulder: profile.shoulder_inches || profile.shoulder_width || 17,
+    
+    // Length measurements
+    body_length: profile.body_length_inches || profile.body_length || 27,
+    inseam: profile.inseam_inches || profile.inseam || 30,
+    
+    // Categorical fields
+    body_type: profile.body_type || defaultBodyType,
+    gender: gender
   };
   
+  console.log("Converted measurements with all required fields:", measurements);
   return measurements;
 }
 
@@ -174,12 +229,48 @@ export async function extractMeasurementsFromUrls(
     }
 
     const result = await response.json();
+    console.log("Raw API response:", result);
 
-    // The backend now returns the measurements directly.
-    // If it's nested under a key, this needs adjustment.
-    // Assuming the root object is the measurements.
-    return result as UserMeasurements;
+    // The API response contains measurements and other data
+    // We need to make sure it conforms to our UserMeasurements interface
+    const apiResponse = result as UserMeasurements;
+    
+    // If the measurements are not at the top level, ensure they're accessible
+    if (apiResponse.measurements) {
+      console.log("API response contains nested measurements");
+      
+      // Ensure all required fields are present in the nested measurements
+      if (!apiResponse.measurements.weight) apiResponse.measurements.weight = 70;
+      if (!apiResponse.measurements.hip) apiResponse.measurements.hip = apiResponse.measurements.Butt || 40;
+      if (!apiResponse.measurements.shoulder) apiResponse.measurements.shoulder = (apiResponse.measurements as any).shoulder_width || 17;
+      if (!apiResponse.measurements.body_type) apiResponse.measurements.body_type = 'athletic';
+      if (!apiResponse.measurements.gender) apiResponse.measurements.gender = 'M';
+    } else if (apiResponse.height !== undefined && apiResponse.chest !== undefined) {
+      // If measurements are at the top level, create a nested structure for consistency
+      // Default body type based on gender
+      const gender = apiResponse.gender || 'M';
+      const defaultBodyType = gender === 'F' ? 'hourglass' : 'athletic';
+      
+      apiResponse.measurements = {
+        height: apiResponse.height,
+        neck: apiResponse.neck,
+        chest: apiResponse.chest,
+        waist: apiResponse.waist,
+        Butt: apiResponse.Butt,
+        shoulder: (apiResponse as any).shoulder_width || apiResponse.shoulder || 17,
+        body_length: apiResponse.body_length || 27,
+        inseam: apiResponse.inseam || 30,
+        weight: apiResponse.weight || 70,
+        hip: apiResponse.hip || apiResponse.Butt || 40,
+        body_type: apiResponse.body_type || defaultBodyType,
+        gender: gender
+      };
+      console.log("Created nested measurements from top-level properties");
+    }
+    
+    return apiResponse;
   } catch (error) {
+    console.error("Error in extractMeasurementsFromUrls:", error);
     throw error;
   }
 }
@@ -195,11 +286,14 @@ export async function tryVirtually(
   try {
     const measurements = convertProfileToMeasurements(profile);
     
-    const request: RecommendationRequest = {
-      measurements,
-      category: category || 'T-shirt',
+    // Format the request according to the API's expected structure
+    const request = {
+      user_measurements: measurements,
+      product_category: category,
       size_chart: sizeChart
     };
+
+    console.log("Sending try-virtually request:", JSON.stringify(request, null, 2));
 
     const response = await fetch(`${API_BASE_URL}/try-virtually`, {
       method: 'POST',
@@ -211,17 +305,28 @@ export async function tryVirtually(
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error(`API error (${response.status}):`, errorText);
+      
       try {
         const errorData = JSON.parse(errorText);
-        throw new Error(errorData.detail || 'Virtual try-on failed');
-      } catch {
+        if (errorData.detail) {
+          console.error("Error details:", errorData.detail);
+          throw new Error(typeof errorData.detail === 'string' 
+            ? errorData.detail 
+            : JSON.stringify(errorData.detail));
+        } else {
+          throw new Error(JSON.stringify(errorData));
+        }
+      } catch (parseError) {
         throw new Error(`API request failed with status ${response.status}: ${errorText}`);
       }
     }
 
     const result = await response.json();
+    console.log("API response:", JSON.stringify(result, null, 2));
     return result;
   } catch (error) {
+    console.error('Error in tryVirtually:', error);
     throw error;
   }
 }
@@ -237,10 +342,14 @@ export async function getSizeRecommendations(
   try {
     const measurements = convertProfileToMeasurements(profile);
     
-    const request: RecommendationRequest = {
-      measurements,
-      category: category || 'T-shirt' // Default category
+    // Format the request according to the API's expected structure
+    const request = {
+      user_measurements: measurements,
+      product_category: category || 'T-shirt', // Default category
+      size_chart: sizeChart
     };
+
+    console.log("Sending recommendation request:", JSON.stringify(request, null, 2));
 
     const response = await fetch(`${API_BASE_URL}/recommendations`, {
       method: 'POST',
@@ -251,11 +360,27 @@ export async function getSizeRecommendations(
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || 'Failed to get size recommendations');
+      const errorText = await response.text();
+      console.error(`API error (${response.status}):`, errorText);
+      
+      try {
+        const errorData = JSON.parse(errorText);
+        if (errorData.detail) {
+          console.error("Error details:", errorData.detail);
+          throw new Error(typeof errorData.detail === 'string' 
+            ? errorData.detail 
+            : JSON.stringify(errorData.detail));
+        } else {
+          throw new Error(JSON.stringify(errorData));
+        }
+      } catch (parseError) {
+        throw new Error(`API request failed with status ${response.status}: ${errorText}`);
+      }
     }
 
-    return await response.json();
+    const result = await response.json();
+    console.log("API response:", JSON.stringify(result, null, 2));
+    return result;
   } catch (error) {
     console.error('Error getting size recommendations:', error);
     throw error;

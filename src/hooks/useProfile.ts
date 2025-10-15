@@ -21,9 +21,11 @@ interface Profile {
   waist_inches: number | null;
   shoulder_inches: number | null;
   hip_inches: number | null;
-  neck_inches: number | null;
-  inseam_inches: number | null;
-  body_length_inches: number | null;
+  // The following fields are in the interface but not in the actual database schema
+  // They are commented out to prevent errors, but kept for reference
+  // neck_inches: number | null;
+  // inseam_inches: number | null;
+  // body_length_inches: number | null;
   created_at: string;
   updated_at: string;
 }

@@ -16,6 +16,7 @@ import {
   Check,
   X,
   Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import { useNavigation } from "@/hooks/useNavigation";
@@ -71,7 +72,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MeasurementResultsDialog } from "@/components/MeasurementResultsDialog";
 
 export default function ProductDetails() {
   const navigate = useNavigate();
@@ -94,13 +94,12 @@ export default function ProductDetails() {
   const [missingPhotos, setMissingPhotos] = useState({ front: false, side: false });
   const [mySizeRecs, setMySizeRecs] = useState<RecommendationResponse | null>(null);
   const [mySizeLoading, setMySizeLoading] = useState(false);
-  const [measurementResultsOpen, setMeasurementResultsOpen] = useState(false);
   
-  // Debug - force modal open for testing
+  // Debug - force size recommendation to show for testing
   // useEffect(() => {
   //   setTimeout(() => {
-  //     console.log("Forcing modal open");
-  //     setMeasurementResultsOpen(true);
+  //     console.log("Forcing size recommendation");
+  //     handleCompareSizeClick();
   //   }, 2000);
   // }, []);
   const [isSavingMeasurements, setIsSavingMeasurements] = useState(false);
@@ -111,7 +110,7 @@ export default function ProductDetails() {
   const { data: sizeChart, isLoading: sizeChartLoading } = useProductSizeChart(productId);
   const sizeRecommendation = useSizeRecommendation(sizeChart || null);
   const { data: productVariants, isLoading: variantsLoading } = useProductVariants(productId || "");
-  const { profile, updateProfile } = useProfile();
+  const { profile, updateProfile, refetch: refetchProfile } = useProfile();
   
   // Check if product is in wishlist on mount and when product changes
   useEffect(() => {
@@ -393,42 +392,25 @@ export default function ProductDetails() {
       // Debug log the API response
       console.log("API Response:", JSON.stringify(result, null, 2));
       
-      // IMPORTANT: Create a direct reference to measurements to avoid null issues
-      // First log the raw measurements from API
-      console.log("Raw API measurements:", result.measurements);
-      
-      // Create a new object with explicitly converted number values
-      const measurementsData = {
-        height: Number(result.measurements.height),
-        chest: Number(result.measurements.chest),
-        waist: Number(result.measurements.waist),
-        Butt: Number(result.measurements.Butt),
-        shoulder_width: Number(result.measurements.shoulder_width),
-        neck: Number(result.measurements.neck),
-        inseam: Number(result.measurements.inseam),
-        body_length: Number(result.measurements.body_length)
-      };
-      
-      // Log the extracted and converted measurements
-      console.log("Extracted measurements (after Number conversion):", measurementsData);
-      
-      // Store the results with guaranteed measurements
-      setMySizeRecs({
-        ...result,
-        measurements: measurementsData
-      });
-
-      // Open the measurement results dialog - only showing measurements, not recommendations
-      console.log("Opening measurement results dialog with measurements only");
-      setMeasurementResultsOpen(true);
+      // Store the complete result object
+      setMySizeRecs(result);
 
       // If we have recommendations, pre-select the best size
-      if (result.recommendations && result.recommendations.length > 0) {
-        const bestSize = result.recommended_size;
-        if (bestSize) {
-          setSelectedSize(bestSize);
-          console.log("Setting selected size to:", bestSize);
-        }
+      if (result.recommended_size) {
+        setSelectedSize(result.recommended_size);
+        console.log("Setting selected size to:", result.recommended_size);
+      }
+
+      // Show success message
+      toast({
+        title: "Size Recommendation Ready",
+        description: `Your recommended size is ${result.recommended_size || 'M'}`,
+      });
+
+      // Scroll to the recommendation section
+      const recommendationSection = document.getElementById("recommendation-section");
+      if (recommendationSection) {
+        recommendationSection.scrollIntoView({ behavior: "smooth" });
       }
     } catch (error) {
       console.error("Error getting 'My Size' recommendation:", error);
@@ -466,15 +448,18 @@ export default function ProductDetails() {
       const chest = Number(measurements.chest);
       const waist = Number(measurements.waist);
       const butt = Number(measurements.Butt);
-      const shoulder = Number(measurements.shoulder_width);
+      const shoulder = Number(measurements.shoulder);
       const neck = Number(measurements.neck);
       const inseam = Number(measurements.inseam);
       const bodyLength = Number(measurements.body_length);
       const height = Number(measurements.height);
       
-      // Update profile with measurements from API response - use isNaN check to avoid invalid values
-      const { error } = await updateProfile({
+      // Create update object with proper validation
+      const updateData = {
+        // Save to both the standard fields and the _inches fields for compatibility
+        chest: !isNaN(chest) ? chest : null,
         chest_inches: !isNaN(chest) ? chest : null,
+        waist: !isNaN(waist) ? waist : null,
         waist_inches: !isNaN(waist) ? waist : null,
         hip_inches: !isNaN(butt) ? butt : null,
         shoulder_inches: !isNaN(shoulder) ? shoulder : null,
@@ -482,19 +467,36 @@ export default function ProductDetails() {
         inseam_inches: !isNaN(inseam) ? inseam : null,
         body_length_inches: !isNaN(bodyLength) ? bodyLength : null,
         height: !isNaN(height) ? height : null,
-      });
+      };
+      
+      // Log the exact data being sent to updateProfile
+      console.log("Sending to updateProfile:", updateData);
+      
+      // Update profile with measurements from API response
+      const { data, error } = await updateProfile(updateData);
+      
+      // Log the response from updateProfile
+      console.log("updateProfile response:", { data, error });
       
       if (error) {
         throw new Error(error);
       }
+      
+      // Explicitly refetch profile data to ensure UI is updated
+      await refetchProfile();
       
       toast({
         title: "Success!",
         description: "Your measurements have been saved to your profile.",
       });
       
-      // Close the modal
-      setMeasurementResultsOpen(false);
+      // No modal to close anymore
+      
+      // Ask user if they want to view their profile
+      const viewProfile = window.confirm("Measurements saved successfully! Would you like to view your profile now?");
+      if (viewProfile) {
+        navigate("/profile");
+      }
     } catch (error) {
       console.error("Error saving measurements:", error);
       toast({
@@ -562,15 +564,6 @@ export default function ProductDetails() {
                 <span>Size Guide</span>
               </button>
             )}
-            <Button
-              onClick={handleCompareSizeClick}
-              variant="outline"
-              size="sm"
-              className="ml-auto py-1 px-3 rounded-lg border-purple-300 text-purple-600 hover:bg-purple-50 hover:text-purple-700 font-medium text-sm"
-            >
-              <UserPen className="w-3 h-3 mr-1" />
-              Compare Your Size
-            </Button>
           </div>
           <div className="flex space-x-3">
             {variantsLoading ? (
@@ -721,7 +714,7 @@ export default function ProductDetails() {
 
       {/* Recommendation Section */}
       {isAuthenticated && (
-        <div className="px-4 mb-4">
+        <div id="recommendation-section" className="px-4 mb-4">
           <div className="flex items-center space-x-2 mb-3">
             <span className="font-medium text-gray-900">Recommendation</span>
             <div className="w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center">
@@ -749,7 +742,7 @@ export default function ProductDetails() {
             ) : (
               <>
                 <div className="flex justify-center">
-                  <div className="w-72 h-72">
+                  <div className="w-72 h-72 relative">
                     <ResponsiveContainer width="100%" height="100%">
                       <RadialBarChart
                         cx="50%"
@@ -761,38 +754,126 @@ export default function ProductDetails() {
                         <RadialBar dataKey="value" cornerRadius={4} />
                       </RadialBarChart>
                     </ResponsiveContainer>
+                    
+                    {/* Recommended Size Overlay */}
+                    {mySizeRecs && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="bg-white bg-opacity-80 rounded-full w-32 h-32 flex flex-col items-center justify-center shadow-lg">
+                          <div className="text-xs text-gray-500">Recommended</div>
+                          <div className="text-3xl font-bold text-purple-700">
+                            {mySizeRecs.recommended_size || "M"}
+                          </div>
+                          {mySizeRecs.fit_score && (
+                            <div className="mt-1">
+                              <div className="text-xs text-gray-600 text-center mb-1">
+                                {mySizeRecs.fit_score >= 8 ? "Perfect Fit" : 
+                                 mySizeRecs.fit_score >= 6 ? "Good Fit" : 
+                                 mySizeRecs.fit_score >= 4 ? "Average Fit" : 
+                                 "Poor Fit"}
+                              </div>
+                              <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                <div 
+                                  className={`h-full ${
+                                    mySizeRecs.fit_score >= 8 ? "bg-green-500" : 
+                                    mySizeRecs.fit_score >= 6 ? "bg-green-400" : 
+                                    mySizeRecs.fit_score >= 4 ? "bg-yellow-400" : 
+                                    mySizeRecs.fit_score >= 2 ? "bg-orange-400" : 
+                                    "bg-red-500"
+                                  }`}
+                                  style={{ width: `${Math.min(100, (mySizeRecs.fit_score || 7) * 10)}%` }}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {/* Size Options */}
                 <div className="flex justify-between text-left mb-4">
-                  <div className="text-xs">
+                  <div className={`text-xs ${mySizeRecs?.recommended_size === "XL" || mySizeRecs?.recommended_size === "XXL" ? "ring-2 ring-purple-500 rounded-md p-1" : ""}`}>
                     <div className="w-6 h-6 rounded-md mb-1 bg-[#9BC7FD]"></div>
                     <div className="text-sm">Large size</div>
                     <div className="text-gray-800 text-lg">(XL,XXL)</div>
                   </div>
-                  <div className="text-xs">
+                  <div className={`text-xs ${mySizeRecs?.recommended_size === "M" ? "ring-2 ring-purple-500 rounded-md p-1" : ""}`}>
                     <div className="w-6 h-6 rounded-md mb-1 bg-[#FF98D4]"></div>
                     <div className="text-sm">Medium size</div>
                     <div className="text-gray-800 text-lg">(M)</div>
                   </div>
-                  <div className="text-xs">
+                  <div className={`text-xs ${mySizeRecs?.recommended_size === "S" ? "ring-2 ring-purple-500 rounded-md p-1" : ""}`}>
                     <div className="w-6 h-6 rounded-md mb-1 bg-[#FFD188]"></div>
                     <div className="text-sm">Small size</div>
                     <div className="text-gray-800 text-lg">(S)</div>
                   </div>
                 </div>
 
+                {/* Alternative Sizes */}
+                {mySizeRecs?.alternative_sizes && Object.keys(mySizeRecs.alternative_sizes).length > 0 && (
+                  <div className="mt-4 mb-4">
+                    <div className="text-sm font-medium text-gray-700 mb-2">Alternative Sizes</div>
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      {Object.entries(mySizeRecs.alternative_sizes).map(([size, score]) => {
+                        const scoreNum = typeof score === 'number' ? score : Number(score);
+                        return (
+                          <div 
+                            key={size}
+                            className="flex-shrink-0 border rounded-lg p-2 text-center cursor-pointer transition-all hover:border-purple-300"
+                            onClick={() => setSelectedSize(size)}
+                          >
+                            <div className="text-lg font-bold">{size}</div>
+                            <div className="w-full h-1 rounded-full overflow-hidden bg-gray-200 my-1">
+                              <div 
+                                className={
+                                  scoreNum >= 8 ? "bg-green-500" : 
+                                  scoreNum >= 6 ? "bg-green-400" : 
+                                  scoreNum >= 4 ? "bg-yellow-400" : 
+                                  scoreNum >= 2 ? "bg-orange-400" : 
+                                  "bg-red-500"
+                                }
+                                style={{ width: `${Math.min(100, scoreNum * 10)}%`, height: '100%' }}
+                              />
+                            </div>
+                            <div className="text-xs text-gray-500">{scoreNum.toFixed(1)}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 <p className="text-xs text-gray-500 mt-4 ml-2">
                   *95% users said true to size
                 </p>
 
-                <Button
-                  onClick={handleCompareSizeClick}
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white py-6 rounded-xl font-medium mt-6 mb-4"
-                >
-                  Find My Size
-                </Button>
+                {!mySizeRecs && (
+                  <Button
+                    onClick={handleCompareSizeClick}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white py-6 rounded-xl font-medium mt-6 mb-4"
+                  >
+                    Compare My Size
+                  </Button>
+                )}
+                
+                {mySizeRecs && (
+                  <div className="flex gap-2 mt-6 mb-4">
+                    <Button
+                      onClick={() => setSelectedSize(mySizeRecs.recommended_size || "M")}
+                      className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-medium"
+                    >
+                      Select {mySizeRecs.recommended_size || "M"}
+                    </Button>
+                    <Button
+                      onClick={handleCompareSizeClick}
+                      variant="outline"
+                      className="py-3 rounded-xl font-medium"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -883,21 +964,6 @@ export default function ProductDetails() {
       </AlertDialog>
 
       <BottomNavigation />
-      
-      {/* Measurement Results Dialog - Only showing measurements */}
-      <MeasurementResultsDialog
-        isOpen={measurementResultsOpen}
-        onClose={() => {
-          console.log("Dialog closed by user");
-          setMeasurementResultsOpen(false);
-        }}
-        onSave={handleSaveMeasurements}
-        measurements={mySizeRecs || null}
-        isSaving={isSavingMeasurements}
-        recommendedSize={null}
-        fitScore={null}
-        alternativeSizes={null}
-      />
     </div>
   );
 }

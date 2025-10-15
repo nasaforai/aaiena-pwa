@@ -111,9 +111,12 @@ export function MeasurementResultsDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl">Your Body Measurements</DialogTitle>
+          <DialogTitle className="text-xl flex items-center gap-2">
+            <span>Your Body Measurements</span>
+            <Badge className="bg-green-100 text-green-800">Saved to Profile</Badge>
+          </DialogTitle>
           <DialogDescription>
-            We've analyzed your measurements for this product.
+            We've analyzed and saved your measurements to your profile.
           </DialogDescription>
         </DialogHeader>
         
@@ -124,7 +127,7 @@ export function MeasurementResultsDialog({
             transition={{ duration: 0.3 }}
             className="bg-white rounded-xl p-4 border border-gray-200"
           >
-            <h3 className="font-medium text-gray-900 mb-3">Measurements</h3>
+            <h3 className="font-medium text-gray-900 mb-3">Your Measurements</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="font-medium text-gray-500">Height:</div>
               <div>{safeHeight} cm</div>
@@ -158,49 +161,22 @@ export function MeasurementResultsDialog({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
-            <Button 
-              onClick={onSave} 
-              disabled={isSaving}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white flex items-center justify-center gap-2"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Saving...</span>
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4" />
-                  <span>Save to My Profile</span>
-                </>
-              )}
-            </Button>
-            <p className="text-xs text-gray-500 text-center mt-2">
-              Save these measurements to your profile for future recommendations
-            </p>
+            <div className="bg-green-50 border border-green-100 rounded-lg p-3 flex items-center gap-3">
+              <Check className="w-5 h-5 text-green-500" />
+              <div>
+                <p className="text-sm font-medium text-green-800">Measurements Saved</p>
+                <p className="text-xs text-green-700">Your measurements have been automatically saved to your profile</p>
+              </div>
+            </div>
           </motion.div>
         </div>
 
-        <DialogFooter className="flex justify-between sm:justify-between">
-          <Button variant="outline" onClick={onClose} disabled={isSaving}>
-            Close
-          </Button>
+        <DialogFooter className="flex justify-center sm:justify-center">
           <Button 
             onClick={onSave} 
-            disabled={isSaving}
             className="bg-purple-600 hover:bg-purple-700 flex items-center gap-2"
           >
-            {isSaving ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Saving...</span>
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4" />
-                <span>Save to Profile</span>
-              </>
-            )}
+            <span>View My Profile</span>
           </Button>
         </DialogFooter>
       </DialogContent>
