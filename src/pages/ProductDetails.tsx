@@ -15,6 +15,8 @@ import {
   Camera,
   Check,
   X,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import { useNavigation } from "@/hooks/useNavigation";
@@ -38,6 +40,13 @@ import { useProductSizeChart } from "@/hooks/useProductSizeChart";
 import { useSizeRecommendation } from "@/hooks/useSizeRecommendation";
 import { SizeChartDialog } from "@/components/SizeChartDialog";
 import { useProductVariants } from "@/hooks/useProductVariants";
+import {
+  getMySizeRecommendation,
+  getSizeRecommendations,
+  SizeRecommendation as ApiSizeRecommendation,
+  RecommendationResponse,
+  SizeChartMeasurement,
+} from "@/lib/sizingApi";
 import {
   Accordion,
   AccordionContent,
@@ -83,6 +92,17 @@ export default function ProductDetails() {
   const [isVirtualDialogOpen, setIsVirtualDialogOpen] = useState(false);
   const [showComingSoonDialog, setShowComingSoonDialog] = useState(false);
   const [missingPhotos, setMissingPhotos] = useState({ front: false, side: false });
+  const [mySizeRecs, setMySizeRecs] = useState<RecommendationResponse | null>(null);
+  const [mySizeLoading, setMySizeLoading] = useState(false);
+  
+  // Debug - force size recommendation to show for testing
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     console.log("Forcing size recommendation");
+  //     handleCompareSizeClick();
+  //   }, 2000);
+  // }, []);
+  const [isSavingMeasurements, setIsSavingMeasurements] = useState(false);
 
   // Fetch product data
   const { data: product, isLoading } = useProduct(productId || "");
@@ -90,7 +110,7 @@ export default function ProductDetails() {
   const { data: sizeChart, isLoading: sizeChartLoading } = useProductSizeChart(productId);
   const sizeRecommendation = useSizeRecommendation(sizeChart || null);
   const { data: productVariants, isLoading: variantsLoading } = useProductVariants(productId || "");
-  const { profile } = useProfile();
+  const { profile, updateProfile, refetch: refetchProfile } = useProfile();
   
   // Check if product is in wishlist on mount and when product changes
   useEffect(() => {
@@ -100,6 +120,20 @@ export default function ProductDetails() {
       setIsInWishlist(exists);
     }
   }, [product]);
+
+  const convertSizeChartToApiFormat = (sizeChart: any): SizeChartMeasurement[] | undefined => {
+    if (!sizeChart?.measurements) return undefined;
+    
+    return sizeChart.measurements.map((measurement: any) => ({
+      size_label: measurement.size_label,
+      chest_inches: measurement.chest_inches,
+      waist_inches: measurement.waist_inches,
+      shoulder_inches: measurement.shoulder_inches,
+      hips_inches: measurement.hips_inches,
+      length_inches: measurement.length_inches,
+      inseam_inches: measurement.inseam_inches,
+    }));
+  };
 
   // Chart data for size visualization
   const sizeChartData = [
@@ -263,7 +297,7 @@ export default function ProductDetails() {
   };
 
   const handleTryVirtually = () => {
-    navigate(`/try-virtually?id=${productId}`);
+    setShowComingSoonDialog(true);
   };
 
   const handleJoinRoom = () => {
@@ -316,35 +350,227 @@ export default function ProductDetails() {
     }
   };
 
-  const handleMySizeClick = () => {
+  const handleCompareSizeClick = async () => {
     // Check if user is logged in
     if (!isAuthenticated) {
-      if (isMobile) {
-        navigate(`/sign-up?${createSearchParams({ back: "product-details" })}`);
-      } else {
-        navigate("/signup-options");
-      }
+      navigate(isMobile ? `/sign-up?${createSearchParams({ back: "product-details" })}` : "/signup-options");
       return;
     }
 
-    // Check if photos exist (front and side)
-    const hasFrontPhoto = profile?.photos?.[0];
-    const hasSidePhoto = profile?.photos?.[1];
-    
-    if (!hasFrontPhoto || !hasSidePhoto) {
-      // Track which photos are missing
-      setMissingPhotos({
-        front: !hasFrontPhoto,
-        side: !hasSidePhoto
-      });
-      // Show dialog prompting to complete profile
-      setPhotoCheckDialogOpen(true);
-    } else {
-      // Photos exist, show success message
+    // Check if profile exists
+    if (!profile) {
       toast({
-        title: "Profile Complete!",
-        description: "Your size recommendation is based on your uploaded photos.",
+        title: "Profile not found",
+        description: "Please complete your profile to use this feature.",
+        variant: "destructive",
       });
+      return;
+    }
+
+    // Check for saved measurements
+    const hasSavedMeasurements = profile.chest_inches && profile.waist_inches;
+
+    if (!hasSavedMeasurements) {
+      // If no measurements, check for photos to offer calculation
+      const hasPhotos = profile.photos && profile.photos.length >= 2;
+      setMissingPhotos({ front: !profile.photos?.[0], side: !profile.photos?.[1] });
+      setPhotoCheckDialogOpen(true); // This dialog now serves to prompt user to complete profile
+      return;
+    }
+
+    // Show loading state
+    setMySizeLoading(true);
+    setMySizeRecs(null);
+
+    try {
+      const apiSizeChart = convertSizeChartToApiFormat(sizeChart);
+      const category = product?.category?.name || "T-shirt";
+      
+      // Use the faster getSizeRecommendations API with saved measurements
+      const result = await getSizeRecommendations(profile, apiSizeChart, category);
+      
+      // Debug log the API response
+      console.log("API Response:", JSON.stringify(result, null, 2));
+      
+      // If API doesn't return a recommendation, calculate our own
+      const processedResult = { ...result };
+      
+      if (!processedResult.recommended_size && processedResult.measurements && apiSizeChart) {
+        console.log("API didn't return a recommendation, calculating based on measurements");
+        
+        // Get user measurements
+        const userChest = processedResult.measurements.chest || 0;
+        const userWaist = processedResult.measurements.waist || 0;
+        const userShoulder = processedResult.measurements.shoulder || 0;
+        
+        console.log("User measurements:", { userChest, userWaist, userShoulder });
+        console.log("Size chart:", apiSizeChart);
+        
+        // Find the best matching size
+        let bestSize = "M"; // Default fallback
+        let bestScore = 0;
+        const alternativeSizes = {};
+        
+        // Calculate fit score for each size in the size chart
+        apiSizeChart.forEach(size => {
+          // Calculate how well the size fits (lower difference = better fit)
+          // For chest: ideal is when garment is 1-2 inches larger than body
+          const idealChestDiff = 1.5; // Ideal extra room for chest
+          const chestDiff = Math.abs(((size.chest_inches || 0) - userChest) - idealChestDiff);
+          
+          // For waist: ideal is when garment is 1-2 inches larger than body
+          const idealWaistDiff = 1.5; // Ideal extra room for waist
+          const waistDiff = Math.abs(((size.waist_inches || 0) - userWaist) - idealWaistDiff);
+          
+          // For shoulder: ideal is when garment matches body closely
+          const idealShoulderDiff = 0.5; // Shoulder should be close to body measurement
+          const shoulderDiff = Math.abs(((size.shoulder_inches || 0) - userShoulder) - idealShoulderDiff);
+          
+          // Weight the differences (chest and shoulders are more important than waist for tops)
+          const weightedDiff = (chestDiff * 0.4) + (waistDiff * 0.3) + (shoulderDiff * 0.3);
+          
+          // Convert to a 0-10 scale (lower diff = higher score)
+          const score = Math.max(0, 10 - (weightedDiff * 2));
+          
+          console.log(`Size ${size.size_label}: score ${score.toFixed(2)} (chest diff: ${chestDiff.toFixed(2)}, waist diff: ${waistDiff.toFixed(2)}, shoulder diff: ${shoulderDiff.toFixed(2)})`);
+          
+          // Track all sizes
+          alternativeSizes[size.size_label] = parseFloat(score.toFixed(2));
+          
+          // Update best size if this one has a better score
+          if (score > bestScore) {
+            bestScore = score;
+            bestSize = size.size_label;
+          }
+        });
+        
+        // Update the result with our calculated recommendation
+        processedResult.recommended_size = bestSize;
+        processedResult.fit_score = parseFloat(bestScore.toFixed(2));
+        
+        // Create alternative sizes object without the best size
+        const altSizes = { ...alternativeSizes };
+        delete altSizes[bestSize]; // Remove best size from alternatives
+        processedResult.alternative_sizes = altSizes;
+        
+        console.log("Calculated recommendation:", processedResult.recommended_size, "with score:", processedResult.fit_score);
+        console.log("Alternative sizes:", processedResult.alternative_sizes);
+      }
+      
+      // Store the processed result object
+      setMySizeRecs(processedResult);
+
+      // If we have recommendations, pre-select the best size
+      if (result.recommended_size) {
+        setSelectedSize(result.recommended_size);
+        console.log("Setting selected size to:", result.recommended_size);
+      }
+
+      // Show success message
+      toast({
+        title: "Size Recommendation Ready",
+        description: `Your recommended size is ${result.recommended_size || 'M'}`,
+      });
+
+      // Scroll to the recommendation section
+      const recommendationSection = document.getElementById("recommendation-section");
+      if (recommendationSection) {
+        recommendationSection.scrollIntoView({ behavior: "smooth" });
+      }
+    } catch (error) {
+      console.error("Error getting 'My Size' recommendation:", error);
+      toast({
+        title: "Error",
+        description: "Failed to get size recommendation.",
+        variant: "destructive",
+      });
+    } finally {
+      setMySizeLoading(false);
+    }
+  };
+  
+  // Handle saving measurements from the modal
+  const handleSaveMeasurements = async () => {
+    if (!profile || !mySizeRecs || !mySizeRecs.measurements) {
+      console.error("Missing profile or measurements data");
+      toast({
+        title: "Error",
+        description: "No measurements data available to save.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSavingMeasurements(true);
+    
+    try {
+      const measurements = mySizeRecs.measurements;
+      
+      // Log the measurements being saved
+      console.log("Saving measurements to profile:", measurements);
+      
+      // Convert all values to numbers to ensure they're valid
+      const chest = Number(measurements.chest);
+      const waist = Number(measurements.waist);
+      const butt = Number(measurements.Butt);
+      const shoulder = Number(measurements.shoulder);
+      const neck = Number(measurements.neck);
+      const inseam = Number(measurements.inseam);
+      const bodyLength = Number(measurements.body_length);
+      const height = Number(measurements.height);
+      
+      // Create update object with proper validation
+      const updateData = {
+        // Save to both the standard fields and the _inches fields for compatibility
+        chest: !isNaN(chest) ? chest : null,
+        chest_inches: !isNaN(chest) ? chest : null,
+        waist: !isNaN(waist) ? waist : null,
+        waist_inches: !isNaN(waist) ? waist : null,
+        hip_inches: !isNaN(butt) ? butt : null,
+        shoulder_inches: !isNaN(shoulder) ? shoulder : null,
+        neck_inches: !isNaN(neck) ? neck : null,
+        inseam_inches: !isNaN(inseam) ? inseam : null,
+        body_length_inches: !isNaN(bodyLength) ? bodyLength : null,
+        height: !isNaN(height) ? height : null,
+      };
+      
+      // Log the exact data being sent to updateProfile
+      console.log("Sending to updateProfile:", updateData);
+      
+      // Update profile with measurements from API response
+      const { data, error } = await updateProfile(updateData);
+      
+      // Log the response from updateProfile
+      console.log("updateProfile response:", { data, error });
+      
+      if (error) {
+        throw new Error(error);
+      }
+      
+      // Explicitly refetch profile data to ensure UI is updated
+      await refetchProfile();
+      
+      toast({
+        title: "Success!",
+        description: "Your measurements have been saved to your profile.",
+      });
+      
+      // No modal to close anymore
+      
+      // Ask user if they want to view their profile
+      const viewProfile = window.confirm("Measurements saved successfully! Would you like to view your profile now?");
+      if (viewProfile) {
+        navigate("/profile");
+      }
+    } catch (error) {
+      console.error("Error saving measurements:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save measurements to your profile.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingMeasurements(false);
     }
   };
 
@@ -403,15 +629,6 @@ export default function ProductDetails() {
                 <span>Size Guide</span>
               </button>
             )}
-            <Button
-              onClick={handleMySizeClick}
-              variant="outline"
-              size="sm"
-              className="ml-auto py-1 px-3 rounded-lg border-purple-300 text-purple-600 hover:bg-purple-50 hover:text-purple-700 font-medium text-sm"
-            >
-              <UserPen className="w-3 h-3 mr-1" />
-              My Size
-            </Button>
           </div>
           <div className="flex space-x-3">
             {variantsLoading ? (
@@ -472,13 +689,13 @@ export default function ProductDetails() {
               Complete Your Profile for Size Recommendation
             </DialogTitle>
             <DialogDescription>
-              Please upload your front and side view photos to get accurate size recommendations.
+              To get your recommended size, first calculate your measurements from your profile page using your photos.
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4">
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 mb-3">Photo Status:</h4>
+              <h4 className="font-medium text-gray-900 mb-3">Profile Status:</h4>
               <ul className="text-sm space-y-2">
                 <li className="flex items-center gap-2">
                   {missingPhotos.front ? (
@@ -500,11 +717,21 @@ export default function ProductDetails() {
                     Side view photo {missingPhotos.side ? "(Missing)" : "(Uploaded)"}
                   </span>
                 </li>
+                <li className="flex items-center gap-2">
+                  {profile?.chest_inches ? (
+                    <Check className="w-4 h-4 text-green-500" />
+                  ) : (
+                    <X className="w-4 h-4 text-red-500" />
+                  )}
+                  <span className={profile?.chest_inches ? "text-green-600" : "text-red-600 font-medium"}>
+                    AI Measurements {profile?.chest_inches ? "(Calculated)" : "(Not Calculated)"}
+                  </span>
+                </li>
               </ul>
             </div>
             
             <p className="text-xs text-gray-500 text-center">
-              These photos help us provide accurate size recommendations tailored to your body type.
+              Please go to your profile, upload your photos, and use the "Calculate My Size with AI" feature.
             </p>
             
             <div className="flex gap-2">
@@ -551,8 +778,8 @@ export default function ProductDetails() {
       </div>
 
       {/* Recommendation Section */}
-      {isAuthenticated && hasMeasurements && (
-        <div className="px-4 mb-4">
+      {isAuthenticated && (
+        <div id="recommendation-section" className="px-4 mb-4">
           <div className="flex items-center space-x-2 mb-3">
             <span className="font-medium text-gray-900">Recommendation</span>
             <div className="w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center">
@@ -560,104 +787,202 @@ export default function ProductDetails() {
             </div>
           </div>
 
-          {/* Size Chart */}
-          {isAuthenticated && (
-            <div className="bg-gradient-to-t from-[#F1E8FF] to-[#EBE1FD] rounded-2xl p-6 mb-4">
-              <h3 className="font-semibold text-gray-900 mb-1 text-2xl flex justify-between">
-                <span> My Size</span>
-                <UserPen />
-              </h3>
-              <p className="text-sm text-gray-600">
-                Tailored to match your exact measurements
-              </p>
+          <div className="bg-[#F8F5FF] rounded-2xl p-6 mb-4">
+            <h3 className="font-semibold text-[#2D0C57] mb-1 text-2xl flex justify-between">
+              <span>My Size</span>
+              <UserPen className="text-gray-700" />
+            </h3>
+            <p className="text-sm text-gray-600">
+              Tailored to match your exact measurements
+            </p>
 
-              {/* Radial Chart */}
-              <div className="flex justify-center">
-                <div className="w-72 h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadialBarChart
-                      cx="50%"
-                      cy="50%"
-                      innerRadius="20%"
-                      outerRadius="80%"
-                      data={sizeChartData}
-                    >
-                      <RadialBar dataKey="value" cornerRadius={4} />
-                    </RadialBarChart>
-                  </ResponsiveContainer>
+            {mySizeLoading ? (
+              <div className="flex flex-col items-center justify-center py-10 space-y-4">
+                <Loader2 className="w-12 h-12 text-purple-600 animate-spin" />
+                <div className="text-center">
+                  <p className="text-gray-700 font-medium">Finding your best fit...</p>
+                  <p className="text-xs text-gray-500 mt-1">Analyzing your measurements with AI</p>
                 </div>
               </div>
-
-              {/* Size Options */}
-              <div className="flex justify-between text-left mb-4">
-                <div className="text-xs">
-                  <div className="w-6 h-6 rounded-md mb-1 bg-[#9BC7FD]"></div>
-                  <div className="text-sm">Large size</div>
-                  <div className="text-gray-800 text-lg">(XL,XXL)</div>
-                </div>
-                <div className="text-xs">
-                  <div className="w-6 h-6 rounded-md mb-1 bg-[#FF98D4]"></div>
-                  <div className="text-sm">Medium size</div>
-                  <div className="text-gray-800 text-lg">(M)</div>
-                </div>
-                <div className="text-xs">
-                  <div className="w-6 h-6 rounded-md mb-1 bg-[#FFD188]"></div>
-                  <div className="text-sm">Small size</div>
-                  <div className="text-gray-800 text-lg">(S)</div>
-                </div>
-              </div>
-
-              {/* Best Fit */}
-              {sizeRecommendation.bestFit && (
-                <div className="bg-purple-200 rounded-xl p-4 mb-4 mt-10">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-900">
-                      <span className="font-medium">Best Fit:</span>
-                      <span className="bg-orange-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
-                        {sizeRecommendation.bestFit.size}
-                      </span>
-                      <span className="ml-2 text-xs text-gray-600">
-                        ({sizeRecommendation.bestFit.matchPercentage}% match)
-                      </span>
-                    </span>
+            ) : (
+              <>
+                <div className="flex justify-center">
+                  <div className="w-full h-64 relative mb-8">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadialBarChart
+                        cx="50%"
+                        cy="50%"
+                        innerRadius="30%"
+                        outerRadius="90%"
+                        data={[
+                          { 
+                            name: 'Large', 
+                            value: 100, 
+                            fill: '#9BC7FD'
+                          },
+                          { 
+                            name: 'Medium', 
+                            value: 75, 
+                            fill: '#FF98D4'
+                          },
+                          { 
+                            name: 'Small', 
+                            value: 50, 
+                            fill: '#FFD188'
+                          },
+                        ]}
+                        startAngle={180}
+                        endAngle={-180}
+                      >
+                        <RadialBar 
+                          dataKey="value" 
+                          cornerRadius={10}
+                          background
+                        />
+                        <text
+                          x="50%"
+                          y="50%"
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          className="text-lg font-medium"
+                          fill="#333"
+                        >
+                          Sizes
+                        </text>
+                      </RadialBarChart>
+                    </ResponsiveContainer>
                   </div>
-                  <p className="text-xs text-gray-600 mt-2">
-                    {sizeRecommendation.bestFit.reason}
+                </div>
+
+                {/* Size Categories */}
+                <div className="flex justify-between text-left mb-6">
+                  <div className="text-center">
+                    <div className="w-10 h-10 rounded-md mb-1 bg-[#9BC7FD] mx-auto"></div>
+                    <div className="text-sm text-gray-700">Large size</div>
+                    <div className="text-gray-800 text-sm">(X,XL,XXL)</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-10 h-10 rounded-md mb-1 bg-[#FF98D4] mx-auto"></div>
+                    <div className="text-sm text-gray-700">Medium size</div>
+                    <div className="text-gray-800 text-sm">(M)</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-10 h-10 rounded-md mb-1 bg-[#FFD188] mx-auto"></div>
+                    <div className="text-sm text-gray-700">Small size</div>
+                    <div className="text-gray-800 text-sm">(S)</div>
+                  </div>
+                </div>
+
+                {/* Best Fit */}
+                <div className="bg-[#F3EFFF] rounded-xl p-4 mb-4">
+                  <div className="font-medium text-[#2D0C57] mb-1">Best Fit: {
+                    mySizeRecs?.recommended_size === "XL" || mySizeRecs?.recommended_size === "XXL" || mySizeRecs?.recommended_size === "L" ? "Large Size" : 
+                    mySizeRecs?.recommended_size === "M" ? "Medium Size" : "Small Size"
+                  }</div>
+                  <p className="text-sm text-[#2D0C57]">
+                    We recommend {
+                      mySizeRecs?.recommended_size === "XL" || mySizeRecs?.recommended_size === "XXL" || mySizeRecs?.recommended_size === "L" ? 
+                        `Large "${mySizeRecs?.recommended_size}"` : 
+                      mySizeRecs?.recommended_size === "M" ? 'Medium "M"' : 'Small "S"'
+                    } as the best fit for you—it offers a comfortable and well-balanced look.
                   </p>
                 </div>
-              )}
 
-              {sizeRecommendation.alternateFit && (
-                <div className="bg-white rounded-xl p-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-900">
-                      <span className="font-medium">Other Fit:</span>
-                      <span className="bg-purple-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
-                        {sizeRecommendation.alternateFit.size}
-                      </span>
-                      <span className="ml-2 text-xs text-gray-600">
-                        ({sizeRecommendation.alternateFit.matchPercentage}% match)
-                      </span>
-                    </span>
+                {/* Alternative Sizes */}
+                {mySizeRecs?.alternative_sizes && Object.keys(mySizeRecs.alternative_sizes).length > 0 && (
+                  <div className="space-y-3 mb-4">
+                    {Object.entries(mySizeRecs.alternative_sizes).map(([size, score], index) => {
+                      // Size labels for categorization and comparison
+                      const sizeLabels = ["XS", "S", "M", "L", "XL", "XXL", "EL", "KL"]; // Common size progression
+                      const sizeIndex = sizeLabels.indexOf(size);
+                      
+                      // Properly categorize sizes
+                      let sizeCategory;
+                      if (sizeIndex <= 1) { // XS, S
+                        sizeCategory = "Small Size";
+                      } else if (sizeIndex === 2) { // M
+                        sizeCategory = "Medium Size";
+                      } else { // L, XL, XXL, EL, KL and any others
+                        sizeCategory = "Large Size";
+                      }
+                      
+                      const scoreNum = typeof score === 'number' ? score : Number(score);
+                      
+                      // Determine if the size is larger or smaller than recommended
+                      const recommendedSizeLabel = mySizeRecs?.recommended_size || "M";
+                      
+                      // Find indices to determine if this size is larger or smaller
+                      const recIndex = sizeLabels.indexOf(recommendedSizeLabel);
+                      const thisIndex = sizeLabels.indexOf(size);
+                      
+                      let fitType = "similar";
+                      if (recIndex !== -1 && thisIndex !== -1) {
+                        fitType = thisIndex > recIndex ? "looser" : (thisIndex < recIndex ? "tighter" : "similar");
+                      }
+                      
+                      let fitDescription = "";
+                      
+                      // Calculate how much larger/smaller this size is compared to recommended
+                      const sizeDifference = Math.abs(thisIndex - recIndex);
+                      
+                      if (fitType === "similar" || sizeDifference === 0) {
+                        fitDescription = "Provides a very similar fit to the recommended size";
+                      } else if (fitType === "tighter") {
+                        if (sizeDifference === 1) {
+                          fitDescription = "Slightly tighter fit. Good if you prefer a more fitted look";
+                        } else if (sizeDifference === 2) {
+                          fitDescription = "Noticeably tighter fit. Best for those who prefer slim-fitting clothes";
+                        } else {
+                          fitDescription = "Significantly tighter fit. May be too constrictive for comfort";
+                        }
+                      } else if (fitType === "looser") {
+                        if (sizeDifference === 1) {
+                          fitDescription = "Slightly looser fit. Good if you prefer a more relaxed look";
+                        } else if (sizeDifference === 2) {
+                          fitDescription = "Noticeably looser fit. Best for those who prefer relaxed-fitting clothes";
+                        } else {
+                          fitDescription = "Significantly looser fit. May appear oversized on your frame";
+                        }
+                      } else {
+                        // Fallback based on score if we can't determine relative size
+                        if (scoreNum >= 8) {
+                          fitDescription = "Also an excellent fit for your body shape";
+                        } else if (scoreNum >= 6) {
+                          fitDescription = "Good alternative—provides a comfortable fit";
+                        } else if (scoreNum >= 4) {
+                          fitDescription = "Average fit for your measurements";
+                        } else if (scoreNum >= 2) {
+                          fitDescription = "Not ideal for your body shape";
+                        } else {
+                          fitDescription = "Not recommended for your body shape";
+                        }
+                      }
+                      
+                      return (
+                        <div key={size} className="bg-white border border-gray-200 rounded-xl p-4">
+                          <div className="font-medium text-[#2D0C57] mb-1">Other Fit: <span className="text-[#6A3CA5]">{sizeCategory}</span></div>
+                          <p className="text-sm text-[#2D0C57]">
+                            {size} {fitType === "tighter" ? "will be tighter" : fitType === "looser" ? "will be looser" : "provides a similar fit"} than recommended—{fitDescription}.
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <p className="text-xs text-gray-600 mt-2">
-                    {sizeRecommendation.alternateFit.reason}
-                  </p>
-                </div>
-              )}
+                )}
 
-              <p className="text-xs text-gray-500 mt-4 ml-2">
-                *95% users said true to size
-              </p>
+                <p className="text-xs text-gray-500 mt-4 ml-2">
+                  *95% users said true to size
+                </p>
 
-              <Button
-                onClick={handleTryVirtually}
-                className="w-full bg-gray-900 text-white py-6 rounded-xl font-medium mt-6 mb-4"
-              >
-                Try Now
-              </Button>
-            </div>
-          )}
+                <Button
+                  onClick={handleCompareSizeClick}
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white py-6 rounded-xl font-medium mt-6 mb-4"
+                >
+                  {mySizeRecs ? "Recalculate My Size" : "Compare My Size"}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       )}
 
@@ -697,7 +1022,7 @@ export default function ProductDetails() {
             <div className="flex gap-2">
               <Button
                 onClick={handleBuyNow}
-                className="flex-1 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800"
+                className="flex-1 bg-[#18002A] text-white py-3 rounded-lg font-medium hover:bg-[#2D0C57]"
               >
                 Buy Now
               </Button>

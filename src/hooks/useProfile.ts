@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -21,23 +21,24 @@ interface Profile {
   waist_inches: number | null;
   shoulder_inches: number | null;
   hip_inches: number | null;
+  // The following fields are in the interface but not in the actual database schema
+  // They are commented out to prevent errors, but kept for reference
+  // neck_inches: number | null;
+  // inseam_inches: number | null;
+  // body_length_inches: number | null;
   created_at: string;
   updated_at: string;
 }
 
 export function useProfile() {
-  const { user, isAuthenticated } = useAuth();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
-  const fetchProfile = async () => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
+  const { data: profile, isLoading: loading, error, refetch } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
 
-    try {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -45,21 +46,15 @@ export function useProfile() {
         .maybeSingle();
 
       if (error) throw error;
-      
-      setProfile(data as Profile | null);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch profile');
-      console.error('Error fetching profile:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return data as Profile | null;
+    },
+    enabled: !!user,
+  });
 
-  const updateProfile = async (updates: Partial<Profile>) => {
-    if (!user || !profile) return { error: 'No user or profile found' };
+  const { mutateAsync: updateProfileMutation } = useMutation({
+    mutationFn: async (updates: Partial<Profile>) => {
+      if (!user) throw new Error('No user found');
 
-    try {
       const { data, error } = await supabase
         .from('profiles')
         .update(updates)
@@ -68,20 +63,18 @@ export function useProfile() {
         .single();
 
       if (error) throw error;
-      
-      setProfile(data as Profile);
-      return { data, error: null };
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update profile';
-      setError(errorMessage);
-      return { error: errorMessage };
-    }
-  };
+      return data as Profile;
+    },
+    onSuccess: (data) => {
+      // When mutation is successful, invalidate the profile query to refetch data
+      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+    },
+  });
 
-  const createProfile = async (profileData: Partial<Profile>) => {
-    if (!user) return { error: 'No user found' };
+  const { mutateAsync: createProfileMutation } = useMutation({
+    mutationFn: async (profileData: Partial<Profile>) => {
+      if (!user) throw new Error('No user found');
 
-    try {
       const { data, error } = await supabase
         .from('profiles')
         .insert({
@@ -91,33 +84,41 @@ export function useProfile() {
         })
         .select()
         .single();
-
-      if (error) throw error;
       
-      setProfile(data as Profile);
+      if (error) throw error;
+      return data as Profile;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+    },
+  });
+
+  const updateProfile = async (updates: Partial<Profile>) => {
+    try {
+      const data = await updateProfileMutation(updates);
       return { data, error: null };
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create profile';
-      setError(errorMessage);
-      return { error: errorMessage };
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update profile';
+      return { data: null, error: errorMessage };
     }
   };
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchProfile();
-    } else {
-      setProfile(null);
-      setLoading(false);
+  const createProfile = async (profileData: Partial<Profile>) => {
+    try {
+      const data = await createProfileMutation(profileData);
+      return { data, error: null };
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create profile';
+      return { data: null, error: errorMessage };
     }
-  }, [user, isAuthenticated]);
+  };
 
   return {
     profile,
     loading,
-    error,
+    error: error ? (error as Error).message : null,
     updateProfile,
     createProfile,
-    refetch: fetchProfile
+    refetch,
   };
 }

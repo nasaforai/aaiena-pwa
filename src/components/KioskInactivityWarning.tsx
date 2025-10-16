@@ -43,18 +43,18 @@ export const KioskInactivityWarning = ({
           <AlertDialogTitle className="text-center text-lg sm:text-xl leading-tight break-words">
             Automatic Logout Warning
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-center space-y-3 sm:space-y-4 break-words">
-            <div className="text-base sm:text-lg">
-              The kiosk will automatically log you out in{' '}
-              <span className="font-bold text-destructive">
-                {remainingSeconds} seconds
-              </span>
-            </div>
-            <Progress value={progress} className="w-full h-2 sm:h-3" />
-            <div className="text-sm text-muted-foreground">
-              This helps keep your account secure on shared devices.
-            </div>
+          <AlertDialogDescription className="text-center mb-4">
+            The kiosk will automatically log you out in{' '}
+            <span className="font-bold text-destructive">
+              {remainingSeconds} seconds
+            </span>
           </AlertDialogDescription>
+          <div className="space-y-3 sm:space-y-4 text-center">
+            <Progress value={progress} className="w-full h-2 sm:h-3" />
+            <p className="text-sm text-muted-foreground">
+              This helps keep your account secure on shared devices.
+            </p>
+          </div>
         </AlertDialogHeader>
         <AlertDialogFooter className="w-full flex-col gap-2 sm:flex-row sm:gap-3">
           <AlertDialogCancel 

@@ -28,8 +28,16 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useProducts, useProduct } from "@/hooks/useProducts";
 import { useProfile } from "@/hooks/useProfile";
 import { useProductSizeChart } from "@/hooks/useProductSizeChart";
-import { getSizeRecommendations, SizeRecommendation as ApiSizeRecommendation, checkApiHealth, tryVirtually, tryVirtuallyWithImages } from "@/lib/sizingApi";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function TryVirtually() {
   const navigate = useNavigate();
@@ -39,11 +47,7 @@ export default function TryVirtually() {
   const [selectedSize, setSelectedSize] = useState("M");
   const [selectedColor, setSelectedColor] = useState("white");
   const [quantity, setQuantity] = useState(1);
-  const [apiRecommendations, setApiRecommendations] = useState<ApiSizeRecommendation[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [apiAvailable, setApiAvailable] = useState(false);
-  const [recommendationsFetched, setRecommendationsFetched] = useState(false);
-  const [hasRealResults, setHasRealResults] = useState(false);
+  const [showComingSoonDialog, setShowComingSoonDialog] = useState(false);
   
   // Use actual Supabase auth state but fallback to localStorage for this simple UI
   const { data: allProducts = [] } = useProducts();
@@ -64,21 +68,6 @@ export default function TryVirtually() {
   const isMobile = useIsMobile();
   const { toast } = useToast();
 
-  // Convert size chart data to API format
-  const convertSizeChartToApiFormat = (sizeChart: any) => {
-    if (!sizeChart?.measurements) return undefined;
-    
-    return sizeChart.measurements.map((measurement: any) => ({
-      size_label: measurement.size_label,
-      chest_inches: measurement.chest_inches,
-      waist_inches: measurement.waist_inches,
-      shoulder_inches: measurement.shoulder_inches,
-      hips_inches: measurement.hips_inches,
-      length_inches: measurement.length_inches,
-      inseam_inches: measurement.inseam_inches,
-    }));
-  };
-
   // Get available sizes - prioritize size chart, then product sizes, then default sizes
   const getAvailableSizes = () => {
     if (sizeChart?.measurements && sizeChart.measurements.length > 0) {
@@ -95,111 +84,6 @@ export default function TryVirtually() {
   };
 
   const availableSizes = getAvailableSizes();
-
-  // Background API recommendations fetch (with real image processing when possible)
-  useEffect(() => {
-    const fetchRecommendations = async () => {
-      // Prevent multiple API calls - only run once per profile/product combination
-      if (!profile || !hasMeasurements || recommendationsFetched || loading) {
-        return;
-      }
-
-      // Create a cache key to prevent duplicate calls for the same data
-      const cacheKey = `${profile.id || 'unknown'}_${productId || 'default'}_${profile.photos?.length || 0}`;
-      const lastCacheKey = sessionStorage.getItem('tryVirtually_cacheKey');
-      
-      if (lastCacheKey === cacheKey) {
-        console.log('🔄 Using cached recommendations to prevent duplicate API calls');
-        setRecommendationsFetched(true);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        
-        // Check if API is available
-        const isApiHealthy = await checkApiHealth();
-        setApiAvailable(isApiHealthy);
-        
-        if (!isApiHealthy) {
-          setRecommendationsFetched(true);
-          return;
-        }
-
-        let response;
-        
-        // Check if user has photos for real image processing
-        const hasPhotos = profile.photos && profile.photos.length >= 2;
-        const hasRequiredData = profile.height;
-        
-        if (hasPhotos && hasRequiredData && profile.gender) {
-          console.log('🎯 Using REAL image processing with U2Net + MediaPipe');
-          console.log('📸 Front photo:', profile.photos[0]);
-          console.log('📸 Side photo:', profile.photos[1]);
-          
-          // Show user that we're using their real photos
-          toast({
-            title: "🎯 AI Photo Analysis Active",
-            description: "Using your profile photos for real measurements via U2Net + MediaPipe!",
-          });
-          
-          // Convert size chart to API format
-          const apiSizeChart = convertSizeChartToApiFormat(sizeChart);
-          
-          // Use real image processing
-          response = await tryVirtuallyWithImages(
-            profile,
-            'T-shirt',
-            apiSizeChart
-          );
-          
-          console.log('✅ Got real measurements from images!');
-          setHasRealResults(true);
-        } else {
-          console.log('📝 Using profile measurements (no photos or missing data)');
-          console.log('Missing:', {
-            photos: !hasPhotos,
-            height: !hasRequiredData,
-            gender: !profile.gender
-          });
-          
-          // Convert size chart to API format
-          const apiSizeChart = convertSizeChartToApiFormat(sizeChart);
-          
-          // Fallback to profile measurements
-          response = await tryVirtually(
-            profile,
-            'T-shirt',
-            apiSizeChart
-          );
-          
-          setHasRealResults(false);
-        }
-        
-        setApiRecommendations(response.recommendations);
-        
-        // Set the best recommended size as selected
-        if (response.recommendations.length > 0) {
-          const bestRecommendation = response.recommendations.reduce((best, current) => 
-            current.score > best.score ? current : best
-          );
-          setSelectedSize(bestRecommendation.size);
-        }
-        
-        // Cache this successful result
-        sessionStorage.setItem('tryVirtually_cacheKey', cacheKey);
-        setRecommendationsFetched(true);
-      } catch (error) {
-        console.error('Error getting recommendations:', error);
-        setRecommendationsFetched(true);
-        // Silent fail - don't disrupt user experience
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRecommendations();
-  }, [profile, sizeChart, hasMeasurements, recommendationsFetched, loading, productId]);
 
   // Chart data for size visualization
   const sizeChartData = [
@@ -317,22 +201,6 @@ export default function TryVirtually() {
 
   // Get best fit from API recommendations or use default
   const getBestFit = () => {
-    if (loading && !recommendationsFetched) {
-      return {
-        size: "...",
-        description: "Analyzing your measurements..."
-      };
-    }
-    
-    if (apiRecommendations.length > 0) {
-      const best = apiRecommendations[0];
-      return {
-        size: best.size,
-        description: best.rating === 'Perfect' 
-          ? `We recommend ${best.size} as the perfect fit for you—it offers optimal comfort and style.`
-          : `We recommend ${best.size} as the best fit for you—it offers a comfortable and well-balanced look.`
-      };
-    }
     return {
       size: "Large",
       description: "We recommend Large \"L\" as the best fit for you—it offers a comfortable and well-balanced look."
@@ -340,22 +208,6 @@ export default function TryVirtually() {
   };
 
   const getAlternateFit = () => {
-    if (loading && !recommendationsFetched) {
-      return {
-        size: "...",
-        description: "Finding alternative options..."
-      };
-    }
-    
-    if (apiRecommendations.length > 1) {
-      const alt = apiRecommendations[1];
-      return {
-        size: alt.size,
-        description: alt.rating === 'Tight' 
-          ? `${alt.size} could feel a bit snug. Great if you like tighter-fitting clothes.`
-          : `${alt.size} as an alternative fit option for you.`
-      };
-    }
     return {
       size: "Medium",
       description: "Medium as the right fit for you—it could feel a bit snug. Great if you like tighter-fitting clothes."
@@ -529,19 +381,11 @@ export default function TryVirtually() {
 
               {/* Best Fit */}
               <div className="bg-purple-200 rounded-xl p-4 mb-4 mt-10">
-                {loading ? (
-                  <div className="flex items-center justify-center py-4">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
-                    <span className="ml-2 text-sm text-gray-600">
-                      {hasRealResults ? "Analyzing your photos with AI..." : "Getting your size recommendation..."}
-                    </span>
-                  </div>
-                ) : (
                   <>
                     <div className="flex items-center justify-between">
                       <span className="text-gray-900">
                         <span className="font-medium">
-                          {hasRealResults ? "🎯 AI Analyzed Fit:" : "Best Fit:"}
+                          Best Fit:
                         </span>
                         <span className="bg-orange-200 px-2 py-1 ml-1 rounded-md font-light text-sm">
                           {bestFit.size} Size
@@ -551,22 +395,10 @@ export default function TryVirtually() {
                     <p className="text-xs text-gray-600 mt-2">
                       {bestFit.description}
                     </p>
-                    {hasRealResults && (
-                      <p className="text-xs text-purple-600 mt-2 font-medium">
-                        ✨ Based on U2Net + MediaPipe analysis of your photos
-                      </p>
-                    )}
                   </>
-                )}
               </div>
 
               <div className="bg-white rounded-xl p-4">
-                {loading ? (
-                  <div className="flex items-center justify-center py-4">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
-                    <span className="ml-2 text-sm text-gray-400">Loading alternative...</span>
-                  </div>
-                ) : (
                   <>
                     <div className="flex items-center justify-between">
                       <span className="text-gray-900">
@@ -580,7 +412,6 @@ export default function TryVirtually() {
                       {alternateFit.description}
                     </p>
                   </>
-                )}
               </div>
 
               <p className="text-xs text-gray-500 mt-4 ml-2">
@@ -589,10 +420,7 @@ export default function TryVirtually() {
 
               <Button 
                 onClick={() => {
-                  toast({
-                    title: "Virtual Try-On",
-                    description: `Virtually trying on size ${selectedSize}. This feature uses your measurements for the best fit!`,
-                  });
+                  setShowComingSoonDialog(true);
                 }}
                 className="w-full bg-gray-900 text-white py-6 rounded-xl font-medium mt-6 mb-4"
               >
@@ -737,6 +565,21 @@ export default function TryVirtually() {
           </div>
         </div>
       </div>
+      <AlertDialog open={showComingSoonDialog} onOpenChange={setShowComingSoonDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Coming Soon</AlertDialogTitle>
+            <AlertDialogDescription>
+              This feature is under development and will be available soon.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowComingSoonDialog(false)}>
+              OK
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

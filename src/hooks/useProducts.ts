@@ -22,6 +22,9 @@ export interface Product {
   gender: string | null;
   style_number: string;
   sku: string;
+  category?: {
+    name: string;
+  } | null;
 }
 
 export const useProducts = (brandId?: string) => {
@@ -30,7 +33,7 @@ export const useProducts = (brandId?: string) => {
     queryFn: async () => {
       let query = supabase
         .from("products")
-        .select("*");
+        .select("*, category:categories(name)");
 
       if (brandId) {
         query = query.eq("brand_id", brandId);
@@ -51,7 +54,7 @@ export const useProductsByCategory = (category: "trending" | "new" | "offer", br
   return useQuery({
     queryKey: ["products", category, brandId],
     queryFn: async () => {
-      let query = supabase.from("products").select("*");
+      let query = supabase.from("products").select("*, category:categories(name)");
 
       if (brandId) {
         query = query.eq("brand_id", brandId);
@@ -86,7 +89,7 @@ export const useProduct = (productId: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("*")
+        .select("*, category:categories(name)")
         .eq("product_id", parseInt(productId))
         .maybeSingle();
 

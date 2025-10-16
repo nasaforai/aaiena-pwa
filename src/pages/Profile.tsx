@@ -235,6 +235,102 @@ export default function Profile() {
           </CardContent>
         </Card>
 
+        {/* AI Sizing Card */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center justify-between">
+              <span>AI Body Measurements</span>
+              <Badge 
+                className={profile?.chest_inches ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}
+              >
+                {profile?.chest_inches ? "Calculated" : "Needs Calculation"}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {profile?.chest_inches ? (
+              <>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Chest:</span>
+                    <span className="ml-2 font-medium">{profile.chest_inches}"</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Waist:</span>
+                    <span className="ml-2 font-medium">{profile.waist_inches}"</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Hip:</span>
+                    <span className="ml-2 font-medium">{profile.hip_inches}"</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Shoulder:</span>
+                    <span className="ml-2 font-medium">{profile.shoulder_inches}"</span>
+                  </div>
+                  {/* Display neck measurement from localStorage if available */}
+                  {(localStorage.getItem('neck_inches') || (profile as any)?.neck_inches) && (
+                    <div>
+                      <span className="text-gray-600">Neck:</span>
+                      <span className="ml-2 font-medium">{localStorage.getItem('neck_inches') || (profile as any)?.neck_inches}"</span>
+                    </div>
+                  )}
+                  {/* Display inseam measurement from localStorage if available */}
+                  {(localStorage.getItem('inseam_inches') || (profile as any)?.inseam_inches) && (
+                    <div>
+                      <span className="text-gray-600">Inseam:</span>
+                      <span className="ml-2 font-medium">{localStorage.getItem('inseam_inches') || (profile as any)?.inseam_inches}"</span>
+                    </div>
+                  )}
+                  {/* Display body length measurement from localStorage if available */}
+                  {(localStorage.getItem('body_length_inches') || (profile as any)?.body_length_inches) && (
+                    <div>
+                      <span className="text-gray-600">Body Length:</span>
+                      <span className="ml-2 font-medium">{localStorage.getItem('body_length_inches') || (profile as any)?.body_length_inches}"</span>
+                    </div>
+                  )}
+                  {profile.height && (
+                    <div>
+                      <span className="text-gray-600">Height:</span>
+                      <span className="ml-2 font-medium">{profile.height} cm</span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* View All Measurements Button */}
+                <div className="mt-4 flex justify-between items-center">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => navigate('/update-profile')}
+                    className="text-xs"
+                  >
+                    View All Measurements
+                  </Button>
+                  
+                  {/* Last updated timestamp */}
+                  {profile.updated_at && (
+                    <div className="text-xs text-gray-500">
+                      Last updated: {new Date(profile.updated_at).toLocaleString()}
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-4">
+                <p className="text-sm text-muted-foreground mb-4 text-center">
+                  Get precise body measurements using our AI. Upload your photos and let us do the rest!
+                </p>
+                <Button
+                  onClick={() => navigate('/update-profile')}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  Calculate My Size with AI
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Body Measurements */}
         <Card className="mb-6">
           <CardHeader>
