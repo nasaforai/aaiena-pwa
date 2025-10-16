@@ -392,8 +392,73 @@ export default function ProductDetails() {
       // Debug log the API response
       console.log("API Response:", JSON.stringify(result, null, 2));
       
-      // Store the complete result object
-      setMySizeRecs(result);
+      // If API doesn't return a recommendation, calculate our own
+      const processedResult = { ...result };
+      
+      if (!processedResult.recommended_size && processedResult.measurements && apiSizeChart) {
+        console.log("API didn't return a recommendation, calculating based on measurements");
+        
+        // Get user measurements
+        const userChest = processedResult.measurements.chest || 0;
+        const userWaist = processedResult.measurements.waist || 0;
+        const userShoulder = processedResult.measurements.shoulder || 0;
+        
+        console.log("User measurements:", { userChest, userWaist, userShoulder });
+        console.log("Size chart:", apiSizeChart);
+        
+        // Find the best matching size
+        let bestSize = "M"; // Default fallback
+        let bestScore = 0;
+        const alternativeSizes = {};
+        
+        // Calculate fit score for each size in the size chart
+        apiSizeChart.forEach(size => {
+          // Calculate how well the size fits (lower difference = better fit)
+          // For chest: ideal is when garment is 1-2 inches larger than body
+          const idealChestDiff = 1.5; // Ideal extra room for chest
+          const chestDiff = Math.abs(((size.chest_inches || 0) - userChest) - idealChestDiff);
+          
+          // For waist: ideal is when garment is 1-2 inches larger than body
+          const idealWaistDiff = 1.5; // Ideal extra room for waist
+          const waistDiff = Math.abs(((size.waist_inches || 0) - userWaist) - idealWaistDiff);
+          
+          // For shoulder: ideal is when garment matches body closely
+          const idealShoulderDiff = 0.5; // Shoulder should be close to body measurement
+          const shoulderDiff = Math.abs(((size.shoulder_inches || 0) - userShoulder) - idealShoulderDiff);
+          
+          // Weight the differences (chest and shoulders are more important than waist for tops)
+          const weightedDiff = (chestDiff * 0.4) + (waistDiff * 0.3) + (shoulderDiff * 0.3);
+          
+          // Convert to a 0-10 scale (lower diff = higher score)
+          const score = Math.max(0, 10 - (weightedDiff * 2));
+          
+          console.log(`Size ${size.size_label}: score ${score.toFixed(2)} (chest diff: ${chestDiff.toFixed(2)}, waist diff: ${waistDiff.toFixed(2)}, shoulder diff: ${shoulderDiff.toFixed(2)})`);
+          
+          // Track all sizes
+          alternativeSizes[size.size_label] = parseFloat(score.toFixed(2));
+          
+          // Update best size if this one has a better score
+          if (score > bestScore) {
+            bestScore = score;
+            bestSize = size.size_label;
+          }
+        });
+        
+        // Update the result with our calculated recommendation
+        processedResult.recommended_size = bestSize;
+        processedResult.fit_score = parseFloat(bestScore.toFixed(2));
+        
+        // Create alternative sizes object without the best size
+        const altSizes = { ...alternativeSizes };
+        delete altSizes[bestSize]; // Remove best size from alternatives
+        processedResult.alternative_sizes = altSizes;
+        
+        console.log("Calculated recommendation:", processedResult.recommended_size, "with score:", processedResult.fit_score);
+        console.log("Alternative sizes:", processedResult.alternative_sizes);
+      }
+      
+      // Store the processed result object
+      setMySizeRecs(processedResult);
 
       // If we have recommendations, pre-select the best size
       if (result.recommended_size) {
@@ -722,10 +787,10 @@ export default function ProductDetails() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-t from-[#F1E8FF] to-[#EBE1FD] rounded-2xl p-6 mb-4">
-            <h3 className="font-semibold text-gray-900 mb-1 text-2xl flex justify-between">
+          <div className="bg-[#F8F5FF] rounded-2xl p-6 mb-4">
+            <h3 className="font-semibold text-[#2D0C57] mb-1 text-2xl flex justify-between">
               <span>My Size</span>
-              <UserPen />
+              <UserPen className="text-gray-700" />
             </h3>
             <p className="text-sm text-gray-600">
               Tailored to match your exact measurements
@@ -742,139 +807,166 @@ export default function ProductDetails() {
             ) : (
               <>
                 <div className="flex justify-center">
-                  <div className="w-72 h-72 relative">
+                  <div className="w-full h-64 relative mb-8">
                     <ResponsiveContainer width="100%" height="100%">
                       <RadialBarChart
                         cx="50%"
                         cy="50%"
-                        innerRadius="20%"
-                        outerRadius="80%"
-                        data={sizeChartData}
+                        innerRadius="30%"
+                        outerRadius="90%"
+                        data={[
+                          { 
+                            name: 'Large', 
+                            value: 100, 
+                            fill: '#9BC7FD'
+                          },
+                          { 
+                            name: 'Medium', 
+                            value: 75, 
+                            fill: '#FF98D4'
+                          },
+                          { 
+                            name: 'Small', 
+                            value: 50, 
+                            fill: '#FFD188'
+                          },
+                        ]}
+                        startAngle={180}
+                        endAngle={-180}
                       >
-                        <RadialBar dataKey="value" cornerRadius={4} />
+                        <RadialBar 
+                          dataKey="value" 
+                          cornerRadius={10}
+                          background
+                        />
+                        <text
+                          x="50%"
+                          y="50%"
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          className="text-lg font-medium"
+                          fill="#333"
+                        >
+                          Sizes
+                        </text>
                       </RadialBarChart>
                     </ResponsiveContainer>
-                    
-                    {/* Recommended Size Overlay */}
-                    {mySizeRecs && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="bg-white bg-opacity-90 rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-lg">
-                          <div className="text-xs text-gray-500">Best Fit</div>
-                          <div className="text-3xl font-bold text-purple-700">
-                            {mySizeRecs.recommended_size || "M"}
-                          </div>
-                          <div className="text-xs text-center text-gray-600 mt-1 max-w-[90%]">
-                            {mySizeRecs.fit_score >= 8 ? "Perfect fit for your body shape" : 
-                             mySizeRecs.fit_score >= 6 ? "Comfortable and well-balanced look" : 
-                             mySizeRecs.fit_score >= 4 ? "Decent fit with minor adjustments" : 
-                             "May require alterations"}
-                          </div>
-                          {mySizeRecs.fit_score && (
-                            <div className="mt-1">
-                              <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                                <div 
-                                  className={`h-full ${
-                                    mySizeRecs.fit_score >= 8 ? "bg-green-500" : 
-                                    mySizeRecs.fit_score >= 6 ? "bg-green-400" : 
-                                    mySizeRecs.fit_score >= 4 ? "bg-yellow-400" : 
-                                    mySizeRecs.fit_score >= 2 ? "bg-orange-400" : 
-                                    "bg-red-500"
-                                  }`}
-                                  style={{ width: `${Math.min(100, (mySizeRecs.fit_score || 7) * 10)}%` }}
-                                />
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
 
-                {/* Size Options */}
-                <div className="mt-6">
-                  <div className="text-sm font-medium text-gray-700 mb-3">Size Categories</div>
-                  <div className="flex justify-between text-left mb-4">
-                    <div className={`text-xs ${mySizeRecs?.recommended_size === "XL" || mySizeRecs?.recommended_size === "XXL" ? "ring-2 ring-purple-500 rounded-md p-2" : "p-1"}`}>
-                      <div className="w-6 h-6 rounded-md mb-1 bg-[#9BC7FD]"></div>
-                      <div className="text-sm font-medium">Large size</div>
-                      <div className="text-gray-800 text-lg">(XL,XXL)</div>
-                      {(mySizeRecs?.recommended_size === "XL" || mySizeRecs?.recommended_size === "XXL") && (
-                        <div className="text-xs text-purple-600 mt-1">Recommended</div>
-                      )}
-                    </div>
-                    <div className={`text-xs ${mySizeRecs?.recommended_size === "M" ? "ring-2 ring-purple-500 rounded-md p-2" : "p-1"}`}>
-                      <div className="w-6 h-6 rounded-md mb-1 bg-[#FF98D4]"></div>
-                      <div className="text-sm font-medium">Medium size</div>
-                      <div className="text-gray-800 text-lg">(M)</div>
-                      {mySizeRecs?.recommended_size === "M" && (
-                        <div className="text-xs text-purple-600 mt-1">Recommended</div>
-                      )}
-                    </div>
-                    <div className={`text-xs ${mySizeRecs?.recommended_size === "S" ? "ring-2 ring-purple-500 rounded-md p-2" : "p-1"}`}>
-                      <div className="w-6 h-6 rounded-md mb-1 bg-[#FFD188]"></div>
-                      <div className="text-sm font-medium">Small size</div>
-                      <div className="text-gray-800 text-lg">(S)</div>
-                      {mySizeRecs?.recommended_size === "S" && (
-                        <div className="text-xs text-purple-600 mt-1">Recommended</div>
-                      )}
-                    </div>
+                {/* Size Categories */}
+                <div className="flex justify-between text-left mb-6">
+                  <div className="text-center">
+                    <div className="w-10 h-10 rounded-md mb-1 bg-[#9BC7FD] mx-auto"></div>
+                    <div className="text-sm text-gray-700">Large size</div>
+                    <div className="text-gray-800 text-sm">(X,XL,XXL)</div>
                   </div>
+                  <div className="text-center">
+                    <div className="w-10 h-10 rounded-md mb-1 bg-[#FF98D4] mx-auto"></div>
+                    <div className="text-sm text-gray-700">Medium size</div>
+                    <div className="text-gray-800 text-sm">(M)</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-10 h-10 rounded-md mb-1 bg-[#FFD188] mx-auto"></div>
+                    <div className="text-sm text-gray-700">Small size</div>
+                    <div className="text-gray-800 text-sm">(S)</div>
+                  </div>
+                </div>
+
+                {/* Best Fit */}
+                <div className="bg-[#F3EFFF] rounded-xl p-4 mb-4">
+                  <div className="font-medium text-[#2D0C57] mb-1">Best Fit: {
+                    mySizeRecs?.recommended_size === "XL" || mySizeRecs?.recommended_size === "XXL" || mySizeRecs?.recommended_size === "L" ? "Large Size" : 
+                    mySizeRecs?.recommended_size === "M" ? "Medium Size" : "Small Size"
+                  }</div>
+                  <p className="text-sm text-[#2D0C57]">
+                    We recommend {
+                      mySizeRecs?.recommended_size === "XL" || mySizeRecs?.recommended_size === "XXL" || mySizeRecs?.recommended_size === "L" ? 
+                        `Large "${mySizeRecs?.recommended_size}"` : 
+                      mySizeRecs?.recommended_size === "M" ? 'Medium "M"' : 'Small "S"'
+                    } as the best fit for you—it offers a comfortable and well-balanced look.
+                  </p>
                 </div>
 
                 {/* Alternative Sizes */}
                 {mySizeRecs?.alternative_sizes && Object.keys(mySizeRecs.alternative_sizes).length > 0 && (
-                  <div className="mt-6 mb-4">
-                    <div className="text-sm font-medium text-gray-700 mb-3">Other Fit Options</div>
-                    <div className="space-y-4">
-                      {Object.entries(mySizeRecs.alternative_sizes).map(([size, score]) => {
-                        const scoreNum = typeof score === 'number' ? score : Number(score);
-                        let fitDescription = "";
-                        
+                  <div className="space-y-3 mb-4">
+                    {Object.entries(mySizeRecs.alternative_sizes).map(([size, score], index) => {
+                      // Size labels for categorization and comparison
+                      const sizeLabels = ["XS", "S", "M", "L", "XL", "XXL", "EL", "KL"]; // Common size progression
+                      const sizeIndex = sizeLabels.indexOf(size);
+                      
+                      // Properly categorize sizes
+                      let sizeCategory;
+                      if (sizeIndex <= 1) { // XS, S
+                        sizeCategory = "Small Size";
+                      } else if (sizeIndex === 2) { // M
+                        sizeCategory = "Medium Size";
+                      } else { // L, XL, XXL, EL, KL and any others
+                        sizeCategory = "Large Size";
+                      }
+                      
+                      const scoreNum = typeof score === 'number' ? score : Number(score);
+                      
+                      // Determine if the size is larger or smaller than recommended
+                      const recommendedSizeLabel = mySizeRecs?.recommended_size || "M";
+                      
+                      // Find indices to determine if this size is larger or smaller
+                      const recIndex = sizeLabels.indexOf(recommendedSizeLabel);
+                      const thisIndex = sizeLabels.indexOf(size);
+                      
+                      let fitType = "similar";
+                      if (recIndex !== -1 && thisIndex !== -1) {
+                        fitType = thisIndex > recIndex ? "looser" : (thisIndex < recIndex ? "tighter" : "similar");
+                      }
+                      
+                      let fitDescription = "";
+                      
+                      // Calculate how much larger/smaller this size is compared to recommended
+                      const sizeDifference = Math.abs(thisIndex - recIndex);
+                      
+                      if (fitType === "similar" || sizeDifference === 0) {
+                        fitDescription = "Provides a very similar fit to the recommended size";
+                      } else if (fitType === "tighter") {
+                        if (sizeDifference === 1) {
+                          fitDescription = "Slightly tighter fit. Good if you prefer a more fitted look";
+                        } else if (sizeDifference === 2) {
+                          fitDescription = "Noticeably tighter fit. Best for those who prefer slim-fitting clothes";
+                        } else {
+                          fitDescription = "Significantly tighter fit. May be too constrictive for comfort";
+                        }
+                      } else if (fitType === "looser") {
+                        if (sizeDifference === 1) {
+                          fitDescription = "Slightly looser fit. Good if you prefer a more relaxed look";
+                        } else if (sizeDifference === 2) {
+                          fitDescription = "Noticeably looser fit. Best for those who prefer relaxed-fitting clothes";
+                        } else {
+                          fitDescription = "Significantly looser fit. May appear oversized on your frame";
+                        }
+                      } else {
+                        // Fallback based on score if we can't determine relative size
                         if (scoreNum >= 8) {
                           fitDescription = "Also an excellent fit for your body shape";
                         } else if (scoreNum >= 6) {
                           fitDescription = "Good alternative—provides a comfortable fit";
                         } else if (scoreNum >= 4) {
-                          fitDescription = "Could feel a bit snug. Good if you prefer tighter-fitting clothes";
+                          fitDescription = "Average fit for your measurements";
                         } else if (scoreNum >= 2) {
-                          fitDescription = "May feel either too tight or too loose depending on your preference";
+                          fitDescription = "Not ideal for your body shape";
                         } else {
                           fitDescription = "Not recommended for your body shape";
                         }
-                        
-                        return (
-                          <div 
-                            key={size}
-                            className="border rounded-lg p-3 cursor-pointer transition-all hover:border-purple-300 hover:bg-purple-50"
-                            onClick={() => setSelectedSize(size)}
-                          >
-                            <div className="flex items-center justify-between mb-2">
-                              <div>
-                                <div className="text-sm font-medium text-gray-500">Alternative Fit</div>
-                                <div className="text-lg font-bold text-gray-900">{size} Size</div>
-                              </div>
-                              <div className="flex flex-col items-end">
-                                <div className="w-16 h-1.5 rounded-full overflow-hidden bg-gray-200">
-                                  <div 
-                                    className={
-                                      scoreNum >= 8 ? "bg-green-500" : 
-                                      scoreNum >= 6 ? "bg-green-400" : 
-                                      scoreNum >= 4 ? "bg-yellow-400" : 
-                                      scoreNum >= 2 ? "bg-orange-400" : 
-                                      "bg-red-500"
-                                    }
-                                    style={{ width: `${Math.min(100, scoreNum * 10)}%`, height: '100%' }}
-                                  />
-                                </div>
-                                <div className="text-xs text-gray-500 mt-1">{scoreNum.toFixed(1)}</div>
-                              </div>
-                            </div>
-                            <p className="text-xs text-gray-600">{fitDescription}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
+                      }
+                      
+                      return (
+                        <div key={size} className="bg-white border border-gray-200 rounded-xl p-4">
+                          <div className="font-medium text-[#2D0C57] mb-1">Other Fit: <span className="text-[#6A3CA5]">{sizeCategory}</span></div>
+                          <p className="text-sm text-[#2D0C57]">
+                            {size} {fitType === "tighter" ? "will be tighter" : fitType === "looser" ? "will be looser" : "provides a similar fit"} than recommended—{fitDescription}.
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
 
@@ -882,32 +974,12 @@ export default function ProductDetails() {
                   *95% users said true to size
                 </p>
 
-                {!mySizeRecs && (
-                  <Button
-                    onClick={handleCompareSizeClick}
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white py-6 rounded-xl font-medium mt-6 mb-4"
-                  >
-                    Compare My Size
-                  </Button>
-                )}
-                
-                {mySizeRecs && (
-                  <div className="flex gap-2 mt-6 mb-4">
-                    <Button
-                      onClick={() => setSelectedSize(mySizeRecs.recommended_size || "M")}
-                      className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-medium"
-                    >
-                      Select {mySizeRecs.recommended_size || "M"}
-                    </Button>
-                    <Button
-                      onClick={handleCompareSizeClick}
-                      variant="outline"
-                      className="py-3 rounded-xl font-medium"
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                    </Button>
-                  </div>
-                )}
+                <Button
+                  onClick={handleCompareSizeClick}
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white py-6 rounded-xl font-medium mt-6 mb-4"
+                >
+                  {mySizeRecs ? "Recalculate My Size" : "Compare My Size"}
+                </Button>
               </>
             )}
           </div>
@@ -950,7 +1022,7 @@ export default function ProductDetails() {
             <div className="flex gap-2">
               <Button
                 onClick={handleBuyNow}
-                className="flex-1 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800"
+                className="flex-1 bg-[#18002A] text-white py-3 rounded-lg font-medium hover:bg-[#2D0C57]"
               >
                 Buy Now
               </Button>

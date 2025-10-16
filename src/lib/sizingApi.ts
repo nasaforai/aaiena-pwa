@@ -3,7 +3,8 @@
  */
 
 // API Base URL - adjust as needed
-const API_BASE_URL = 'sizing-api-v2.ap-south-1.elasticbeanstalk.com';
+//const API_BASE_URL = 'sizing-api-v2.ap-south-1.elasticbeanstalk.com';
+const API_BASE_URL = 'http://localhost:8000';
 
 /**
  * Check if the sizing API is available
