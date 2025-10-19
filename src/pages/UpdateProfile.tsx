@@ -5,7 +5,6 @@ import { useNavigation } from "@/hooks/useNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAuthState } from "@/hooks/useAuthState";
@@ -21,8 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { extractMeasurementsFromUrls, UserMeasurements } from "@/lib/sizingApi";
-import { MeasurementResultsDialog } from "@/components/MeasurementResultsDialog";
 
 export default function UpdateProfile() {
   const navigate = useNavigate();
@@ -30,7 +27,7 @@ export default function UpdateProfile() {
   const { user } = useAuth();
   const { isKiosk } = useAuthState();
   const isMobile = useIsMobile();
-  const { profile, loading, updateProfile, refetch } = useProfile();
+  const { profile, loading, updateProfile } = useProfile();
   const { toast } = useToast();
   
   const [selectedGender, setSelectedGender] = useState("Male");
@@ -41,11 +38,6 @@ export default function UpdateProfile() {
   const [waist, setWaist] = useState("");
   const [pantsSize, setPantsSize] = useState("");
   const [fullName, setFullName] = useState("");
-  const [hip, setHip] = useState("");
-  const [shoulder, setShoulder] = useState("");
-  const [neck, setNeck] = useState("");
-  const [inseam, setInseam] = useState("");
-  const [bodyLength, setBodyLength] = useState("");
   const [bodyType, setBodyType] = useState("");
   const [stylePreferences, setStylePreferences] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -54,9 +46,6 @@ export default function UpdateProfile() {
   const [sideImage, setSideImage] = useState<string | null>(null);
   const [uploadingFront, setUploadingFront] = useState(false);
   const [uploadingSide, setUploadingSide] = useState(false);
-  const [isCalculatingSize, setIsCalculatingSize] = useState(false);
-  const [resultsModalOpen, setResultsModalOpen] = useState(false);
-  const [calculatedMeasurements, setCalculatedMeasurements] = useState<UserMeasurements | null>(null);
   
   // Camera capture states
   const [showCamera, setShowCamera] = useState(false);
@@ -73,7 +62,8 @@ export default function UpdateProfile() {
       setSelectedShirtSize(profile.shirt_size || "XL");
       setHeight(profile.height?.toString() || "");
       setWeight(profile.weight?.toString() || "");
-      // Fields like chest/waist are now shown in the modal, not as inputs
+      setChest(profile.chest?.toString() || "");
+      setWaist(profile.waist?.toString() || "");
       setPantsSize(profile.pants_size?.toString() || "");
       setFullName(profile.full_name || user?.email || "");
       setBodyType(profile.body_type || "");
@@ -86,183 +76,6 @@ export default function UpdateProfile() {
       }
     }
   }, [profile, user]);
-
-  const handleCalculateSize = async () => {
-    if (!profile) {
-      toast({ title: "Error", description: "Profile not loaded yet.", variant: "destructive" });
-      return;
-    }
-    if (!frontImage || !sideImage) {
-      toast({ title: "Error", description: "Please upload both front and side photos.", variant: "destructive" });
-      return;
-    }
-
-    setIsCalculatingSize(true);
-    toast({ title: "AI Size Calculation", description: "Analyzing your photos to extract measurements. This may take a moment." });
-
-    try {
-      // Step 1: Extract measurements from the uploaded photos
-      const apiResponse = await extractMeasurementsFromUrls(profile);
-      console.log("API response from extractMeasurementsFromUrls:", apiResponse);
-      
-      // Ensure we have measurements
-      if (!apiResponse || !apiResponse.measurements) {
-        throw new Error("No measurements returned from API");
-      }
-      
-      // Store the full API response
-      setCalculatedMeasurements(apiResponse);
-      
-      // Step 2: Show the results modal first
-      setResultsModalOpen(true);
-      
-      // We'll save the measurements when the user clicks "Save" in the modal
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-      console.error("Error calculating measurements:", errorMessage);
-      toast({
-        title: "Calculation Failed",
-        description: `Could not extract measurements: ${errorMessage}`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsCalculatingSize(false);
-    }
-  };
-
-  // Function to save measurements directly to database
-  const saveCalculatedMeasurements = async (measurements: UserMeasurements) => {
-    console.log("Saving calculated measurements to profile:", measurements);
-    setIsSaving(true);
-    try {
-      // Extract measurements from the nested object if needed
-      const actualMeasurements = measurements.measurements ? measurements.measurements : measurements;
-      console.log("Actual measurements to save:", actualMeasurements);
-      
-      // Convert all measurements to numbers and handle null/undefined values
-      const chest = parseFloat(actualMeasurements.chest as any);
-      const waist = parseFloat(actualMeasurements.waist as any);
-      const hip = parseFloat(actualMeasurements.Butt as any);
-      const shoulder = parseFloat(actualMeasurements.shoulder_width as any);
-      const neck = parseFloat(actualMeasurements.neck as any);
-      const inseam = parseFloat(actualMeasurements.inseam as any);
-      const bodyLength = parseFloat(actualMeasurements.body_length as any);
-      const height = parseFloat(actualMeasurements.height as any);
-      
-      console.log("Parsed measurements:", {
-        chest, waist, hip, shoulder, neck, inseam, bodyLength, height
-      });
-      
-      // Create a clean update object with only valid values
-      const updates: Record<string, any> = {};
-      
-      // Only add fields that have valid numbers
-      if (!isNaN(chest)) updates.chest_inches = chest;
-      if (!isNaN(waist)) updates.waist_inches = waist;
-      if (!isNaN(hip)) updates.hip_inches = hip;
-      if (!isNaN(shoulder)) updates.shoulder_inches = shoulder;
-      // Store neck measurement in localStorage since it can't be saved to database
-      if (!isNaN(neck)) {
-        console.log("Neck measurement:", neck);
-        localStorage.setItem('neck_inches', neck.toString());
-      }
-      
-      // Store inseam measurement in localStorage since it can't be saved to database
-      if (!isNaN(inseam)) {
-        console.log("Inseam measurement:", inseam);
-        localStorage.setItem('inseam_inches', inseam.toString());
-      }
-      
-      // Store body length measurement in localStorage since it can't be saved to database
-      if (!isNaN(bodyLength)) {
-        console.log("Body length measurement:", bodyLength);
-        localStorage.setItem('body_length_inches', bodyLength.toString());
-      }
-      if (!isNaN(height)) updates.height = height;
-      
-      // Add standard fields for compatibility
-      if (!isNaN(chest)) updates.chest = chest;
-      if (!isNaN(waist)) updates.waist = waist;
-      
-      console.log("Clean profile updates:", updates);
-      
-      // Only proceed if we have at least one valid measurement
-      if (Object.keys(updates).length === 0) {
-        throw new Error("No valid measurements to save");
-      }
-      
-      const { data, error } = await updateProfile(updates);
-      
-      if (error) {
-        console.error("Error updating profile:", error);
-        throw new Error(error);
-      }
-      
-      console.log("Profile updated successfully:", data);
-
-      // Update local state with the new values
-      if (!isNaN(chest)) setChest(chest.toString());
-      if (!isNaN(waist)) setWaist(waist.toString());
-      if (!isNaN(hip)) setHip(hip.toString());
-      if (!isNaN(shoulder)) setShoulder(shoulder.toString());
-      if (!isNaN(neck)) setNeck(neck.toString());
-      if (!isNaN(inseam)) setInseam(inseam.toString());
-      if (!isNaN(bodyLength)) setBodyLength(bodyLength.toString());
-      
-      // Force a refetch to ensure UI is updated with latest data
-      await refetch();
-      
-      toast({
-        title: "Success!",
-        description: "Your measurements have been saved to your profile."
-      });
-      
-      return true;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to save measurements.";
-      console.error("Error saving measurements:", errorMessage);
-      toast({ title: "Save Failed", description: errorMessage, variant: "destructive" });
-      return false;
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // Handle saving from modal - ensures measurements are saved and redirects to profile
-  const handleSaveFromModal = async () => {
-    if (!calculatedMeasurements) return;
-    
-    try {
-      console.log("handleSaveFromModal with measurements:", calculatedMeasurements);
-      
-      // Make sure measurements are saved to profile
-      const saveResult = await saveCalculatedMeasurements(calculatedMeasurements);
-      
-      if (saveResult) {
-        // Force a refetch to ensure UI is updated with latest data
-        await refetch();
-        
-        setResultsModalOpen(false);
-        
-        // Small delay to ensure data is refreshed before navigation
-        setTimeout(() => {
-          // Navigate to profile page to see measurements
-          console.log("Navigating to profile page");
-          window.location.href = '/profile'; // Force a full page reload
-        }, 500);
-      } else {
-        throw new Error("Failed to save measurements");
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to save measurements.";
-      console.error("Error in handleSaveFromModal:", errorMessage);
-      toast({ 
-        title: "Error", 
-        description: "Failed to save measurements. Please try again.", 
-        variant: "destructive" 
-      });
-    }
-  };
 
   const handleBack = () => {
     navigateBack("/profile");
@@ -317,54 +130,29 @@ export default function UpdateProfile() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // Convert measurement inputs to numbers
-      const chestNum = chest ? parseFloat(chest) : null;
-      const waistNum = waist ? parseFloat(waist) : null;
-      const hipNum = hip ? parseFloat(hip) : null;
-      const shoulderNum = shoulder ? parseFloat(shoulder) : null;
-      const neckNum = neck ? parseFloat(neck) : null;
-      const inseamNum = inseam ? parseFloat(inseam) : null;
-      const bodyLengthNum = bodyLength ? parseFloat(bodyLength) : null;
-      
       const updates = {
         full_name: fullName,
         gender: selectedGender,
         height: height ? parseFloat(height) : null,
         weight: weight ? parseFloat(weight) : null,
+        chest: chest ? parseFloat(chest) : null,
+        waist: waist ? parseFloat(waist) : null,
         pants_size: pantsSize ? parseFloat(pantsSize) : null,
         shirt_size: selectedShirtSize,
         body_type: bodyType || null,
         style_preferences: stylePreferences,
         photos: [frontImage, sideImage].filter(Boolean) as string[],
-        
-       // Include measurements in the update
-       chest: chestNum,
-       chest_inches: chestNum,
-       waist: waistNum,
-       waist_inches: waistNum,
-       hip_inches: hipNum,
-       shoulder_inches: shoulderNum,
-       // neck_inches column doesn't exist in the database
-       // inseam_inches column doesn't exist in the database
-       // body_length_inches column doesn't exist in the database
       };
 
-      console.log("Saving profile with updates:", updates);
-      const { data, error } = await updateProfile(updates);
+      const { error } = await updateProfile(updates);
 
       if (error) {
-        console.error("Error updating profile:", error);
         toast({
           title: "Error",
           description: error,
           variant: "destructive",
         });
       } else {
-        console.log("Profile updated successfully:", data);
-        
-        // Refetch profile to ensure UI is updated
-        await refetch();
-        
         toast({
           title: "Success",
           description: "Profile updated successfully!",
@@ -830,9 +618,9 @@ export default function UpdateProfile() {
           </div>
         </div>
 
-        {/* Basic Information */}
+        {/* Body Measurements */}
         <div className="mb-6">
-          <h3 className="font-medium mb-3">Basic Information</h3>
+          <h3 className="font-medium mb-3">Body Measurement (cm)</h3>
           <div className="bg-gray-200 py-px mb-4"></div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -861,67 +649,22 @@ export default function UpdateProfile() {
             </div>
           </div>
           
-          {profile?.chest_inches && (
-            <div className="mt-6 bg-purple-50 p-4 rounded-lg border border-purple-100">
-              <h4 className="font-medium text-gray-900 mb-3 flex items-center">
-                <span>AI-Calculated Measurements</span>
-                <Badge className="ml-2 bg-green-100 text-green-800">Saved</Badge>
-              </h4>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                {profile.chest_inches && (
-                  <div>
-                    <span className="text-gray-600">Chest:</span>
-                    <span className="ml-2 font-medium">{profile.chest_inches}"</span>
-                  </div>
-                )}
-                {profile.waist_inches && (
-                  <div>
-                    <span className="text-gray-600">Waist:</span>
-                    <span className="ml-2 font-medium">{profile.waist_inches}"</span>
-                  </div>
-                )}
-                {profile.hip_inches && (
-                  <div>
-                    <span className="text-gray-600">Hip:</span>
-                    <span className="ml-2 font-medium">{profile.hip_inches}"</span>
-                  </div>
-                )}
-                {profile.shoulder_inches && (
-                  <div>
-                    <span className="text-gray-600">Shoulder:</span>
-                    <span className="ml-2 font-medium">{profile.shoulder_inches}"</span>
-                  </div>
-                )}
-                 {/* Display neck measurement from localStorage if available */}
-                 {(localStorage.getItem('neck_inches') || (profile as any)?.neck_inches) && (
-                   <div>
-                     <span className="text-gray-600">Neck:</span>
-                     <span className="ml-2 font-medium">{localStorage.getItem('neck_inches') || (profile as any)?.neck_inches}"</span>
-                   </div>
-                 )}
-                 {/* Display inseam measurement from localStorage if available */}
-                 {(localStorage.getItem('inseam_inches') || (profile as any)?.inseam_inches) && (
-                   <div>
-                     <span className="text-gray-600">Inseam:</span>
-                     <span className="ml-2 font-medium">{localStorage.getItem('inseam_inches') || (profile as any)?.inseam_inches}"</span>
-                   </div>
-                 )}
-                 {/* Display body length measurement from localStorage if available */}
-                 {(localStorage.getItem('body_length_inches') || (profile as any)?.body_length_inches) && (
-                   <div>
-                     <span className="text-gray-600">Body Length:</span>
-                     <span className="ml-2 font-medium">{localStorage.getItem('body_length_inches') || (profile as any)?.body_length_inches}"</span>
-                   </div>
-                 )}
-              </div>
-              <p className="text-xs text-gray-500 mt-4">
-                These measurements were calculated using AI based on your photos.
-                {profile.updated_at && (
-                  <span className="block mt-1">
-                    Last updated: {new Date(profile.updated_at).toLocaleString()}
-                  </span>
-                )}
-              </p>
+          {/* Body Type - Only for Female */}
+          {selectedGender === "Female" && (
+            <div className="mt-4">
+              <label className="block text-sm text-gray-600 mb-2">Body Type</label>
+              <Select value={bodyType} onValueChange={setBodyType}>
+                <SelectTrigger className="w-full bg-white border-gray-300 rounded-lg">
+                  <SelectValue placeholder="Select body type" />
+                </SelectTrigger>
+                <SelectContent className="bg-white z-50">
+                  <SelectItem value="rectangle">Rectangle</SelectItem>
+                  <SelectItem value="triangle">Triangle</SelectItem>
+                  <SelectItem value="inverted">Inverted</SelectItem>
+                  <SelectItem value="diamond">Diamond</SelectItem>
+                  <SelectItem value="hourglass">Hourglass</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           )}
         </div>
@@ -969,26 +712,14 @@ export default function UpdateProfile() {
           </div>
         </div>
 
-        {/* Calculate & Save Button */}
-        <div className="grid grid-cols-1 gap-4 mb-4">
-          {!profile?.chest_inches && (
-            <Button
-              onClick={handleCalculateSize}
-              disabled={!frontImage || !sideImage || isCalculatingSize}
-              className="w-full bg-purple-600 text-white py-4 rounded-xl font-medium hover:bg-purple-700 disabled:bg-gray-300"
-            >
-              {isCalculatingSize ? "Calculating..." : "Calculate My Size with AI"}
-            </Button>
-          )}
-          
-          <Button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="w-full bg-gray-900 text-white py-4 rounded-xl font-medium hover:bg-gray-800"
-          >
-            {isSaving ? "Saving..." : "Save Profile"}
-          </Button>
-        </div>
+        {/* Save Button */}
+        <Button
+          onClick={handleSave}
+          disabled={isSaving}
+          className="w-full bg-gray-900 text-white py-4 rounded-xl font-medium hover:bg-gray-800 mb-4"
+        >
+          {isSaving ? "Saving..." : "Save Profile"}
+        </Button>
 
         {/* Footer */}
         <div className="text-center mt-20 mb-20">
@@ -1026,17 +757,6 @@ export default function UpdateProfile() {
 
       {/* Bottom Navigation */}
       <BottomNavigation />
-
-      <MeasurementResultsDialog
-        isOpen={resultsModalOpen}
-        onClose={() => setResultsModalOpen(false)}
-        onSave={handleSaveFromModal}
-        measurements={calculatedMeasurements}
-        isSaving={isSaving}
-        recommendedSize={null}
-        fitScore={null}
-        alternativeSizes={null}
-      />
 
       {/* Camera Modal */}
       {showCamera && (
