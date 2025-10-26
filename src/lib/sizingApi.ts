@@ -5,6 +5,7 @@
 // API Base URL - adjust as needed
 //const API_BASE_URL = 'sizing-api-v2.ap-south-1.elasticbeanstalk.com';
 const API_BASE_URL = 'http://sizing-api.duckdns.org';
+//const API_BASE_URL = 'http://localhost:8000';
 
 /**
  * Check if the sizing API is available
@@ -116,19 +117,31 @@ export interface ProcessImageResponse {
  * Convert frontend profile data to backend UserMeasurements format
  */
 function convertProfileToMeasurements(profile: any): UserMeasurements {
-  // Get gender from profile, default to 'M' if not available
-  let gender = 'M'; // default
+  // Get gender from profile, default to 'Male' if not available
+  let gender = 'Male'; // default
   if (profile.gender) {
     const genderUpper = profile.gender.toUpperCase();
     if (genderUpper === 'FEMALE' || genderUpper === 'F') {
-      gender = 'F';
+      gender = 'Female';
     } else if (genderUpper === 'MALE' || genderUpper === 'M') {
-      gender = 'M';
+      gender = 'Male';
     }
   }
 
-  // Default body type based on gender
-  const defaultBodyType = gender === 'F' ? 'hourglass' : 'athletic';
+  // Map body type to one of the 5 accepted types: Triangle, Diamond, Inverted, Rectangle, Hourglass
+  let bodyType = 'Rectangle'; // default
+  if (profile.body_type) {
+    const bodyTypeLower = profile.body_type.toLowerCase();
+    if (bodyTypeLower === 'triangle') bodyType = 'Triangle';
+    else if (bodyTypeLower === 'diamond') bodyType = 'Diamond';
+    else if (bodyTypeLower === 'inverted') bodyType = 'Inverted';
+    else if (bodyTypeLower === 'rectangle') bodyType = 'Rectangle';
+    else if (bodyTypeLower === 'hourglass') bodyType = 'Hourglass';
+    // If it's already properly capitalized, use it
+    else if (['Triangle', 'Diamond', 'Inverted', 'Rectangle', 'Hourglass'].includes(profile.body_type)) {
+      bodyType = profile.body_type;
+    }
+  }
 
   const measurements = {
     // Basic measurements with defaults
@@ -149,9 +162,9 @@ function convertProfileToMeasurements(profile: any): UserMeasurements {
     body_length: profile.body_length_inches || profile.body_length || 27,
     inseam: profile.inseam_inches || profile.inseam || 30,
     
-    // Categorical fields
-    body_type: profile.body_type || defaultBodyType,
-    gender: gender
+    // Categorical fields - send as strings to backend
+    body_type: bodyType, // One of: Triangle, Diamond, Inverted, Rectangle, Hourglass
+    gender: gender // Either "Male" or "Female"
   };
   
   console.log("Converted measurements with all required fields:", measurements);
@@ -187,14 +200,14 @@ export async function extractMeasurementsFromUrls(
     const heightValue = profile.height_cm || profile.height || 170;
     const weightValue = profile.weight || null;
     
-    // Convert gender to backend format (M/F)
-    let gender = 'M'; // default
+    // Convert gender to backend format ("Male"/"Female")
+    let gender = 'Male'; // default
     if (profile.gender) {
       const genderUpper = profile.gender.toUpperCase();
       if (genderUpper === 'FEMALE' || genderUpper === 'F') {
-        gender = 'F';
+        gender = 'Female';
       } else if (genderUpper === 'MALE' || genderUpper === 'M') {
-        gender = 'M';
+        gender = 'Male';
       }
     }
 

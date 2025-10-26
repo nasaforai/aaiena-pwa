@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, User, Settings, ShoppingBag, LogOut, Camera, Home, Heart, ChevronDown, ChevronUp, Eye, EyeOff, Smartphone } from 'lucide-react';
+import { ArrowLeft, Edit, User, Settings, ShoppingBag, LogOut, Camera, Home, Heart, ChevronDown, ChevronUp, Eye, EyeOff, Smartphone, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 
@@ -14,8 +14,10 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import BottomNavigation from "@/components/BottomNavigation";
 import MobileSwitchQRDialog from "@/components/MobileSwitchQRDialog";
+import { MeasurementResultsDialog } from "@/components/MeasurementResultsDialog";
 import { useAuthState } from "@/hooks/useAuthState";
 import Topbar from "@/components/ui/topbar";
+import { extractMeasurementsFromUrls } from '@/lib/sizingApi';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -35,6 +37,11 @@ export default function Profile() {
     newPassword: '',
     confirmPassword: ''
   });
+  
+  // Measurement calculation states
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [measurementResultsOpen, setMeasurementResultsOpen] = useState(false);
+  const [calculatedMeasurements, setCalculatedMeasurements] = useState<any>(null);
 
   const loading = authLoading || profileLoading;
 
@@ -56,6 +63,77 @@ export default function Profile() {
       navigate('/store');
     }
     setIsSigningOut(false);
+  };
+
+  const handleCalculateMeasurements = async () => {
+    if (!profile) {
+      toast({
+        title: "Error",
+        description: "Profile not loaded. Please try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check if user has uploaded photos
+    if (!profile.photos || profile.photos.length < 2) {
+      toast({
+        title: "Photos Required",
+        description: "Please upload front and side photos first to calculate measurements.",
+        variant: "destructive"
+      });
+      navigate('/update-profile');
+      return;
+    }
+
+    setIsCalculating(true);
+    try {
+      console.log("Calling extractMeasurementsFromUrls with profile:", profile);
+      const measurements = await extractMeasurementsFromUrls(profile);
+      console.log("Received measurements:", measurements);
+      
+      // Save measurements to database
+      const updates = {
+        chest_inches: measurements.chest || measurements.measurements?.chest,
+        waist_inches: measurements.waist || measurements.measurements?.waist,
+        hip_inches: measurements.hip || measurements.measurements?.hip,
+        shoulder_inches: measurements.shoulder || measurements.measurements?.shoulder,
+      };
+
+      // Store additional measurements in localStorage for display
+      if (measurements.neck || measurements.measurements?.neck) {
+        localStorage.setItem('neck_inches', String(measurements.neck || measurements.measurements?.neck));
+      }
+      if (measurements.inseam || measurements.measurements?.inseam) {
+        localStorage.setItem('inseam_inches', String(measurements.inseam || measurements.measurements?.inseam));
+      }
+      if (measurements.body_length || measurements.measurements?.body_length) {
+        localStorage.setItem('body_length_inches', String(measurements.body_length || measurements.measurements?.body_length));
+      }
+
+      const { error } = await updateProfile(updates);
+
+      if (error) {
+        throw new Error(error);
+      }
+
+      setCalculatedMeasurements(measurements);
+      setMeasurementResultsOpen(true);
+      
+      toast({
+        title: "Success",
+        description: "Measurements calculated and saved successfully!",
+      });
+    } catch (error: any) {
+      console.error("Error calculating measurements:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to calculate measurements. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCalculating(false);
+    }
   };
 
 
@@ -296,23 +374,32 @@ export default function Profile() {
                   )}
                 </div>
                 
-                {/* View All Measurements Button */}
-                <div className="mt-4 flex justify-between items-center">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => navigate('/update-profile')}
-                    className="text-xs"
-                  >
-                    View All Measurements
-                  </Button>
-                  
+                {/* Action Buttons */}
+                <div className="mt-4 space-y-3">
                   {/* Last updated timestamp */}
                   {profile.updated_at && (
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 text-center">
                       Last updated: {new Date(profile.updated_at).toLocaleString()}
                     </div>
                   )}
+                  
+                  {/* Recalculate Button - Centered */}
+                  <div className="flex justify-center">
+                    <Button 
+                      onClick={handleCalculateMeasurements}
+                      disabled={isCalculating}
+                      className="bg-black hover:bg-gray-800 text-white px-8 py-2 rounded-xl"
+                    >
+                      {isCalculating ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Calculating...
+                        </>
+                      ) : (
+                        'Recalculate with AI'
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </>
             ) : (
@@ -321,10 +408,18 @@ export default function Profile() {
                   Get precise body measurements using our AI. Upload your photos and let us do the rest!
                 </p>
                 <Button
-                  onClick={() => navigate('/update-profile')}
+                  onClick={handleCalculateMeasurements}
+                  disabled={isCalculating}
                   className="bg-primary text-primary-foreground hover:bg-primary/90"
                 >
-                  Calculate My Size with AI
+                  {isCalculating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Calculating...
+                    </>
+                  ) : (
+                    'Calculate My Size with AI'
+                  )}
                 </Button>
               </div>
             )}
@@ -562,6 +657,24 @@ export default function Profile() {
       <MobileSwitchQRDialog
         open={showMobileSwitchDialog}
         onClose={() => setShowMobileSwitchDialog(false)}
+      />
+
+      {/* Measurement Results Dialog */}
+      <MeasurementResultsDialog
+        isOpen={measurementResultsOpen}
+        onClose={() => setMeasurementResultsOpen(false)}
+        onSave={() => {
+          setMeasurementResultsOpen(false);
+          toast({
+            title: "Success",
+            description: "Measurements have been saved to your profile!",
+          });
+        }}
+        measurements={calculatedMeasurements}
+        isSaving={false}
+        recommendedSize={null}
+        fitScore={null}
+        alternativeSizes={null}
       />
     </div>
   );

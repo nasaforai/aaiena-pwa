@@ -658,11 +658,11 @@ export default function UpdateProfile() {
                   <SelectValue placeholder="Select body type" />
                 </SelectTrigger>
                 <SelectContent className="bg-white z-50">
-                  <SelectItem value="rectangle">Rectangle</SelectItem>
-                  <SelectItem value="triangle">Triangle</SelectItem>
-                  <SelectItem value="inverted">Inverted</SelectItem>
-                  <SelectItem value="diamond">Diamond</SelectItem>
-                  <SelectItem value="hourglass">Hourglass</SelectItem>
+                  <SelectItem value="Rectangle">Rectangle</SelectItem>
+                  <SelectItem value="Triangle">Triangle</SelectItem>
+                  <SelectItem value="Inverted">Inverted</SelectItem>
+                  <SelectItem value="Diamond">Diamond</SelectItem>
+                  <SelectItem value="Hourglass">Hourglass</SelectItem>
                 </SelectContent>
               </Select>
             </div>

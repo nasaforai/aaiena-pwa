@@ -467,10 +467,10 @@ export default function ProductDetails() {
       }
 
       // Show success message
-      toast({
+        toast({
         title: "Size Recommendation Ready",
         description: `Your recommended size is ${result.recommended_size || 'M'}`,
-      });
+        });
 
       // Scroll to the recommendation section
       const recommendationSection = document.getElementById("recommendation-section");
@@ -791,27 +791,27 @@ export default function ProductDetails() {
             <h3 className="font-semibold text-[#2D0C57] mb-1 text-2xl flex justify-between">
               <span>My Size</span>
               <UserPen className="text-gray-700" />
-            </h3>
-            <p className="text-sm text-gray-600">
-              Tailored to match your exact measurements
-            </p>
+              </h3>
+              <p className="text-sm text-gray-600">
+                Tailored to match your exact measurements
+              </p>
 
-            {mySizeLoading ? (
+              {mySizeLoading ? (
               <div className="flex flex-col items-center justify-center py-10 space-y-4">
                 <Loader2 className="w-12 h-12 text-purple-600 animate-spin" />
                 <div className="text-center">
                   <p className="text-gray-700 font-medium">Finding your best fit...</p>
                   <p className="text-xs text-gray-500 mt-1">Analyzing your measurements with AI</p>
                 </div>
-              </div>
-            ) : (
-              <>
-                <div className="flex justify-center">
+                      </div>
+              ) : (
+                <>
+              <div className="flex justify-center">
                   <div className="w-full h-64 relative mb-8">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RadialBarChart
-                        cx="50%"
-                        cy="50%"
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadialBarChart
+                      cx="50%"
+                      cy="50%"
                         innerRadius="30%"
                         outerRadius="90%"
                         data={[
@@ -849,10 +849,10 @@ export default function ProductDetails() {
                         >
                           Sizes
                         </text>
-                      </RadialBarChart>
-                    </ResponsiveContainer>
-                  </div>
+                    </RadialBarChart>
+                  </ResponsiveContainer>
                 </div>
+              </div>
 
                 {/* Size Categories */}
                 <div className="flex justify-between text-left mb-6">
@@ -860,18 +860,18 @@ export default function ProductDetails() {
                     <div className="w-10 h-10 rounded-md mb-1 bg-[#9BC7FD] mx-auto"></div>
                     <div className="text-sm text-gray-700">Large size</div>
                     <div className="text-gray-800 text-sm">(X,XL,XXL)</div>
-                  </div>
+                </div>
                   <div className="text-center">
                     <div className="w-10 h-10 rounded-md mb-1 bg-[#FF98D4] mx-auto"></div>
                     <div className="text-sm text-gray-700">Medium size</div>
                     <div className="text-gray-800 text-sm">(M)</div>
-                  </div>
+                </div>
                   <div className="text-center">
                     <div className="w-10 h-10 rounded-md mb-1 bg-[#FFD188] mx-auto"></div>
                     <div className="text-sm text-gray-700">Small size</div>
                     <div className="text-gray-800 text-sm">(S)</div>
-                  </div>
                 </div>
+              </div>
 
                 {/* Best Fit */}
                 <div className="bg-[#F3EFFF] rounded-xl p-4 mb-4">
@@ -970,19 +970,19 @@ export default function ProductDetails() {
                   </div>
                 )}
 
-                <p className="text-xs text-gray-500 mt-4 ml-2">
-                  *95% users said true to size
-                </p>
+              <p className="text-xs text-gray-500 mt-4 ml-2">
+                *95% users said true to size
+              </p>
 
-                <Button
+              <Button
                   onClick={handleCompareSizeClick}
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white py-6 rounded-xl font-medium mt-6 mb-4"
-                >
+              >
                   {mySizeRecs ? "Recalculate My Size" : "Compare My Size"}
-                </Button>
+              </Button>
               </>
             )}
-          </div>
+            </div>
         </div>
       )}
 
