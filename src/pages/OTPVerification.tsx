@@ -111,27 +111,70 @@ export default function OTPVerification() {
 
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.verifyOtp({
-        phone,
-        token: otp,
-        type: 'sms'
-      });
-
-      if (error) {
-        toast({
-          title: "Verification Failed",
-          description: error.message,
-          variant: "destructive",
+      const method = searchParams.get('method');
+      
+      if (method === 'whatsapp') {
+        // WhatsApp OTP verification via edge function
+        const { data, error } = await supabase.functions.invoke('verify-whatsapp-otp', {
+          body: { phone, otp }
         });
-        return;
+
+        if (error || !data?.success) {
+          console.error('WhatsApp OTP verification error:', error || data?.error);
+          toast({
+            title: "Verification Failed",
+            description: data?.error || error?.message || "Invalid verification code. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Set the session from the response
+        if (data.session) {
+          await supabase.auth.setSession(data.session);
+        }
+
+        toast({
+          title: "Success!",
+          description: "Phone number verified successfully!",
+        });
+
+        // Handle post-verification navigation
+        if (sessionId && user) {
+          const success = await updateDeviceSession(sessionId, user.id);
+          if (success) {
+            navigate(`/device-connected?session_id=${sessionId}`);
+          } else {
+            console.error('Failed to update device session');
+            navigate(data.isNewUser ? '/measurement-profile' : '/store');
+          }
+        } else {
+          navigate(data.isNewUser ? '/measurement-profile' : '/store');
+        }
+      } else {
+        // Regular SMS OTP verification
+        const { error } = await supabase.auth.verifyOtp({
+          phone,
+          token: otp,
+          type: 'sms'
+        });
+
+        if (error) {
+          toast({
+            title: "Verification Failed",
+            description: error.message,
+            variant: "destructive",
+          });
+          return;
+        }
+
+        toast({
+          title: "Success!",
+          description: "Phone number verified successfully!",
+        });
+
+        // Authentication state change will be handled by useEffect
       }
-
-      toast({
-        title: "Success!",
-        description: "Phone number verified successfully!",
-      });
-
-      // Authentication state change will be handled by useEffect
     } catch (error) {
       console.error("OTP verification error:", error);
       toast({
@@ -149,23 +192,48 @@ export default function OTPVerification() {
 
     setIsResending(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        phone,
-      });
-
-      if (error) {
-        toast({
-          title: "Resend Failed",
-          description: error.message,
-          variant: "destructive",
+      const method = searchParams.get('method');
+      
+      if (method === 'whatsapp') {
+        // Resend via WhatsApp
+        const { data, error } = await supabase.functions.invoke('send-whatsapp-otp', {
+          body: { phone }
         });
-        return;
-      }
 
-      toast({
-        title: "OTP Sent",
-        description: "A new verification code has been sent to your phone.",
-      });
+        if (error || !data?.success) {
+          console.error('Resend WhatsApp OTP error:', error || data?.error);
+          toast({
+            title: "Resend Failed",
+            description: data?.error || error?.message || "Could not resend verification code. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        toast({
+          title: "OTP Sent",
+          description: "A new verification code has been sent via WhatsApp.",
+        });
+      } else {
+        // Resend via SMS
+        const { error } = await supabase.auth.signInWithOtp({
+          phone,
+        });
+
+        if (error) {
+          toast({
+            title: "Resend Failed",
+            description: error.message,
+            variant: "destructive",
+          });
+          return;
+        }
+
+        toast({
+          title: "OTP Sent",
+          description: "A new verification code has been sent to your phone.",
+        });
+      }
       
       setTimeLeft(60);
       setOtp("");

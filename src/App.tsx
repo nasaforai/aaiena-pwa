@@ -33,6 +33,7 @@ const SignIn = React.lazy(() => import("./pages/SignIn"));
 const SignUp = React.lazy(() => import("./pages/SignUp"));
 const SignupOptions = React.lazy(() => import("./pages/SignupOptions"));
 const OTPVerification = React.lazy(() => import("./pages/OTPVerification"));
+const PhoneInput = React.lazy(() => import("./pages/PhoneInput"));
 const MeasurementProfile = React.lazy(() => import("./pages/MeasurementProfile"));
 const DeviceConnected = React.lazy(() => import("./pages/DeviceConnected"));
 const FitProfile = React.lazy(() => import("./pages/FitProfile"));
@@ -138,6 +139,7 @@ const App = () => {
                  <Route path="/sign-up" element={<SignUp />} />
                  <Route path="/signup-options" element={<SignupOptions />} />
                  <Route path="/otp-verification" element={<OTPVerification />} />
+                 <Route path="/phone-input" element={<PhoneInput />} />
                 
                  {/* Public routes */}
                  <Route path="/store" element={<Store />} />

@@ -208,66 +208,12 @@ export default function SignIn() {
     }
   };
 
-  const handlePhoneSignIn = async () => {
-    if (!phone.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter your phone number",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Validate phone number
-    try {
-      if (!isValidPhoneNumber(phone)) {
-        toast({
-          title: "Invalid Phone Number",
-          description: "Please enter a valid phone number with country code",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const phoneNumber = parsePhoneNumber(phone);
-      const formattedPhone = phoneNumber.format('E.164');
-      
-      setIsLoading(true);
-      
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
-      });
-
-      if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "OTP Sent",
-        description: "A verification code has been sent to your phone number.",
-      });
-
-      // Navigate to OTP verification
-      const otpUrl = sessionId 
-        ? `/otp-verification?phone=${encodeURIComponent(formattedPhone)}&session_id=${sessionId}&from=signin`
-        : `/otp-verification?phone=${encodeURIComponent(formattedPhone)}&from=signin`;
-      
-      navigate(otpUrl);
-    } catch (error) {
-      console.error("Phone signin error:", error);
-      toast({
-        title: "Error",
-        description: "Failed to send verification code. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  const handlePhoneSignIn = () => {
+    // Navigate to phone input page for WhatsApp OTP authentication
+    const phoneInputPath = sessionId 
+      ? `/phone-input?session_id=${sessionId}&from=signin`
+      : `/phone-input?from=signin`;
+    navigate(phoneInputPath);
   };
 
   const handleSignUp = () => {
