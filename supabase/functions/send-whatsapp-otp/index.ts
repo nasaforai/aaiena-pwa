@@ -106,7 +106,9 @@ serve(async (req) => {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        From: twilioWhatsappNumber,
+        From: twilioWhatsappNumber.startsWith('whatsapp:') 
+          ? twilioWhatsappNumber 
+          : `whatsapp:${twilioWhatsappNumber}`,
         To: `whatsapp:${phone}`,
         Body: message
       })
