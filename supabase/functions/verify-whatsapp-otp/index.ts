@@ -106,12 +106,14 @@ serve(async (req) => {
       userId = newUser.user.id;
       isNewUser = true;
 
-      // Create profile for new user
+      // Create profile for new user - use upsert to handle duplicates
       const { error: profileError } = await supabase
         .from('profiles')
-        .insert({
+        .upsert({
           user_id: userId,
           full_name: phone
+        }, {
+          onConflict: 'user_id'
         });
 
       if (profileError) {
@@ -124,13 +126,17 @@ serve(async (req) => {
       console.log('Existing user found:', userId);
     }
 
-    // Generate session token
-    const { data: sessionData, error: sessionError } = await supabase.auth.admin.createSession({
-      user_id: userId
+    // Generate session using generateLink (compatible with current Supabase client)
+    const { data: linkData, error: sessionError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email: `${phone.replace(/\+/g, '')}@phone.auth`,
+      options: {
+        data: { phone }
+      }
     });
 
-    if (sessionError || !sessionData) {
-      console.error('Session creation error:', sessionError);
+    if (sessionError || !linkData) {
+      console.error('Session generation error:', sessionError);
       return new Response(
         JSON.stringify({ success: false, error: 'Failed to create session' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -139,10 +145,19 @@ serve(async (req) => {
 
     console.log('Session created successfully for user:', userId);
 
+    // Build session object from the generated link data
+    const session = {
+      access_token: linkData.properties.access_token,
+      refresh_token: linkData.properties.refresh_token,
+      expires_in: 3600,
+      token_type: 'bearer',
+      user: linkData.user
+    };
+
     return new Response(
       JSON.stringify({
         success: true,
-        session: sessionData.session,
+        session: session,
         isNewUser
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
