@@ -2,3 +2,9 @@ project_id = "mpvcadyicshblhleoyob"
 
 [functions.kiosk-auth]
 verify_jwt = false
+
+[functions.send-whatsapp-otp]
+verify_jwt = false
+
+[functions.verify-whatsapp-otp]
+verify_jwt = false
