@@ -36,37 +36,44 @@ export default function OTPVerification() {
     }
   }, [timeLeft]);
 
-  // Handle authenticated users with session_id (for kiosk flow)
+  // Handle authenticated users - simplified navigation logic
   useEffect(() => {
-    if (!loading && isAuthenticated && user && sessionId) {
-      console.log('User authenticated via OTP, updating device session:', sessionId, user.id);
+    if (!loading && isAuthenticated && user) {
+      console.log('User authenticated in OTPVerification:', user.id);
       
-      const handleDeviceUpdate = async () => {
-        try {
-          const success = await updateDeviceSession(sessionId, user.id);
-          if (success) {
-            toast({
-              title: "Success!",
-              description: "Successfully connected to kiosk!",
-            });
-            setTimeout(() => {
+      // Handle device session connection (for kiosk flow)
+      if (sessionId) {
+        console.log('Updating device session:', sessionId);
+        
+        const handleDeviceUpdate = async () => {
+          try {
+            const success = await updateDeviceSession(sessionId, user.id);
+            if (success) {
+              toast({
+                title: "Success!",
+                description: "Successfully connected to kiosk!",
+              });
+              setTimeout(() => {
+                navigate("/store", { replace: true });
+              }, 1000);
+            } else {
               navigate("/store", { replace: true });
-            }, 1500);
-          } else {
+            }
+          } catch (error) {
+            console.error('Error updating device session:', error);
             navigate("/store", { replace: true });
           }
-        } catch (error) {
-          console.error('Error updating device session:', error);
-          navigate("/store", { replace: true });
-        }
-      };
-      
-      handleDeviceUpdate();
-    } else if (!loading && isAuthenticated && !sessionId) {
-      // Check if user has profile
-      checkUserProfile();
+        };
+        
+        handleDeviceUpdate();
+      }
+      // For normal flow without session_id, check profile
+      else {
+        console.log('No session_id, checking user profile');
+        checkUserProfile();
+      }
     }
-  }, [isAuthenticated, loading, navigate, sessionId, user, updateDeviceSession, toast]);
+  }, [isAuthenticated, loading, user]);
 
   const checkUserProfile = async () => {
     if (!user) return;
@@ -129,9 +136,22 @@ export default function OTPVerification() {
           return;
         }
 
-        // Set the session from the response
+        // Set the session FIRST and wait for it to complete
         if (data.session) {
-          await supabase.auth.setSession(data.session);
+          const { error: sessionError } = await supabase.auth.setSession(data.session);
+          
+          if (sessionError) {
+            console.error('Error setting session:', sessionError);
+            toast({
+              title: "Authentication Error",
+              description: "Failed to authenticate. Please try again.",
+              variant: "destructive",
+            });
+            return;
+          }
+          
+          // Wait for auth state to update (give the onAuthStateChange listener time to process)
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
 
         toast({
@@ -139,18 +159,8 @@ export default function OTPVerification() {
           description: "Phone number verified successfully!",
         });
 
-        // Handle post-verification navigation
-        if (sessionId && user) {
-          const success = await updateDeviceSession(sessionId, user.id);
-          if (success) {
-            navigate(`/device-connected?session_id=${sessionId}`);
-          } else {
-            console.error('Failed to update device session');
-            navigate(data.isNewUser ? '/measurement-profile' : '/store');
-          }
-        } else {
-          navigate(data.isNewUser ? '/measurement-profile' : '/store');
-        }
+        // Navigation will be handled by the useEffect that watches isAuthenticated
+        // So we don't need to manually navigate here anymore
       } else {
         // Regular SMS OTP verification
         const { error } = await supabase.auth.verifyOtp({

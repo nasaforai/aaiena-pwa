@@ -72,33 +72,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state change event:', event, 'Session:', !!session, 'User:', !!session?.user);
+        
         setSession(session);
         setUser(session?.user ?? null);
-        setLoading(false);
         
         // Check profile when user changes
         if (session?.user) {
+          console.log('User authenticated, checking profile for:', session.user.id);
           setTimeout(() => {
             checkProfile();
           }, 0);
         } else {
+          console.log('No user in session, clearing profile state');
           setHasProfile(null);
         }
+        
+        setLoading(false);
       }
     );
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', !!session, 'User:', !!session?.user);
+      
       setSession(session);
       setUser(session?.user ?? null);
-      setLoading(false);
       
       // Check profile for existing session
       if (session?.user) {
+        console.log('Existing session found, checking profile for:', session.user.id);
         setTimeout(() => {
           checkProfile();
         }, 0);
       }
+      
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();

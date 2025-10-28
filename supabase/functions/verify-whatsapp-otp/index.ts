@@ -192,11 +192,12 @@ serve(async (req) => {
 
     console.log('Session created successfully for user:', userId);
 
-    // Build session object from the generated link data
+    // Ensure all required session properties are present
     const session = {
       access_token: linkData.properties.access_token,
       refresh_token: linkData.properties.refresh_token,
       expires_in: 3600,
+      expires_at: Math.floor(Date.now() / 1000) + 3600,
       token_type: 'bearer',
       user: linkData.user
     };
