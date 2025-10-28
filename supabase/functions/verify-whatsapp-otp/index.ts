@@ -71,51 +71,86 @@ serve(async (req) => {
       console.error('OTP update error:', updateError);
     }
 
-    // STEP 1: First, check if user already exists
-    console.log('Checking if user exists for phone:', phone);
-    const { data: allUsers, error: listError } = await supabase.auth.admin.listUsers();
-
-    if (listError) {
-      console.error('Failed to list users:', listError);
-      return new Response(
-        JSON.stringify({ success: false, error: 'Failed to verify user' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const existingUser = allUsers.users.find(u => u.phone === phone);
+    // Try to create the user first - this is more reliable than checking existence
+    console.log('Attempting to create/find user for phone:', phone);
+    const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
+      phone,
+      phone_confirm: true,
+      user_metadata: { phone }
+    });
 
     let userId: string;
     let isNewUser = false;
 
-    if (existingUser) {
-      // SIGN-IN: User already exists, use their ID
-      userId = existingUser.id;
-      isNewUser = false;
-      console.log('Existing user found (sign-in):', userId);
-    } else {
-      // SIGN-UP: User doesn't exist, create new user
-      console.log('User not found, creating new user (sign-up):', phone);
-      
-      const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
-        phone,
-        phone_confirm: true,
-        user_metadata: { phone }
-      });
-
-      if (createError || !newUser?.user) {
+    if (createError) {
+      // If phone already exists, this is a sign-in attempt
+      if (createError.code === 'phone_exists') {
+        console.log('User already exists (sign-in), looking up user ID for phone:', phone);
+        
+        // Option 1: Try to find in profiles table first (more efficient)
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .eq('full_name', phone)
+          .single();
+        
+        if (!profileError && profile) {
+          userId = profile.user_id;
+          isNewUser = false;
+          console.log('Existing user found via profile:', userId);
+        } else {
+          // Option 2: Fall back to listing users with pagination
+          console.log('Profile not found, searching through auth users...');
+          let foundUser = null;
+          let page = 1;
+          const perPage = 1000;
+          
+          while (!foundUser && page <= 10) { // Limit to 10 pages (10k users) for safety
+            const { data: usersPage, error: listError } = await supabase.auth.admin.listUsers({
+              page,
+              perPage
+            });
+            
+            if (listError) {
+              console.error('Failed to list users:', listError);
+              break;
+            }
+            
+            foundUser = usersPage.users.find(u => u.phone === phone);
+            if (!foundUser && usersPage.users.length < perPage) {
+              // Reached last page without finding user
+              break;
+            }
+            page++;
+          }
+          
+          if (!foundUser) {
+            console.error('User not found despite phone_exists error');
+            return new Response(
+              JSON.stringify({ success: false, error: 'User verification failed. Please try again.' }),
+              { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+          
+          userId = foundUser.id;
+          isNewUser = false;
+          console.log('Existing user found via auth listing:', userId);
+        }
+      } else {
+        // Other creation errors
         console.error('User creation error:', createError);
         return new Response(
           JSON.stringify({ success: false, error: 'Failed to create user account' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-
+    } else if (newUser?.user) {
+      // Successfully created new user
       userId = newUser.user.id;
       isNewUser = true;
       console.log('New user created (sign-up):', userId);
       
-      // Create profile ONLY for new users
+      // Create profile for new user
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
@@ -130,6 +165,12 @@ serve(async (req) => {
       } else {
         console.log('Profile created for new user');
       }
+    } else {
+      console.error('Unexpected user creation result');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Failed to process user' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Generate session using generateLink (compatible with current Supabase client)
