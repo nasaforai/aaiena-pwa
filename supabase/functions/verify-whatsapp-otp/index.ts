@@ -71,42 +71,60 @@ serve(async (req) => {
       console.error('OTP update error:', updateError);
     }
 
-    // Check if user exists
-    const { data: existingUsers, error: userLookupError } = await supabase.auth.admin.listUsers();
-
-    if (userLookupError) {
-      console.error('User lookup error:', userLookupError);
-      return new Response(
-        JSON.stringify({ success: false, error: 'Failed to check user existence' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const existingUser = existingUsers.users.find(u => u.phone === phone);
+    // Try to create user first - if phone exists, fetch existing user
     let userId: string;
     let isNewUser = false;
 
-    if (!existingUser) {
-      // Create new user
-      console.log('Creating new user for phone:', phone);
-      const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
-        phone,
-        phone_confirm: true,
-        user_metadata: { phone }
-      });
+    console.log('Attempting to create/find user for phone:', phone);
+    const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
+      phone,
+      phone_confirm: true,
+      user_metadata: { phone }
+    });
 
-      if (createError || !newUser.user) {
+    if (createError) {
+      // If phone already exists, find the existing user
+      if (createError.code === 'phone_exists') {
+        console.log('User already exists, fetching existing user for phone:', phone);
+        
+        const { data: allUsers, error: listError } = await supabase.auth.admin.listUsers();
+        
+        if (listError) {
+          console.error('Failed to list users:', listError);
+          return new Response(
+            JSON.stringify({ success: false, error: 'Failed to verify user' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        const existingUser = allUsers.users.find(u => u.phone === phone);
+        
+        if (!existingUser) {
+          console.error('User not found despite phone_exists error');
+          return new Response(
+            JSON.stringify({ success: false, error: 'User verification failed' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        userId = existingUser.id;
+        isNewUser = false;
+        console.log('Existing user found:', userId);
+      } else {
+        // Other creation errors
         console.error('User creation error:', createError);
         return new Response(
           JSON.stringify({ success: false, error: 'Failed to create user account' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-
+    } else if (newUser.user) {
+      // Successfully created new user
       userId = newUser.user.id;
       isNewUser = true;
-
-      // Create profile for new user - use upsert to handle duplicates
+      console.log('New user created:', userId);
+      
+      // Create profile for new user
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
@@ -119,11 +137,12 @@ serve(async (req) => {
       if (profileError) {
         console.error('Profile creation error:', profileError);
       }
-
-      console.log('New user created:', userId);
     } else {
-      userId = existingUser.id;
-      console.log('Existing user found:', userId);
+      console.error('Unexpected user creation result');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Failed to process user' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Generate session using generateLink (compatible with current Supabase client)
