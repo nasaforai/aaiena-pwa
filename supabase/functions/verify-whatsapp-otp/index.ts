@@ -173,17 +173,13 @@ serve(async (req) => {
       );
     }
 
-    // Generate session using generateLink (compatible with current Supabase client)
-    const { data: linkData, error: sessionError } = await supabase.auth.admin.generateLink({
-      type: 'magiclink',
-      email: `${phone.replace(/\+/g, '')}@phone.auth`,
-      options: {
-        data: { phone }
-      }
+    // Generate a proper session using createSession (not generateLink)
+    const { data: sessionData, error: sessionError } = await supabase.auth.admin.createSession({
+      user_id: userId
     });
 
-    if (sessionError || !linkData) {
-      console.error('Session generation error:', sessionError);
+    if (sessionError || !sessionData?.session) {
+      console.error('Session creation error:', sessionError);
       return new Response(
         JSON.stringify({ success: false, error: 'Failed to create session' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -192,20 +188,11 @@ serve(async (req) => {
 
     console.log('Session created successfully for user:', userId);
 
-    // Ensure all required session properties are present
-    const session = {
-      access_token: linkData.properties.access_token,
-      refresh_token: linkData.properties.refresh_token,
-      expires_in: 3600,
-      expires_at: Math.floor(Date.now() / 1000) + 3600,
-      token_type: 'bearer',
-      user: linkData.user
-    };
-
+    // Return the properly formatted session
     return new Response(
       JSON.stringify({
         success: true,
-        session: session,
+        session: sessionData.session,
         isNewUser
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
