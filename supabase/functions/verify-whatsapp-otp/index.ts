@@ -76,6 +76,7 @@ serve(async (req) => {
     const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
       phone,
       phone_confirm: true,
+      email_confirm: false, // Explicitly disable email to prevent synthetic email creation
       user_metadata: { phone }
     });
 
@@ -99,8 +100,39 @@ serve(async (req) => {
           isNewUser = false;
           console.log('Existing user found via profile:', userId);
         } else {
-          // Option 2: Fall back to listing users with pagination
-          console.log('Profile not found, searching through auth users...');
+          // Option 2: Check for users with synthetic email pattern
+          const syntheticEmail = `${phone.replace(/\+/g, '')}@phone.auth`;
+          console.log('Checking for synthetic email user:', syntheticEmail);
+          
+          const { data: usersPage, error: listError } = await supabase.auth.admin.listUsers({
+            page: 1,
+            perPage: 1000
+          });
+          
+          if (!listError && usersPage) {
+            const existingSyntheticUser = usersPage.users.find(u => u.email === syntheticEmail && !u.phone);
+            
+            if (existingSyntheticUser) {
+              userId = existingSyntheticUser.id;
+              isNewUser = false;
+              console.log('Found user with synthetic email, migrating to phone-only:', userId);
+              
+              // Delete the synthetic email user and create a proper phone-only user
+              await supabase.auth.admin.deleteUser(existingSyntheticUser.id);
+              console.log('Deleted synthetic email user:', userId);
+              
+              // The outer createUser call will create a new proper phone-only user
+              // So we should return an error to trigger that path
+              console.error('Triggering recreation with phone-only');
+              return new Response(
+                JSON.stringify({ success: false, error: 'Migration needed, please try again' }),
+                { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+              );
+            }
+          }
+          
+          // Option 3: Fall back to listing users with pagination by phone
+          console.log('Profile not found, searching through auth users by phone...');
           let foundUser = null;
           let page = 1;
           const perPage = 1000;
