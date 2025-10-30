@@ -22,7 +22,8 @@ interface MeasurementsContainer {
   chest?: number;
   waist?: number;
   Butt?: number;
-  shoulder_width?: number;
+  shoulder?: number;         // New API format
+  shoulder_width?: number;   // Old API format (backward compatibility)
   neck?: number;
   inseam?: number;
   body_length?: number;
@@ -78,7 +79,8 @@ export function MeasurementResultsDialog({
   const chest = Number(actualMeasurements.chest);
   const waist = Number(actualMeasurements.waist);
   const butt = Number(actualMeasurements.Butt);
-  const shoulder = Number(actualMeasurements.shoulder_width);
+  // Try both 'shoulder' and 'shoulder_width' for backward compatibility
+  const shoulder = Number((actualMeasurements as any).shoulder || (actualMeasurements as any).shoulder_width);
   const neck = Number(actualMeasurements.neck);
   const inseam = Number(actualMeasurements.inseam);
   const bodyLength = Number(actualMeasurements.body_length);

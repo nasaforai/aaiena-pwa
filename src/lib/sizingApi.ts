@@ -113,6 +113,42 @@ export interface ProcessImageResponse {
   };
 }
 
+export interface BodyMeasurementsFromUrlsRequest {
+  front_image_url: string;
+  side_image_url: string;
+  height: number;           // Height in CM
+  gender: 'M' | 'F';        // Gender
+  weight?: number;          // Weight in KG (optional)
+  body_type?: 'Triangle' | 'Diamond' | 'Inverted' | 'Rectangle' | 'Hourglass';  // For females (optional)
+}
+
+export interface BodyMeasurementsFromUrlsResponse {
+  success: boolean;
+  message: string;
+  measurements: {
+    height: number;          // CM
+    neck: number;            // INCHES
+    chest: number;           // INCHES
+    waist: number;           // INCHES
+    hip: number;             // INCHES
+    Butt: number;            // INCHES (same as hip)
+    shoulder_width: number;  // INCHES
+    body_length: number;     // INCHES
+    inseam: number;          // INCHES
+    gender: string;          // "M" or "F"
+    weight?: number;         // KG
+    body_type?: string;      // Body type if provided
+  };
+  processed_images: {
+    front: string;           // Path to processed front image
+    side: string;            // Path to processed side image
+  };
+  annotated_images: {
+    front: string;           // Path to annotated front image
+    side: string;            // Path to annotated side image
+  };
+}
+
 /**
  * Convert frontend profile data to backend UserMeasurements format
  */
@@ -172,8 +208,8 @@ function convertProfileToMeasurements(profile: any): UserMeasurements {
 }
 
 /**
- * Try virtually with real image processing - uses user's photos from profile
- * This function should now only be used for extracting measurements.
+ * Extract body measurements from user's photos using the correct endpoint
+ * This function uses /body-measurements-from-urls endpoint which returns measurements in inches
  */
 export async function extractMeasurementsFromUrls(
   profile: any
@@ -200,31 +236,44 @@ export async function extractMeasurementsFromUrls(
     const heightValue = profile.height_cm || profile.height || 170;
     const weightValue = profile.weight || null;
     
-    // Convert gender to backend format ("Male"/"Female")
-    let gender = 'Male'; // default
+    // Convert gender to backend format ("M" or "F")
+    let gender = 'M'; // default
     if (profile.gender) {
       const genderUpper = profile.gender.toUpperCase();
       if (genderUpper === 'FEMALE' || genderUpper === 'F') {
-        gender = 'Female';
+        gender = 'F';
       } else if (genderUpper === 'MALE' || genderUpper === 'M') {
-        gender = 'Male';
+        gender = 'M';
       }
     }
 
-    // Prepare request data as JSON body
-    const requestData = {
+    // Get body type for females (optional)
+    let bodyType = null;
+    if (gender === 'F' && profile.body_type) {
+      const bodyTypeLower = profile.body_type.toLowerCase();
+      if (bodyTypeLower === 'triangle') bodyType = 'Triangle';
+      else if (bodyTypeLower === 'diamond') bodyType = 'Diamond';
+      else if (bodyTypeLower === 'inverted') bodyType = 'Inverted';
+      else if (bodyTypeLower === 'rectangle') bodyType = 'Rectangle';
+      else if (bodyTypeLower === 'hourglass') bodyType = 'Hourglass';
+      else if (['Triangle', 'Diamond', 'Inverted', 'Rectangle', 'Hourglass'].includes(profile.body_type)) {
+        bodyType = profile.body_type;
+      }
+    }
+
+    // Prepare request data for /body-measurements-from-urls endpoint
+    const requestData: BodyMeasurementsFromUrlsRequest = {
       front_image_url: frontImageUrl,
       side_image_url: sideImageUrl,
-      height_cm: heightValue,
-      weight_kg: weightValue,
-      gender: gender,
-      preferred_size: null,
-      body_type: null
+      height: heightValue,  // in CM
+      gender: gender as 'M' | 'F',  // "M" or "F"
+      ...(weightValue !== null && weightValue !== undefined && { weight: weightValue }), // in KG
+      ...(bodyType !== null && { body_type: bodyType as any }), // For females
     };
 
-    console.log('Sending try virtually request with images:', requestData);
+    console.log('Sending body measurements request:', requestData);
 
-    const response = await fetch(`${API_BASE_URL}/try-virtually-with-image-urls`, {
+    const response = await fetch(`${API_BASE_URL}/body-measurements-from-urls`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -236,53 +285,43 @@ export async function extractMeasurementsFromUrls(
       const errorText = await response.text();
       try {
         const errorData = JSON.parse(errorText);
-        throw new Error(errorData.detail || 'Virtual try-on with images failed');
+        throw new Error(errorData.detail || 'Failed to extract body measurements');
       } catch {
         throw new Error(`API request failed with status ${response.status}: ${errorText}`);
       }
     }
 
-    const result = await response.json();
-    console.log("Raw API response:", result);
+    const result: BodyMeasurementsFromUrlsResponse = await response.json();
+    console.log("Body measurements API response:", result);
 
-    // The API response contains measurements and other data
-    // We need to make sure it conforms to our UserMeasurements interface
-    const apiResponse = result as UserMeasurements;
-    
-    // If the measurements are not at the top level, ensure they're accessible
-    if (apiResponse.measurements) {
-      console.log("API response contains nested measurements");
-      
-      // Ensure all required fields are present in the nested measurements
-      if (!apiResponse.measurements.weight) apiResponse.measurements.weight = 70;
-      if (!apiResponse.measurements.hip) apiResponse.measurements.hip = apiResponse.measurements.Butt || 40;
-      if (!apiResponse.measurements.shoulder) apiResponse.measurements.shoulder = (apiResponse.measurements as any).shoulder_width || 17;
-      if (!apiResponse.measurements.body_type) apiResponse.measurements.body_type = 'athletic';
-      if (!apiResponse.measurements.gender) apiResponse.measurements.gender = 'M';
-    } else if (apiResponse.height !== undefined && apiResponse.chest !== undefined) {
-      // If measurements are at the top level, create a nested structure for consistency
-      // Default body type based on gender
-      const gender = apiResponse.gender || 'M';
-      const defaultBodyType = gender === 'F' ? 'hourglass' : 'athletic';
-      
-      apiResponse.measurements = {
-        height: apiResponse.height,
-        neck: apiResponse.neck,
-        chest: apiResponse.chest,
-        waist: apiResponse.waist,
-        Butt: apiResponse.Butt,
-        shoulder: (apiResponse as any).shoulder_width || apiResponse.shoulder || 17,
-        body_length: apiResponse.body_length || 27,
-        inseam: apiResponse.inseam || 30,
-        weight: apiResponse.weight || 70,
-        hip: apiResponse.hip || apiResponse.Butt || 40,
-        body_type: apiResponse.body_type || defaultBodyType,
-        gender: gender
-      };
-      console.log("Created nested measurements from top-level properties");
+    // Check if response was successful
+    if (!result.success) {
+      throw new Error(result.message || 'Failed to extract body measurements');
     }
+
+    // Extract measurements from the response
+    // The API returns measurements in inches (except height in CM)
+    const measurements = result.measurements;
     
-    return apiResponse;
+    // Convert to UserMeasurements format
+    const userMeasurements: UserMeasurements = {
+      height: measurements.height,          // CM
+      neck: measurements.neck,              // INCHES
+      chest: measurements.chest,            // INCHES
+      waist: measurements.waist,            // INCHES
+      hip: measurements.hip,                // INCHES
+      Butt: measurements.Butt || measurements.hip,  // INCHES (same as hip)
+      shoulder: measurements.shoulder_width, // INCHES
+      body_length: measurements.body_length, // INCHES
+      inseam: measurements.inseam,          // INCHES
+      weight: measurements.weight || weightValue || 70,
+      body_type: measurements.body_type || bodyType || (gender === 'F' ? 'Hourglass' : 'Rectangle'),
+      gender: measurements.gender || gender,
+    };
+
+    console.log("Converted measurements (all in inches except height):", userMeasurements);
+    
+    return userMeasurements;
   } catch (error) {
     console.error("Error in extractMeasurementsFromUrls:", error);
     throw error;
