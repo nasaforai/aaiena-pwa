@@ -71,132 +71,75 @@ serve(async (req) => {
       console.error('OTP update error:', updateError);
     }
 
-    // Try to create the user first - this is more reliable than checking existence
+    // Try to create the user - simpler approach
     console.log('Attempting to create/find user for phone:', phone);
     const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
       phone,
       phone_confirm: true,
-      email_confirm: false, // Explicitly disable email to prevent synthetic email creation
       user_metadata: { phone }
     });
 
     let userId: string;
     let isNewUser = false;
 
-    if (createError) {
-      // If phone already exists, this is a sign-in attempt
-      if (createError.code === 'phone_exists') {
-        console.log('User already exists (sign-in), looking up user ID for phone:', phone);
-        
-        // Option 1: Try to find in profiles table first (more efficient)
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('user_id')
-          .eq('full_name', phone)
-          .single();
-        
-        if (!profileError && profile) {
-          userId = profile.user_id;
-          isNewUser = false;
-          console.log('Existing user found via profile:', userId);
-        } else {
-          // Option 2: Check for users with synthetic email pattern
-          const syntheticEmail = `${phone.replace(/\+/g, '')}@phone.auth`;
-          console.log('Checking for synthetic email user:', syntheticEmail);
-          
-          const { data: usersPage, error: listError } = await supabase.auth.admin.listUsers({
-            page: 1,
-            perPage: 1000
-          });
-          
-          if (!listError && usersPage) {
-            const existingSyntheticUser = usersPage.users.find(u => u.email === syntheticEmail && !u.phone);
-            
-            if (existingSyntheticUser) {
-              userId = existingSyntheticUser.id;
-              isNewUser = false;
-              console.log('Found user with synthetic email, migrating to phone-only:', userId);
-              
-              // Delete the synthetic email user and create a proper phone-only user
-              await supabase.auth.admin.deleteUser(existingSyntheticUser.id);
-              console.log('Deleted synthetic email user:', userId);
-              
-              // The outer createUser call will create a new proper phone-only user
-              // So we should return an error to trigger that path
-              console.error('Triggering recreation with phone-only');
-              return new Response(
-                JSON.stringify({ success: false, error: 'Migration needed, please try again' }),
-                { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-              );
-            }
-          }
-          
-          // Option 3: Fall back to listing users with pagination by phone
-          console.log('Profile not found, searching through auth users by phone...');
-          let foundUser = null;
-          let page = 1;
-          const perPage = 1000;
-          
-          while (!foundUser && page <= 10) { // Limit to 10 pages (10k users) for safety
-            const { data: usersPage, error: listError } = await supabase.auth.admin.listUsers({
-              page,
-              perPage
-            });
-            
-            if (listError) {
-              console.error('Failed to list users:', listError);
-              break;
-            }
-            
-            foundUser = usersPage.users.find(u => u.phone === phone);
-            if (!foundUser && usersPage.users.length < perPage) {
-              // Reached last page without finding user
-              break;
-            }
-            page++;
-          }
-          
-          if (!foundUser) {
-            console.error('User not found despite phone_exists error');
-            return new Response(
-              JSON.stringify({ success: false, error: 'User verification failed. Please try again.' }),
-              { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-            );
-          }
-          
-          userId = foundUser.id;
-          isNewUser = false;
-          console.log('Existing user found via auth listing:', userId);
-        }
-      } else {
-        // Other creation errors
-        console.error('User creation error:', createError);
+    if (createError?.code === 'phone_exists') {
+      // EXISTING USER - Sign In
+      console.log('Phone exists, finding user by phone:', phone);
+      
+      // Find user by phone in auth.users
+      const { data: usersData, error: listError } = await supabase.auth.admin.listUsers();
+      
+      if (listError) {
+        console.error('Failed to list users:', listError);
         return new Response(
-          JSON.stringify({ success: false, error: 'Failed to create user account' }),
+          JSON.stringify({ success: false, error: 'Failed to find user' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
+      
+      const existingUser = usersData.users.find(u => u.phone === phone);
+      
+      if (!existingUser) {
+        console.error('User not found despite phone_exists error');
+        return new Response(
+          JSON.stringify({ success: false, error: 'User not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      userId = existingUser.id;
+      isNewUser = false;
+      console.log('Existing user found:', userId);
+      
+    } else if (createError) {
+      // Other creation errors
+      console.error('User creation error:', createError);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Failed to create user account' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+      
     } else if (newUser?.user) {
-      // Successfully created new user
+      // NEW USER - Sign Up
       userId = newUser.user.id;
       isNewUser = true;
-      console.log('New user created (sign-up):', userId);
+      console.log('New user created:', userId);
       
-      // Create profile for new user
+      // Create profile for new user with phone as temporary name
       const { error: profileError } = await supabase
         .from('profiles')
-        .upsert({
+        .insert({
           user_id: userId,
-          full_name: phone
-        }, {
-          onConflict: 'user_id'
+          full_name: phone // User can update this later
         });
 
       if (profileError) {
         console.error('Profile creation error:', profileError);
+        // Continue anyway - profile can be created later
       } else {
         console.log('Profile created for new user');
       }
+      
     } else {
       console.error('Unexpected user creation result');
       return new Response(
