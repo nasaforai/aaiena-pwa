@@ -28,14 +28,16 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Check rate limiting - max 3 OTPs per phone per hour (only count unverified)
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    // Check rate limiting - max 10 OTPs per phone per 15 minutes (only count unverified & non-expired)
+    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    const now = new Date().toISOString();
     const { data: recentOtps, error: rateLimitError } = await supabase
       .from('otp_codes')
       .select('id')
       .eq('phone_number', phone)
       .eq('verified', false)
-      .gte('created_at', oneHourAgo);
+      .gte('created_at', fifteenMinutesAgo)
+      .gte('expires_at', now);
 
     if (rateLimitError) {
       console.error('Rate limit check error:', rateLimitError);
@@ -45,9 +47,9 @@ serve(async (req) => {
       );
     }
 
-    if (recentOtps && recentOtps.length >= 3) {
+    if (recentOtps && recentOtps.length >= 10) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Too many OTP requests. Please try again later.' }),
+        JSON.stringify({ success: false, error: 'Too many OTP requests. Please wait 15 minutes.' }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
