@@ -559,6 +559,126 @@ export type Database = {
         }
         Relationships: []
       }
+      room_queue: {
+        Row: {
+          created_at: string
+          id: string
+          notified_at: string | null
+          phone_number: string
+          position: number
+          room_id: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notified_at?: string | null
+          phone_number: string
+          position: number
+          room_id: string
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notified_at?: string | null
+          phone_number?: string
+          position?: number
+          room_id?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_queue_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      room_sessions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          phone_number: string
+          room_id: string
+          started_at: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          phone_number: string
+          room_id: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          phone_number?: string
+          room_id?: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_sessions_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rooms: {
+        Row: {
+          brand_id: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          room_number: string
+          updated_at: string
+        }
+        Insert: {
+          brand_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          room_number: string
+          updated_at?: string
+        }
+        Update: {
+          brand_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          room_number?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rooms_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       size_chart_measurements: {
         Row: {
           chest_inches: number | null
