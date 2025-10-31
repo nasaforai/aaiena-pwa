@@ -182,15 +182,51 @@ serve(async (req) => {
       );
     }
 
-    // Generate a proper session using createSession (not generateLink)
+    // Generate a session using generateLink + verifyOtp pattern
     console.log('=== SESSION CREATION PHASE ===');
     console.log('Creating session for user:', userId);
-    const { data: sessionData, error: sessionError } = await supabase.auth.admin.createSession({
-      user_id: userId
+
+    // Get user details to determine email
+    const { data: userData, error: userError } = await supabase.auth.admin.getUserById(userId);
+
+    if (userError || !userData?.user) {
+      console.error('Failed to get user:', userError);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Failed to retrieve user' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('User retrieved, generating magic link...');
+
+    // Generate a magic link (this creates a session token)
+    const { data: magicLink, error: linkError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email: userData.user.email || `${normalizedPhone}@phone.temp`,
+    });
+
+    if (linkError || !magicLink?.properties?.hashed_token) {
+      console.error('Magic link generation error:', linkError);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Failed to generate session token' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Magic link generated, verifying to create session...');
+
+    // Create a regular Supabase client (not admin) to verify the OTP
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const regularClient = createClient(supabaseUrl, supabaseAnonKey);
+
+    // Verify the OTP to get a valid session
+    const { data: sessionData, error: sessionError } = await regularClient.auth.verifyOtp({
+      token_hash: magicLink.properties.hashed_token,
+      type: 'magiclink',
     });
 
     if (sessionError || !sessionData?.session) {
-      console.error('Session creation error:', sessionError);
+      console.error('Session verification error:', sessionError);
       return new Response(
         JSON.stringify({ success: false, error: 'Failed to create session' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
