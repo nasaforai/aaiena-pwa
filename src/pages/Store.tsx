@@ -33,6 +33,7 @@ import { useBanners } from "@/hooks/useBanners";
 import { useBrand } from "@/contexts/BrandContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
+import { useQueueStatus } from "@/hooks/useQueueStatus";
 import BottomNavigation from "@/components/BottomNavigation";
 import {
   AlertDialog,
@@ -50,6 +51,7 @@ export default function Store() {
   const { isAuthenticated, user } = useAuth();
   const { currentBrand } = useBrand();
   const { profile, loading: profileLoading } = useProfile();
+  const { metrics: queueMetrics, loading: queueLoading } = useQueueStatus();
   const [notifyToggle, setNotifyToggle] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedParentCategory, setSelectedParentCategory] = useState<string | null>(null);
@@ -167,28 +169,54 @@ export default function Store() {
           <div className="bg-gradient-to-tl from-[#DBACFF] to-[#6A00FF] rounded-tl-2xl rounded-tr-2xl px-4 py-3">
             <div className="flex justify-between items-center mb-2">
               <p className="text-sm opacity-90">Queue Status</p>
-              <p className="text-sm">5 minutes</p>
+              <p className="text-sm">
+                {queueLoading ? "..." : `${queueMetrics.averageWaitMinutes} minutes`}
+              </p>
             </div>
-            <p className="text-2xl font-bold">Moderate</p>
+            <p className="text-2xl font-bold">
+              {queueLoading ? "..." : queueMetrics.status}
+            </p>
           </div>
 
           <div className="p-4 flex flex-col gap-2">
             <div className="flex gap-4">
               <div className="flex flex-col shadow-lg rounded-xl bg-white p-4 gap-2 flex-1">
                 <p className="text-gray-400 text-sm">Current Users</p>
-                <p className="text-black text-2xl">4</p>
+                <p className="text-black text-2xl">
+                  {queueLoading ? "..." : queueMetrics.currentUsers}
+                </p>
                 <div className="flex items-center">
-                  <ArrowUp className="text-green-500 w-4 h-4" />
-                  <p className="text-green-500 text-sm">-18 min from usual</p>
+                  {queueMetrics.status === "Low" ? (
+                    <>
+                      <ArrowDown className="text-green-500 w-4 h-4" />
+                      <p className="text-green-500 text-sm">Below average</p>
+                    </>
+                  ) : (
+                    <>
+                      <ArrowUp className="text-red-500 w-4 h-4" />
+                      <p className="text-red-500 text-sm">Above average</p>
+                    </>
+                  )}
                 </div>
               </div>
 
               <div className="flex flex-col shadow-xl rounded-xl bg-white p-4 gap-2 flex-1">
-                <p className="text-gray-400 text-sm">Average Wait</p>
-                <p className="text-black text-2xl">5 min</p>
+                <p className="text-gray-400 text-sm">In Queue</p>
+                <p className="text-black text-2xl">
+                  {queueLoading ? "..." : queueMetrics.queueLength}
+                </p>
                 <div className="flex items-center">
-                  <ArrowDown className="text-red-500 w-4 h-4" />
-                  <p className="text-red-500 text-sm">-18 min from usual</p>
+                  {queueMetrics.queueLength === 0 ? (
+                    <>
+                      <ArrowDown className="text-green-500 w-4 h-4" />
+                      <p className="text-green-500 text-sm">No wait</p>
+                    </>
+                  ) : (
+                    <>
+                      <ArrowUp className="text-orange-500 w-4 h-4" />
+                      <p className="text-orange-500 text-sm">{queueMetrics.queueLength} waiting</p>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
