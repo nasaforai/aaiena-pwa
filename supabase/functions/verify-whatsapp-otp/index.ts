@@ -6,6 +6,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Normalize phone number to remove '+' prefix for consistent storage
+function normalizePhone(phone: string): string {
+  return phone.startsWith('+') ? phone.substring(1) : phone;
+}
+
 serve(async (req) => {
   console.log('=== VERIFY-WHATSAPP-OTP EDGE FUNCTION INVOKED ===');
   console.log('Request method:', req.method);
@@ -85,11 +90,12 @@ serve(async (req) => {
 
     // Try to create the user - simpler approach
     console.log('=== USER CREATION PHASE ===');
-    console.log('Attempting to create user for phone:', phone);
+    const normalizedPhone = normalizePhone(phone);
+    console.log('Attempting to create user for phone:', phone, 'normalized:', normalizedPhone);
     const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
-      phone,
+      phone: normalizedPhone,
       phone_confirm: true,
-      user_metadata: { phone }
+      user_metadata: { phone: normalizedPhone }
     });
     console.log('CreateUser response - Data:', !!newUser, 'Error:', createError?.code || 'none');
 
@@ -114,7 +120,16 @@ serve(async (req) => {
       }
       
       console.log('Total users in system:', usersData.users.length);
-      const existingUser = usersData.users.find(u => u.phone === phone);
+      
+      // Normalize phone for comparison
+      const normalizedPhone = normalizePhone(phone);
+      console.log('Normalized phone for lookup:', normalizedPhone);
+      
+      // Try to find user with either format
+      const existingUser = usersData.users.find(u => {
+        const userPhone = normalizePhone(u.phone || '');
+        return userPhone === normalizedPhone;
+      });
       
       if (!existingUser) {
         console.error('User not found despite phone_exists error - this should not happen!');
