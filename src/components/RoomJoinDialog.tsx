@@ -72,8 +72,22 @@ export const RoomJoinDialog: React.FC<RoomJoinDialogProps> = ({
       setQueueRoom(room);
       setShowQueueDialog(true);
     } else {
-      // Room is available
+      // Room is available - book immediately without phone number
       setSelectedRoom(room);
+      setDialogState("checking");
+      
+      const result = await createSession(room.id, undefined, user?.id);
+      
+      if (result.success) {
+        setDialogState("confirmed");
+        setTimeout(() => {
+          onClose();
+          setDialogState("form");
+          setSelectedRoom(null);
+        }, 2000);
+      } else {
+        setDialogState("form");
+      }
     }
   };
 
@@ -202,59 +216,6 @@ export const RoomJoinDialog: React.FC<RoomJoinDialogProps> = ({
                 </>
               )}
 
-              {dialogState === "form" && selectedRoom && (
-                <>
-                  {/* Header */}
-                  <div className="p-6 border-b">
-                    <h2 className="text-xl font-semibold text-gray-900">Confirm Booking</h2>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Room {selectedRoom.room_number} • 5 minute session
-                    </p>
-                  </div>
-
-                  {/* Form Content */}
-                  <div className="p-6 space-y-4">
-                    {/* Phone Number */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Phone Number
-                      </label>
-                      <div className="flex gap-2">
-                        <select className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm w-20">
-                          <option>+92</option>
-                        </select>
-                        <Input
-                          value={phoneNumber}
-                          onChange={(e) => setPhoneNumber(e.target.value)}
-                          className="flex-1"
-                          placeholder="Enter your number"
-                        />
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1.5">
-                        We'll notify you via WhatsApp
-                      </p>
-                    </div>
-
-                    {/* Buttons */}
-                    <div className="space-y-2 pt-2">
-                      <Button
-                        onClick={handleConfirmRoom}
-                        disabled={!phoneNumber.trim() || actionLoading}
-                        className="w-full py-5 rounded-lg"
-                      >
-                        {actionLoading ? 'Booking...' : 'Confirm Booking'}
-                      </Button>
-                      <Button
-                        onClick={() => setSelectedRoom(null)}
-                        variant="ghost"
-                        className="w-full py-5 rounded-lg"
-                      >
-                        Back
-                      </Button>
-                    </div>
-                  </div>
-                </>
-              )}
 
               {dialogState === "checking" && (
                 <div className="p-12 text-center">

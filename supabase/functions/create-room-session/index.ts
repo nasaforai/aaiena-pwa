@@ -7,7 +7,7 @@ const corsHeaders = {
 
 interface CreateSessionRequest {
   roomId: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   userId?: string;
 }
 
@@ -27,9 +27,9 @@ Deno.serve(async (req) => {
       }
     );
 
-    const { roomId, phoneNumber, userId }: CreateSessionRequest = await req.json();
+    const { roomId, phoneNumber = '', userId }: CreateSessionRequest = await req.json();
 
-    console.log('Creating room session:', { roomId, phoneNumber, userId });
+    console.log('Creating room session:', { roomId, phoneNumber: phoneNumber || 'none', userId });
 
     // Check if room is available (no active session)
     const { data: existingSession, error: checkError } = await supabaseClient

@@ -6,7 +6,7 @@ export function useRoomSession() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const createSession = async (roomId: string, phoneNumber: string, userId?: string) => {
+  const createSession = async (roomId: string, phoneNumber?: string, userId?: string) => {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-room-session', {
