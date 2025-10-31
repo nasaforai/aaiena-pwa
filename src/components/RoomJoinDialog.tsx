@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Check, Clock, Loader2 } from "lucide-react";
+import { Check, Clock, Loader2, Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRooms, Room } from "@/hooks/useRooms";
 import { useRoomSession } from "@/hooks/useRoomSession";
 import { RoomQueueDialog } from "./RoomQueueDialog";
+import { useUserQueueStatus } from "@/hooks/useUserQueueStatus";
 
 interface RoomJoinDialogProps {
   isJoinDialogOpen?: boolean;
@@ -35,6 +36,14 @@ export const RoomJoinDialog: React.FC<RoomJoinDialogProps> = ({
   const { user } = useAuth();
   const { rooms, loading: roomsLoading, isRoomOccupied, getTimeRemaining } = useRooms();
   const { createSession, joinQueue, loading: actionLoading } = useRoomSession();
+  const { queueStatuses } = useUserQueueStatus(user?.id);
+
+  // Helper function to convert number to ordinal
+  const getOrdinal = (n: number): string => {
+    const s = ["th", "st", "nd", "rd"];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  };
 
   // Update countdown timers for occupied rooms
   useEffect(() => {
@@ -166,6 +175,24 @@ export const RoomJoinDialog: React.FC<RoomJoinDialogProps> = ({
                     </p>
                   </div>
 
+                  {/* Queue Status Banner */}
+                  {queueStatuses.length > 0 && (
+                    <div className="mx-6 mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 mt-0.5">
+                          <Bell className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          {queueStatuses.map((status, index) => (
+                            <p key={status.queueId} className={`text-sm font-medium text-blue-900 ${index > 0 ? 'mt-1' : ''}`}>
+                              You are {getOrdinal(status.position)} in queue for Room {status.roomNumber}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Form Content */}
                   <div className="p-6">
                     {roomsLoading ? (
@@ -178,19 +205,28 @@ export const RoomJoinDialog: React.FC<RoomJoinDialogProps> = ({
                           {rooms.map((room) => {
                             const occupied = isRoomOccupied(room.id);
                             const timeLeft = timeRemaining[room.id] || 0;
+                            const inQueue = queueStatuses.some(q => q.roomId === room.id);
                             
                             return (
                               <button
                                 key={room.id}
                                 onClick={() => handleRoomClick(room)}
                                 className={`relative p-3 rounded-lg border transition-all ${
-                                  occupied
+                                  inQueue
+                                    ? 'bg-blue-50 border-blue-300 text-blue-700 hover:bg-blue-100'
+                                    : occupied
                                     ? 'bg-red-50 border-red-200 text-red-700 hover:bg-red-100'
                                     : 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100'
                                 }`}
                               >
                                 <div className="text-sm font-medium">{room.room_number}</div>
-                                {occupied && timeLeft > 0 && (
+                                {inQueue && (
+                                  <div className="text-xs mt-1 flex items-center justify-center gap-0.5 opacity-70">
+                                    <Bell className="h-2.5 w-2.5" />
+                                    In Queue
+                                  </div>
+                                )}
+                                {occupied && timeLeft > 0 && !inQueue && (
                                   <div className="text-xs mt-1 flex items-center justify-center gap-0.5 opacity-70">
                                     <Clock className="h-2.5 w-2.5" />
                                     {formatTime(timeLeft)}
@@ -200,7 +236,7 @@ export const RoomJoinDialog: React.FC<RoomJoinDialogProps> = ({
                             );
                           })}
                         </div>
-                        <div className="flex items-center gap-4 mt-4 text-xs text-gray-500">
+                        <div className="flex items-center gap-3 mt-4 text-xs text-gray-500 flex-wrap">
                           <div className="flex items-center gap-1.5">
                             <div className="w-3 h-3 rounded bg-green-200 border border-green-300"></div>
                             <span>Available</span>
@@ -208,6 +244,10 @@ export const RoomJoinDialog: React.FC<RoomJoinDialogProps> = ({
                           <div className="flex items-center gap-1.5">
                             <div className="w-3 h-3 rounded bg-red-200 border border-red-300"></div>
                             <span>Occupied</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-3 h-3 rounded bg-blue-200 border border-blue-300"></div>
+                            <span>In Queue</span>
                           </div>
                         </div>
                       </>
