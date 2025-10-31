@@ -478,7 +478,7 @@ export default function Profile() {
                   Add your body measurements to get personalized size recommendations
                 </p>
                 <Button
-                  onClick={() => navigate('/fit-profile')}
+                  onClick={() => navigate('/update-profile')}
                   className="bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   Complete Profile
