@@ -145,26 +145,22 @@ export const RoomJoinDialog: React.FC<RoomJoinDialogProps> = ({
               {dialogState === "form" && !selectedRoom && (
                 <>
                   {/* Header */}
-                  <div className="bg-gradient-to-l from-[#DBACFF] to-[#6A00FF] text-white p-4 relative">
-                    <h2 className="font-bold text-lg">You're In Line!</h2>
-                    <p className="text-sm opacity-90">
-                      Choose an available room to get started.
+                  <div className="p-6 border-b">
+                    <h2 className="text-xl font-semibold text-gray-900">Choose Your Room</h2>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Select an available room to begin
                     </p>
                   </div>
 
                   {/* Form Content */}
-                  <div className="px-4 py-6 space-y-4">
-                    {/* Room Selection */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Choose Your Room
-                      </label>
-                      {roomsLoading ? (
-                        <div className="flex justify-center py-8">
-                          <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-3 gap-3">
+                  <div className="p-6">
+                    {roomsLoading ? (
+                      <div className="flex justify-center py-12">
+                        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                      </div>
+                    ) : (
+                      <>
+                        <div className="grid grid-cols-3 gap-2">
                           {rooms.map((room) => {
                             const occupied = isRoomOccupied(room.id);
                             const timeLeft = timeRemaining[room.id] || 0;
@@ -173,16 +169,16 @@ export const RoomJoinDialog: React.FC<RoomJoinDialogProps> = ({
                               <button
                                 key={room.id}
                                 onClick={() => handleRoomClick(room)}
-                                className={`relative px-4 py-6 rounded-lg border-2 transition-all text-white font-semibold ${
+                                className={`relative p-3 rounded-lg border transition-all ${
                                   occupied
-                                    ? 'bg-red-500 border-red-600 hover:bg-red-600'
-                                    : 'bg-green-500 border-green-600 hover:bg-green-600'
+                                    ? 'bg-red-50 border-red-200 text-red-700 hover:bg-red-100'
+                                    : 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100'
                                 }`}
                               >
-                                <div className="text-lg">{room.room_number}</div>
+                                <div className="text-sm font-medium">{room.room_number}</div>
                                 {occupied && timeLeft > 0 && (
-                                  <div className="text-xs mt-1 flex items-center justify-center gap-1">
-                                    <Clock className="h-3 w-3" />
+                                  <div className="text-xs mt-1 flex items-center justify-center gap-0.5 opacity-70">
+                                    <Clock className="h-2.5 w-2.5" />
                                     {formatTime(timeLeft)}
                                   </div>
                                 )}
@@ -190,11 +186,18 @@ export const RoomJoinDialog: React.FC<RoomJoinDialogProps> = ({
                             );
                           })}
                         </div>
-                      )}
-                      <p className="text-xs text-gray-500 mt-2">
-                        Green = Available, Red = Occupied
-                      </p>
-                    </div>
+                        <div className="flex items-center gap-4 mt-4 text-xs text-gray-500">
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-3 h-3 rounded bg-green-200 border border-green-300"></div>
+                            <span>Available</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-3 h-3 rounded bg-red-200 border border-red-300"></div>
+                            <span>Occupied</span>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </>
               )}
@@ -202,91 +205,78 @@ export const RoomJoinDialog: React.FC<RoomJoinDialogProps> = ({
               {dialogState === "form" && selectedRoom && (
                 <>
                   {/* Header */}
-                  <div className="bg-gradient-to-l from-[#DBACFF] to-[#6A00FF] text-white p-4 relative">
-                    <h2 className="font-bold text-lg">Confirm Your Booking</h2>
-                    <p className="text-sm opacity-90">
-                      Room {selectedRoom.room_number} - 5 minute session
+                  <div className="p-6 border-b">
+                    <h2 className="text-xl font-semibold text-gray-900">Confirm Booking</h2>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Room {selectedRoom.room_number} • 5 minute session
                     </p>
                   </div>
 
                   {/* Form Content */}
-                  <div className="px-4 py-6 space-y-4">
+                  <div className="p-6 space-y-4">
                     {/* Phone Number */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Your Phone Number
+                        Phone Number
                       </label>
-                      <div className="flex space-x-2">
-                        <select className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm">
+                      <div className="flex gap-2">
+                        <select className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm w-20">
                           <option>+92</option>
                         </select>
                         <Input
                           value={phoneNumber}
                           onChange={(e) => setPhoneNumber(e.target.value)}
                           className="flex-1"
-                          placeholder="Phone number"
+                          placeholder="Enter your number"
                         />
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        We'll text you when your session starts or if you're in queue.
+                      <p className="text-xs text-gray-500 mt-1.5">
+                        We'll notify you via WhatsApp
                       </p>
                     </div>
 
-                    {/* Confirm Button */}
-                    <div className="space-y-2">
+                    {/* Buttons */}
+                    <div className="space-y-2 pt-2">
                       <Button
                         onClick={handleConfirmRoom}
                         disabled={!phoneNumber.trim() || actionLoading}
-                        className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800"
+                        className="w-full py-5 rounded-lg"
                       >
-                        {actionLoading ? 'Booking...' : 'Confirm Room'}
+                        {actionLoading ? 'Booking...' : 'Confirm Booking'}
                       </Button>
                       <Button
                         onClick={() => setSelectedRoom(null)}
-                        variant="outline"
-                        className="w-full py-3 rounded-xl font-medium"
+                        variant="ghost"
+                        className="w-full py-5 rounded-lg"
                       >
-                        Choose Different Room
+                        Back
                       </Button>
-                      <p className="text-xs text-gray-500 text-center">
-                        Your room will be reserved for 5 minutes after confirmation
-                      </p>
                     </div>
                   </div>
                 </>
               )}
 
               {dialogState === "checking" && (
-                <div className="p-8 text-center">
-                  <div className="mb-6">
-                    <Loader2 className="w-12 h-12 mx-auto mb-4 text-purple-500 animate-spin" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    Booking your room...
-                  </h3>
-                  <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                    <div className="bg-purple-500 h-2 rounded-full w-2/3 animate-pulse"></div>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    "In Aaaina, we help you save your time."
-                  </p>
+                <div className="p-12 text-center">
+                  <Loader2 className="w-8 h-8 mx-auto mb-4 text-gray-400 animate-spin" />
+                  <p className="text-sm text-gray-600">Booking your room...</p>
                 </div>
               )}
 
               {dialogState === "confirmed" && (
                 <div className="p-8 text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-green-500 rounded-full flex items-center justify-center">
-                    <Check className="w-8 h-8 text-white" />
+                  <div className="w-12 h-12 mx-auto mb-3 bg-green-100 rounded-full flex items-center justify-center">
+                    <Check className="w-6 h-6 text-green-600" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    Room Booked Successfully!
+                  <h3 className="text-lg font-semibold mb-1">
+                    Booking Confirmed
                   </h3>
-                  <p className="text-sm text-gray-600 mb-6">
-                    You have 5 minutes. We'll notify you about your room.
+                  <p className="text-sm text-gray-500 mb-6">
+                    5 minutes reserved • Check WhatsApp for updates
                   </p>
                   <Button
                     onClick={handleContinueShopping}
-                    className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800"
+                    className="w-full py-5 rounded-lg"
                   >
                     Continue Shopping
                   </Button>
