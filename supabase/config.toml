@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.process-room-queue]
 verify_jwt = false
+
+[functions.sizing-api-proxy]
+verify_jwt = false

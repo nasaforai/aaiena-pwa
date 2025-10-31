@@ -4,6 +4,8 @@
 
 // API Base URL - adjust as needed
 //const API_BASE_URL = 'sizing-api-v2.ap-south-1.elasticbeanstalk.com';
+import { supabase } from '@/integrations/supabase/client';
+
 const API_BASE_URL = 'http://sizing-api.duckdns.org';
 //const API_BASE_URL = 'http://localhost:8000';
 
@@ -271,27 +273,22 @@ export async function extractMeasurementsFromUrls(
       ...(bodyType !== null && { body_type: bodyType as any }), // For females
     };
 
-    console.log('Sending body measurements request:', requestData);
+    console.log('Sending body measurements request via edge function:', requestData);
 
-    const response = await fetch(`${API_BASE_URL}/body-measurements-from-urls`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestData),
+    const { data, error } = await supabase.functions.invoke('sizing-api-proxy', {
+      body: {
+        endpoint: '/body-measurements-from-urls',
+        body: requestData,
+        method: 'POST'
+      }
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      try {
-        const errorData = JSON.parse(errorText);
-        throw new Error(errorData.detail || 'Failed to extract body measurements');
-      } catch {
-        throw new Error(`API request failed with status ${response.status}: ${errorText}`);
-      }
+    if (error) {
+      console.error('Edge function error:', error);
+      throw new Error(`Edge function failed: ${error.message}`);
     }
 
-    const result: BodyMeasurementsFromUrlsResponse = await response.json();
+    const result: BodyMeasurementsFromUrlsResponse = data;
     console.log("Body measurements API response:", result);
 
     // Check if response was successful
@@ -346,36 +343,22 @@ export async function tryVirtually(
       size_chart: sizeChart
     };
 
-    console.log("Sending try-virtually request:", JSON.stringify(request, null, 2));
+    console.log("Sending try-virtually request via edge function:", JSON.stringify(request, null, 2));
 
-    const response = await fetch(`${API_BASE_URL}/try-virtually`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(request),
+    const { data, error } = await supabase.functions.invoke('sizing-api-proxy', {
+      body: {
+        endpoint: '/try-virtually',
+        body: request,
+        method: 'POST'
+      }
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`API error (${response.status}):`, errorText);
-      
-      try {
-        const errorData = JSON.parse(errorText);
-        if (errorData.detail) {
-          console.error("Error details:", errorData.detail);
-          throw new Error(typeof errorData.detail === 'string' 
-            ? errorData.detail 
-            : JSON.stringify(errorData.detail));
-        } else {
-          throw new Error(JSON.stringify(errorData));
-        }
-      } catch (parseError) {
-        throw new Error(`API request failed with status ${response.status}: ${errorText}`);
-      }
+    if (error) {
+      console.error('Edge function error:', error);
+      throw new Error(`Edge function failed: ${error.message}`);
     }
 
-    const result = await response.json();
+    const result = data;
     console.log("API response:", JSON.stringify(result, null, 2));
     return result;
   } catch (error) {
@@ -402,36 +385,22 @@ export async function getSizeRecommendations(
       size_chart: sizeChart
     };
 
-    console.log("Sending recommendation request:", JSON.stringify(request, null, 2));
+    console.log("Sending recommendation request via edge function:", JSON.stringify(request, null, 2));
 
-    const response = await fetch(`${API_BASE_URL}/recommendations`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(request),
+    const { data, error } = await supabase.functions.invoke('sizing-api-proxy', {
+      body: {
+        endpoint: '/recommendations',
+        body: request,
+        method: 'POST'
+      }
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`API error (${response.status}):`, errorText);
-      
-      try {
-        const errorData = JSON.parse(errorText);
-        if (errorData.detail) {
-          console.error("Error details:", errorData.detail);
-          throw new Error(typeof errorData.detail === 'string' 
-            ? errorData.detail 
-            : JSON.stringify(errorData.detail));
-        } else {
-          throw new Error(JSON.stringify(errorData));
-        }
-      } catch (parseError) {
-        throw new Error(`API request failed with status ${response.status}: ${errorText}`);
-      }
+    if (error) {
+      console.error('Edge function error:', error);
+      throw new Error(`Edge function failed: ${error.message}`);
     }
 
-    const result = await response.json();
+    const result = data;
     console.log("API response:", JSON.stringify(result, null, 2));
     return result;
   } catch (error) {
