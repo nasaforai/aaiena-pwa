@@ -172,29 +172,6 @@ export default function Store() {
             <p className="text-2xl font-bold">Moderate</p>
           </div>
 
-          {isAuthenticated && (
-            <>
-              {/* Notification Toggle */}
-              <div className="flex items-center justify-between mb-1 px-10 py-4 rounded-lg">
-                <span className="font-medium text-gray-900 text-md">
-                  Notify me when it's my turn
-                </span>
-                <button
-                  onClick={() => setNotifyToggle(!notifyToggle)}
-                  className={`w-12 h-6 rounded-full transition-colors ${
-                    notifyToggle ? "bg-purple-600" : "bg-gray-300"
-                  }`}
-                >
-                  <div
-                    className={`w-4 h-4 bg-white rounded-full shadow transition-transform ${
-                      notifyToggle ? "translate-x-7" : "translate-x-1"
-                    }`}
-                  ></div>
-                </button>
-              </div>
-            </>
-          )}
-
           <div className="p-4 flex flex-col gap-2">
             <div className="flex gap-4">
               <div className="flex flex-col shadow-lg rounded-xl bg-white p-4 gap-2 flex-1">
