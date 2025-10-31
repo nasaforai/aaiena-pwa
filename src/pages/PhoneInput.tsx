@@ -8,12 +8,16 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useBrand } from '@/contexts/BrandContext';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function PhoneInput() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { currentBrand } = useBrand();
+  const isMobile = useIsMobile();
+  const { deviceType } = useAuth();
   
   const [phone, setPhone] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -102,39 +106,43 @@ export default function PhoneInput() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
-        {/* Back Button */}
-        <button
-          onClick={handleBack}
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </button>
+    <div className="bg-white flex lg:max-w-sm w-full flex-col overflow-hidden mx-auto min-h-screen">
+      {/* Header */}
+      {!isMobile && (
+        <div className="flex items-center justify-between p-4">
+          <button
+            onClick={handleBack}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="w-6 h-6 text-gray-700" />
+          </button>
+        </div>
+      )}
 
-        {/* Header */}
-        <div className="text-center space-y-2">
+      {/* Content */}
+      <div className="flex-1 px-6 py-8">
+        <div className="text-center mb-8">
           {currentBrand?.logo_url && (
             <img
               src={currentBrand.logo_url}
               alt={currentBrand.name}
-              className="h-12 mx-auto mb-4"
+              className="h-12 mx-auto mb-6"
             />
           )}
-          <div className="flex items-center justify-center gap-2 text-primary">
-            <Phone className="h-6 w-6" />
-            <h1 className="text-2xl font-bold">Enter Phone Number</h1>
-          </div>
-          <p className="text-muted-foreground">
-            Enter your phone number to receive a verification code via WhatsApp
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Enter Phone Number
+          </h1>
+          <p className="text-gray-600">
+            We'll send you a verification code via WhatsApp
           </p>
         </div>
 
-        {/* Phone Input */}
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="phone" className="text-sm font-medium">
+        {/* Phone Input Form */}
+        <div className="space-y-6">
+          <div>
+            <label className={`block font-medium text-gray-700 mb-2 ${
+              deviceType === 'kiosk' ? 'text-lg mb-3' : 'text-sm'
+            }`}>
               Phone Number
             </label>
             <PhoneInputComponent
@@ -142,10 +150,11 @@ export default function PhoneInput() {
               defaultCountry="IN"
               value={phone}
               onChange={(value) => setPhone(value || '')}
-              className="phone-input"
+              className={`phone-input w-full ${deviceType === 'kiosk' ? 'text-lg' : ''}`}
               placeholder="Enter phone number"
+              disabled={isLoading}
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-gray-500 mt-2">
               Include country code (e.g., +91 for India, +1 for US)
             </p>
           </div>
@@ -153,13 +162,23 @@ export default function PhoneInput() {
           <Button
             onClick={handleSendOTP}
             disabled={isLoading || !phone}
-            className="w-full"
-            size="lg"
+            className={`w-full bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 disabled:opacity-50 ${
+              deviceType === 'kiosk' ? 'py-4 text-lg' : 'py-3'
+            }`}
           >
             {isLoading ? 'Sending...' : 'Send OTP via WhatsApp'}
           </Button>
 
-          <p className="text-xs text-center text-muted-foreground">
+          {isMobile && (
+            <button
+              onClick={handleBack}
+              className="w-full text-center text-gray-600 text-sm"
+            >
+              Back to Sign In
+            </button>
+          )}
+
+          <p className="text-xs text-center text-gray-500">
             By continuing, you agree to our Terms of Service and Privacy Policy
           </p>
         </div>
