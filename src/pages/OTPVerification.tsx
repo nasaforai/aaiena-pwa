@@ -122,19 +122,51 @@ export default function OTPVerification() {
       
       if (method === 'whatsapp') {
         // WhatsApp OTP verification via edge function
+        console.log('=== CALLING VERIFY-WHATSAPP-OTP EDGE FUNCTION ===');
+        console.log('Phone:', phone);
+        console.log('OTP:', otp);
+        console.log('OTP length:', otp.length);
+        
         const { data, error } = await supabase.functions.invoke('verify-whatsapp-otp', {
           body: { phone, otp }
         });
 
-        if (error || !data?.success) {
-          console.error('WhatsApp OTP verification error:', error || data?.error);
+        console.log('=== EDGE FUNCTION RESPONSE ===');
+        console.log('Data:', data);
+        console.log('Error:', error);
+
+        if (error) {
+          console.error('WhatsApp verification error:', error);
+          
+          // Check if it's a network error
+          if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+            toast({
+              title: "Connection Error",
+              description: "Could not reach verification service. Please check your connection.",
+              variant: "destructive",
+            });
+            return;
+          }
+          
           toast({
             title: "Verification Failed",
-            description: data?.error || error?.message || "Invalid verification code. Please try again.",
+            description: error.message || "Failed to verify code. Please try again.",
             variant: "destructive",
           });
           return;
         }
+
+        if (!data?.success || !data?.session) {
+          console.error('Verification failed - Success:', data?.success, 'Has session:', !!data?.session);
+          toast({
+            title: "Verification Failed",
+            description: data?.error || "Invalid verification code",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        console.log('Verification successful! Setting session...');
 
         // Set the session FIRST and wait for it to complete
         if (data.session) {
